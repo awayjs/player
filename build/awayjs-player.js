@@ -1,16 +1,13 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"awayjs-player\\lib\\fl\\adapters\\MovieClipAdapter":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"awayjs-player\\lib\\fl\\adapters\\AS2MovieClipAdapter":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var SymbolAdapter = require("awayjs-player/lib/fl/adapters/SymbolAdapter");
-/**
- * MovieClip
- */
-var MovieClipAdapter = (function (_super) {
-    __extends(MovieClipAdapter, _super);
+var AS2SymbolAdapter = require("awayjs-player/lib/fl/adapters/AS2SymbolAdapter");
+var AS2MovieClipAdapter = (function (_super) {
+    __extends(AS2MovieClipAdapter, _super);
     // translate to scripts:
     /*public onData: Function;
     public onEnterFrame: Function;
@@ -19,16 +16,98 @@ var MovieClipAdapter = (function (_super) {
     public onMouseMove: Function;
     public onMouseUp: Function;
     public onUnload: Function;*/
-    function MovieClipAdapter(adaptee) {
+    function AS2MovieClipAdapter(adaptee) {
         _super.call(this, adaptee);
         this.currentFrameIndex = -1;
     }
-    return MovieClipAdapter;
-})(SymbolAdapter);
-module.exports = MovieClipAdapter;
+    return AS2MovieClipAdapter;
+})(AS2SymbolAdapter);
+module.exports = AS2MovieClipAdapter;
 
 
-},{"awayjs-player/lib/fl/adapters/SymbolAdapter":undefined}],"awayjs-player\\lib\\fl\\adapters\\SymbolAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/fl/adapters/AS2SymbolAdapter":undefined}],"awayjs-player\\lib\\fl\\adapters\\AS2SymbolAdapter":[function(require,module,exports){
+var AS2SymbolAdapter = (function () {
+    function AS2SymbolAdapter(adaptee) {
+        this._adaptee = adaptee;
+    }
+    Object.defineProperty(AS2SymbolAdapter.prototype, "adaptee", {
+        get: function () {
+            return this._adaptee;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_rotation", {
+        get: function () {
+            return this._adaptee.rotationZ;
+        },
+        set: function (value) {
+            this._adaptee.rotationZ = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_x", {
+        get: function () {
+            return this._adaptee.x;
+        },
+        set: function (value) {
+            this._adaptee.x = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_y", {
+        get: function () {
+            return this._adaptee.y;
+        },
+        set: function (value) {
+            this._adaptee.y = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_xscale", {
+        get: function () {
+            return this._adaptee.scaleX;
+        },
+        set: function (value) {
+            this._adaptee.scaleX = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_yscale", {
+        get: function () {
+            return this._adaptee.scaleY;
+        },
+        set: function (value) {
+            this._adaptee.scaleY = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_parent", {
+        get: function () {
+            var parentMC = this._adaptee.parent;
+            return parentMC.adapter;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2SymbolAdapter.prototype.getDepth = function () {
+        return this._adaptee.z;
+    };
+    return AS2SymbolAdapter;
+})();
+module.exports = AS2SymbolAdapter;
+
+
+},{}],"awayjs-player\\lib\\fl\\adapters\\MovieClipAdapter":[function(require,module,exports){
+
+
+
+},{}],"awayjs-player\\lib\\fl\\adapters\\SymbolAdapter":[function(require,module,exports){
 var SymbolAdapter = (function () {
     function SymbolAdapter(adaptee) {
         this.adaptee = adaptee;
@@ -107,8 +186,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var AssetType = require("awayjs-core/lib/library/AssetType");
-var Symbol = require("awayjs-player/lib/fl/display/Symbol");
-var MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
+var DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 var MovieClip = (function (_super) {
     __extends(MovieClip, _super);
     function MovieClip() {
@@ -124,9 +202,19 @@ var MovieClip = (function (_super) {
         this._duration = 0;
         this._playMode = 1;
     }
-    MovieClip.prototype.createAdapter = function () {
-        return new MovieClipAdapter(this);
-    };
+    Object.defineProperty(MovieClip.prototype, "adapter", {
+        // adapter is used to provide MovieClip to scripts taken from different platforms
+        // TODO: Perhaps adapters should be created dynamically whenever needed, rather than storing them
+        get: function () {
+            return this._adapter;
+        },
+        // setter typically managed by factor
+        set: function (value) {
+            this._adapter = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MovieClip.prototype, "speed", {
         get: function () {
             return this._speed;
@@ -390,43 +478,30 @@ var MovieClip = (function (_super) {
         }
     };
     return MovieClip;
-})(Symbol);
+})(DisplayObjectContainer);
 module.exports = MovieClip;
 
 
-},{"awayjs-core/lib/library/AssetType":undefined,"awayjs-player/lib/fl/adapters/MovieClipAdapter":undefined,"awayjs-player/lib/fl/display/Symbol":undefined}],"awayjs-player\\lib\\fl\\display\\Symbol":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-/**
- * Base class for anything containing a AS2 Flash object (MovieClip or Button)
- */
-var Symbol = (function (_super) {
-    __extends(Symbol, _super);
-    function Symbol() {
-        _super.call(this);
-        this._adapter = this.createAdapter();
+},{"awayjs-core/lib/library/AssetType":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player\\lib\\fl\\factories\\AS2SceneGraphFactory":[function(require,module,exports){
+var AS2MovieClipAdapter = require("awayjs-player/lib/fl/adapters/AS2MovieClipAdapter");
+var MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+var AS2SceneGraphFactory = (function () {
+    function AS2SceneGraphFactory() {
     }
-    Symbol.prototype.createAdapter = function () {
-        throw new Error('This method is abstract');
+    AS2SceneGraphFactory.prototype.createMovieClip = function () {
+        var mc = new MovieClip();
+        mc.adapter = new AS2MovieClipAdapter(mc);
+        return mc;
     };
-    Object.defineProperty(Symbol.prototype, "adapter", {
-        get: function () {
-            return this._adapter;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return Symbol;
-})(DisplayObjectContainer);
-module.exports = Symbol;
+    return AS2SceneGraphFactory;
+})();
 
 
-},{"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player\\lib\\fl\\timeline\\CommandPropsBase":[function(require,module,exports){
+},{"awayjs-player/lib/fl/adapters/AS2MovieClipAdapter":undefined,"awayjs-player/lib/fl/display/MovieClip":undefined}],"awayjs-player\\lib\\fl\\factories\\TimelineSceneGraphFactory":[function(require,module,exports){
+
+
+
+},{}],"awayjs-player\\lib\\fl\\timeline\\CommandPropsBase":[function(require,module,exports){
 /**
  * BaseClass for CommandProperties. Should not be instantiated directly.
  */
@@ -451,7 +526,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
+var CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
 var CommandPropsDisplayObject = (function (_super) {
     __extends(CommandPropsDisplayObject, _super);
     function CommandPropsDisplayObject() {
@@ -534,7 +609,7 @@ var CommandPropsDisplayObject = (function (_super) {
 module.exports = CommandPropsDisplayObject;
 
 
-},{"awayjs-display/lib/entities/timelinedata/CommandPropsBase":undefined}],"awayjs-player\\lib\\fl\\timeline\\FrameCommand":[function(require,module,exports){
+},{"awayjs-player/lib/fl/timeline/CommandPropsBase":undefined}],"awayjs-player\\lib\\fl\\timeline\\FrameCommand":[function(require,module,exports){
 /**
  * FrameCommand associates a TimeLineobject with CommandProps.
  * CommandProps can be of different class, depending on the type of Asset that the TimeLineObject references to.

@@ -2,13 +2,11 @@ import IAsset = require("awayjs-core/lib/library/IAsset");
 import AssetType = require("awayjs-core/lib/library/AssetType");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 
-import Symbol = require("awayjs-player/lib/fl/display/Symbol");
-import SymbolAdapter = require("awayjs-player/lib/fl/adapters/SymbolAdapter");
 import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
 import TimelineObject = require("awayjs-player/lib/fl/timeline/TimelineObject");
 import TimelineFrame = require("awayjs-player/lib/fl/timeline/TimelineFrame");
 
-class MovieClip extends Symbol
+class MovieClip extends DisplayObjectContainer
 {
     // pool of available TimeLineObject-objects for this timeline.
     // Each TImeLineObject hold reference to a pre-instanced (cloned) IAsset,
@@ -28,6 +26,8 @@ class MovieClip extends Symbol
     private _playMode:number;// 0: normal, 1: loop, 2: pingpong
     private _duration:number = 0;
 
+    private _adapter : MovieClipAdapter;
+
     constructor()
     {
         super();
@@ -42,11 +42,18 @@ class MovieClip extends Symbol
         this._playMode = 1;
     }
 
-    protected createAdapter():SymbolAdapter
+    // adapter is used to provide MovieClip to scripts taken from different platforms
+    // TODO: Perhaps adapters should be created dynamically whenever needed, rather than storing them
+    public get adapter() : MovieClipAdapter
     {
-        return new MovieClipAdapter(this);
+        return this._adapter;
     }
 
+    // setter typically managed by factor
+    public set adapter(value : MovieClipAdapter)
+    {
+        this._adapter = value;
+    }
 
     public get speed():number
     {

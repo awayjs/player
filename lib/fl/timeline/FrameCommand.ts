@@ -1,5 +1,5 @@
-import CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
-import TimeLineObject = require("awayjs-display/lib/entities/timelinedata/TimeLineObject");
+import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
+import TimeLineObject = require("awayjs-player/lib/fl/timeline/TimelineObject");
 
 /**
  * FrameCommand associates a TimeLineobject with CommandProps.

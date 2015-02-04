@@ -2,10 +2,10 @@ import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 
-import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
+import AS2MovieClipAdapter = require("awayjs-player/lib/fl/adapters/AS2MovieClipAdapter");
 import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 
-class SymbolAdapter
+class AS2SymbolAdapter
 {
     // _alpha
     // blendMode
@@ -49,73 +49,78 @@ class SymbolAdapter
     public onRollOver : Function;
     public onSetFocus : Function;*/
 
-    private adaptee : DisplayObjectContainer;
+    private _adaptee : DisplayObjectContainer;
 
     constructor(adaptee : DisplayObjectContainer)
     {
-        this.adaptee = adaptee;
+        this._adaptee = adaptee;
+    }
+
+    get adaptee() : DisplayObjectContainer
+    {
+        return this._adaptee;
     }
 
     get _rotation() : number
     {
-        return this.adaptee.rotationZ;
+        return this._adaptee.rotationZ;
     }
 
     set _rotation(value : number)
     {
-        this.adaptee.rotationZ = value;
+        this._adaptee.rotationZ = value;
     }
 
     get _x() : number
     {
-        return this.adaptee.x;
+        return this._adaptee.x;
     }
 
     set _x(value : number)
     {
-        this.adaptee.x = value;
+        this._adaptee.x = value;
     }
 
     get _y() : number
     {
-        return this.adaptee.y;
+        return this._adaptee.y;
     }
 
     set _y(value : number)
     {
-        this.adaptee.y = value;
+        this._adaptee.y = value;
     }
 
     get _xscale() : number
     {
-        return this.adaptee.scaleX;
+        return this._adaptee.scaleX;
     }
 
     set _xscale(value : number)
     {
-        this.adaptee.scaleX = value;
+        this._adaptee.scaleX = value;
     }
 
     set _yscale(value : number)
     {
-        this.adaptee.scaleY = value;
+        this._adaptee.scaleY = value;
     }
 
     get _yscale() : number
     {
-        return this.adaptee.scaleY;
+        return this._adaptee.scaleY;
     }
 
-    get _parent() : MovieClipAdapter
+    get _parent() : AS2MovieClipAdapter
     {
-        var parentMC = <MovieClip>this.adaptee.parent;
-        return <MovieClipAdapter>parentMC.adapter;
+        var parentMC = <MovieClip>this._adaptee.parent;
+        return <AS2MovieClipAdapter>parentMC.adapter;
     }
 
     getDepth() : number
     {
-        return this.adaptee.z;
+        return this._adaptee.z;
     }
 }
 
-export = SymbolAdapter;
+export = AS2SymbolAdapter;

@@ -1,21 +1,26 @@
-declare module "awayjs-player\lib\fl\display\Symbol" {
+declare module "awayjs-player/lib/fl/adapters/MovieClipAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import SymbolAdapter = require("awayjs-player/lib/fl/adapters/SymbolAdapter");
-	/**
-	 * Base class for anything containing a AS2 Flash object (MovieClip or Button)
-	 */
-	class Symbol extends DisplayObjectContainer {
-	    private _adapter;
-	    constructor();
-	    protected createAdapter(): SymbolAdapter;
-	    adapter: SymbolAdapter;
+	interface MovieClipAdapter {
+	    adaptee: DisplayObjectContainer;
 	}
-	export = Symbol;
+	export = MovieClipAdapter;
 	
 }
-declare module "awayjs-player\lib\fl\timeline\TimelineObject" {
+declare module "awayjs-player/lib/fl/timeline/CommandPropsBase" {
+	/**
+	 * BaseClass for CommandProperties. Should not be instantiated directly.
+	 */
+	class CommandPropsBase {
+	    constructor();
+	    deactivate(thisObj: any): void;
+	    apply(thisObj: any, time: number, speed: number): void;
+	}
+	export = CommandPropsBase;
+	
+}
+declare module "awayjs-player/lib/fl/timeline/TimelineObject" {
 	import IAsset = require("awayjs-core/lib/library/IAsset");
-	import CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
+	import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
 	/**
 	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
 	 *  A TimeLineObject basically consists of an objID, and an IAsset.
@@ -39,9 +44,9 @@ declare module "awayjs-player\lib\fl\timeline\TimelineObject" {
 	export = TimeLineObject;
 	
 }
-declare module "awayjs-player\lib\fl\timeline\FrameCommand" {
-	import CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
-	import TimeLineObject = require("awayjs-display/lib/entities/timelinedata/TimeLineObject");
+declare module "awayjs-player/lib/fl/timeline/FrameCommand" {
+	import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
+	import TimeLineObject = require("awayjs-player/lib/fl/timeline/TimelineObject");
 	/**
 	 * FrameCommand associates a TimeLineobject with CommandProps.
 	 * CommandProps can be of different class, depending on the type of Asset that the TimeLineObject references to.
@@ -59,7 +64,7 @@ declare module "awayjs-player\lib\fl\timeline\FrameCommand" {
 	export = FrameCommand;
 	
 }
-declare module "awayjs-player\lib\fl\timeline\TimelineFrame" {
+declare module "awayjs-player/lib/fl/timeline/TimelineFrame" {
 	import FrameCommand = require("awayjs-player/lib/fl/timeline/FrameCommand");
 	/**
 	 * TimelineFrame holds 3 list of FrameCommands
@@ -112,13 +117,13 @@ declare module "awayjs-player\lib\fl\timeline\TimelineFrame" {
 	export = TimelineFrame;
 	
 }
-declare module "awayjs-player\lib\fl\display\MovieClip" {
+declare module "awayjs-player/lib/fl/display/MovieClip" {
 	import IAsset = require("awayjs-core/lib/library/IAsset");
-	import Symbol = require("awayjs-player/lib/fl/display/Symbol");
-	import SymbolAdapter = require("awayjs-player/lib/fl/adapters/SymbolAdapter");
+	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
 	import TimelineObject = require("awayjs-player/lib/fl/timeline/TimelineObject");
 	import TimelineFrame = require("awayjs-player/lib/fl/timeline/TimelineFrame");
-	class MovieClip extends Symbol {
+	class MovieClip extends DisplayObjectContainer {
 	    private _timelineObjs;
 	    private _frames;
 	    private _time;
@@ -129,8 +134,9 @@ declare module "awayjs-player\lib\fl\display\MovieClip" {
 	    private _isInit;
 	    private _playMode;
 	    private _duration;
+	    private _adapter;
 	    constructor();
-	    protected createAdapter(): SymbolAdapter;
+	    adapter: MovieClipAdapter;
 	    speed: number;
 	    fps: number;
 	    assetType: string;
@@ -186,54 +192,72 @@ declare module "awayjs-player\lib\fl\display\MovieClip" {
 	export = MovieClip;
 	
 }
-declare module "awayjs-player\lib\fl\adapters\SymbolAdapter" {
+declare module "awayjs-player/lib/fl/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
-	class SymbolAdapter {
-	    private adaptee;
+	import AS2MovieClipAdapter = require("awayjs-player/lib/fl/adapters/AS2MovieClipAdapter");
+	class AS2SymbolAdapter {
+	    private _adaptee;
 	    constructor(adaptee: DisplayObjectContainer);
+	    adaptee: DisplayObjectContainer;
 	    _rotation: number;
 	    _x: number;
 	    _y: number;
 	    _xscale: number;
 	    _yscale: number;
-	    _parent: MovieClipAdapter;
+	    _parent: AS2MovieClipAdapter;
 	    getDepth(): number;
 	}
-	export = SymbolAdapter;
+	export = AS2SymbolAdapter;
 	
 }
-declare module "awayjs-player\lib\fl\adapters\MovieClipAdapter" {
-	import SymbolAdapter = require("awayjs-player/lib/fl/adapters/SymbolAdapter");
+declare module "awayjs-player/lib/fl/adapters/AS2MovieClipAdapter" {
+	import AS2SymbolAdapter = require("awayjs-player/lib/fl/adapters/AS2SymbolAdapter");
+	import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	/**
-	 * MovieClip
-	 */
-	class MovieClipAdapter extends SymbolAdapter {
+	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
 	    private currentFrameIndex;
 	    constructor(adaptee: DisplayObjectContainer);
 	}
-	export = MovieClipAdapter;
+	export = AS2MovieClipAdapter;
 	
 }
-declare module "awayjs-player\lib\fl\timeline\CommandPropsBase" {
-	/**
-	 * BaseClass for CommandProperties. Should not be instantiated directly.
-	 */
-	class CommandPropsBase {
-	    constructor();
-	    deactivate(thisObj: any): void;
-	    apply(thisObj: any, time: number, speed: number): void;
+declare module "awayjs-player/lib/fl/factories/TimelineSceneGraphFactory" {
+	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+	interface TimelineSceneGraphFactory {
+	    createMovieClip(): MovieClip;
 	}
-	export = CommandPropsBase;
+	export = TimelineSceneGraphFactory;
 	
 }
-declare module "awayjs-player\lib\fl\timeline\CommandPropsDisplayObject" {
+declare module "awayjs-player/lib/fl/factories/AS2SceneGraphFactory" {
+	
+}
+declare module "awayjs-player/lib/fl/timeline/InterpolationObject" {
+	/**
+	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
+	 *  A TimeLineObject basically consists of an objID, and an IAsset.
+	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
+	
+	 */
+	class InterpolationObject {
+	    private _type;
+	    private _startValue;
+	    private _startTime;
+	    private _endValue;
+	    private _endTime;
+	    private _duration;
+	    constructor(type: number, startValue: any, endValue: any, startTime: number, endTime: number);
+	    getState(time: number, speed: number): any;
+	}
+	export = InterpolationObject;
+	
+}
+declare module "awayjs-player/lib/fl/timeline/CommandPropsDisplayObject" {
 	import Matrix3D = require("awayjs-core/lib/geom/Matrix3D");
 	import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
-	import InterpolationObject = require("awayjs-display/lib/entities/timelinedata/InterpolationObject");
+	import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
+	import InterpolationObject = require("awayjs-player/lib/fl/timeline/InterpolationObject");
 	class CommandPropsDisplayObject extends CommandPropsBase {
 	    private _doDisplaymatrix;
 	    private _displayMatrix;
@@ -265,25 +289,5 @@ declare module "awayjs-player\lib\fl\timeline\CommandPropsDisplayObject" {
 	    apply(thisObj: DisplayObjectContainer, time: number, speed: number): void;
 	}
 	export = CommandPropsDisplayObject;
-	
-}
-declare module "awayjs-player\lib\fl\timeline\InterpolationObject" {
-	/**
-	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
-	 *  A TimeLineObject basically consists of an objID, and an IAsset.
-	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
-	
-	 */
-	class InterpolationObject {
-	    private _type;
-	    private _startValue;
-	    private _startTime;
-	    private _endValue;
-	    private _endTime;
-	    private _duration;
-	    constructor(type: number, startValue: any, endValue: any, startTime: number, endTime: number);
-	    getState(time: number, speed: number): any;
-	}
-	export = InterpolationObject;
 	
 }

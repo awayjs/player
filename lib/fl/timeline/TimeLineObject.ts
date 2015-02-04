@@ -1,6 +1,6 @@
 import IAsset					    = require("awayjs-core/lib/library/IAsset");
 
-import CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
+import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
 
 /**
  * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.

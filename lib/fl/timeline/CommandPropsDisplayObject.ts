@@ -2,8 +2,8 @@ import Matrix3D = require("awayjs-core/lib/geom/Matrix3D");
 import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 
 import DisplayObjectContainer		= require("awayjs-display/lib/containers/DisplayObjectContainer");
-import CommandPropsBase = require("awayjs-display/lib/entities/timelinedata/CommandPropsBase");
-import InterpolationObject = require("awayjs-display/lib/entities/timelinedata/InterpolationObject");
+import CommandPropsBase             = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
+import InterpolationObject          = require("awayjs-player/lib/fl/timeline/InterpolationObject");
 
 class CommandPropsDisplayObject extends CommandPropsBase
 {
