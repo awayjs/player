@@ -495,6 +495,7 @@ var AS2SceneGraphFactory = (function () {
     };
     return AS2SceneGraphFactory;
 })();
+module.exports = AS2SceneGraphFactory;
 
 
 },{"awayjs-player/lib/fl/adapters/AS2MovieClipAdapter":undefined,"awayjs-player/lib/fl/display/MovieClip":undefined}],"awayjs-player\\lib\\fl\\factories\\TimelineSceneGraphFactory":[function(require,module,exports){
@@ -848,8 +849,8 @@ module.exports = TimelineFrame;
  *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
 
  */
-var TimeLineObject = (function () {
-    function TimeLineObject(asset, objID, deactiveCommandProps) {
+var TimelineObject = (function () {
+    function TimelineObject(asset, objID, deactiveCommandProps) {
         this._asset = asset;
         this._objID = objID;
         this._is2D = true;
@@ -857,20 +858,20 @@ var TimeLineObject = (function () {
         this._deactivateCommandProps = deactiveCommandProps;
         this._deactivateCommandProps.deactivate(this._asset);
     }
-    Object.defineProperty(TimeLineObject.prototype, "deactivateCommandProps", {
+    Object.defineProperty(TimelineObject.prototype, "deactivateCommandProps", {
         set: function (newCommandprops) {
             this._deactivateCommandProps = newCommandprops;
         },
         enumerable: true,
         configurable: true
     });
-    TimeLineObject.prototype.deactivate = function () {
+    TimelineObject.prototype.deactivate = function () {
         //if(this._deactivateCommandProps==undefined)
         //    return;
         this._deactivateCommandProps.deactivate(this._asset);
         this._isActive = false;
     };
-    Object.defineProperty(TimeLineObject.prototype, "asset", {
+    Object.defineProperty(TimelineObject.prototype, "asset", {
         get: function () {
             return this._asset;
         },
@@ -880,7 +881,7 @@ var TimeLineObject = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TimeLineObject.prototype, "objID", {
+    Object.defineProperty(TimelineObject.prototype, "objID", {
         get: function () {
             return this._objID;
         },
@@ -890,7 +891,7 @@ var TimeLineObject = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TimeLineObject.prototype, "is2D", {
+    Object.defineProperty(TimelineObject.prototype, "is2D", {
         get: function () {
             return this._is2D;
         },
@@ -900,7 +901,7 @@ var TimeLineObject = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TimeLineObject.prototype, "isActive", {
+    Object.defineProperty(TimelineObject.prototype, "isActive", {
         get: function () {
             return this._isActive;
         },
@@ -910,9 +911,9 @@ var TimeLineObject = (function () {
         enumerable: true,
         configurable: true
     });
-    return TimeLineObject;
+    return TimelineObject;
 })();
-module.exports = TimeLineObject;
+module.exports = TimelineObject;
 
 
 },{}]},{},[])

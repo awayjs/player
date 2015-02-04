@@ -27,7 +27,7 @@ declare module "awayjs-player/lib/fl/timeline/TimelineObject" {
 	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
 	
 	 */
-	class TimeLineObject {
+	class TimelineObject {
 	    private _asset;
 	    private _objID;
 	    private _deactivateCommandProps;
@@ -41,7 +41,7 @@ declare module "awayjs-player/lib/fl/timeline/TimelineObject" {
 	    is2D: boolean;
 	    isActive: boolean;
 	}
-	export = TimeLineObject;
+	export = TimelineObject;
 	
 }
 declare module "awayjs-player/lib/fl/timeline/FrameCommand" {
@@ -230,6 +230,12 @@ declare module "awayjs-player/lib/fl/factories/TimelineSceneGraphFactory" {
 	
 }
 declare module "awayjs-player/lib/fl/factories/AS2SceneGraphFactory" {
+	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+	import TimelineSceneGraphFactory = require("awayjs-player/lib/fl/factories/TimelineSceneGraphFactory");
+	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
+	    createMovieClip(): MovieClip;
+	}
+	export = AS2SceneGraphFactory;
 	
 }
 declare module "awayjs-player/lib/fl/timeline/InterpolationObject" {

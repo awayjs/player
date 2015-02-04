@@ -8,7 +8,7 @@ import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBas
  *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
 
  */
-class TimeLineObject
+class TimelineObject
 {
     // the IAsset of this TimeLineObject. This should already be a unique Object-Instance.
     private _asset:IAsset;
@@ -84,4 +84,4 @@ class TimeLineObject
     }
 }
 
-export = TimeLineObject;
+export = TimelineObject;

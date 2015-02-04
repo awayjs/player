@@ -11,3 +11,4 @@ class AS2SceneGraphFactory implements TimelineSceneGraphFactory
         return mc;
     }
 }
+export = AS2SceneGraphFactory;
