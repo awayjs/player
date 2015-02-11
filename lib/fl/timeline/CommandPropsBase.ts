@@ -10,7 +10,7 @@ class CommandPropsBase
     {
         // should be overwritten
     }
-    public apply(thisObj, time:number, speed:number):void
+    public apply(thisObj, time:number):void
     {
         // should be overwritten
     }

@@ -87,7 +87,7 @@ class CommandPropsDisplayObject extends CommandPropsBase
         thisObj.visible=false;
     }
 
-    public apply(thisObj:DisplayObjectContainer, time:number, speed:number):void
+    public apply(thisObj:DisplayObjectContainer, time:number):void
     {
         thisObj.visible=true;
 

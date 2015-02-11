@@ -191,16 +191,16 @@ var MovieClip = (function (_super) {
     __extends(MovieClip, _super);
     function MovieClip() {
         _super.call(this);
-        this._duration = 0;
-        this._timelineObjs = new Array();
-        this._frames = new Array();
-        this._currentFrame = 0;
-        this._speed = 1.0;
-        this._isplaying = false;
+        this._loop = true;
+        this._totalFrames = 0;
+        this._keyFrames = new Array();
+        this._currentFrameIndex = 0;
+        this._isPlaying = false;
         this._fps = 25;
         this._time = 0;
-        this._duration = 0;
-        this._playMode = 1;
+        this._totalFrames = 0;
+        this._df = false;
+        this._Td = false;
     }
     Object.defineProperty(MovieClip.prototype, "adapter", {
         // adapter is used to provide MovieClip to scripts taken from different platforms
@@ -211,16 +211,6 @@ var MovieClip = (function (_super) {
         // setter typically managed by factor
         set: function (value) {
             this._adapter = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MovieClip.prototype, "speed", {
-        get: function () {
-            return this._speed;
-        },
-        set: function (newSpeed) {
-            this._speed = newSpeed;
         },
         enumerable: true,
         configurable: true
@@ -242,239 +232,109 @@ var MovieClip = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    MovieClip.prototype.init = function () {
+        // make sure first frame is reached in first test
+        this._currentFrameIndex = -1;
+        this._isPlaying = true;
+        for (var i = this.numChildren - 1; i >= 0; --i) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip) {
+                child.init();
+            }
+        }
+        this.update(0);
+    };
+    /**
+     * Starts playback of animation from current position
+     */
+    MovieClip.prototype.play = function () {
+        this._isPlaying = true;
+    };
     /**
      * should be called right before the call to away3d-render.
      */
-    MovieClip.prototype.update = function (timeDelta, jumpingToFrame) {
-        if (jumpingToFrame === void 0) { jumpingToFrame = false; }
-        var tlo;
-        // only update if playing, or if not init before, or if jumping to frame
-        if ((this._isplaying) || (!this._isInit) || (jumpingToFrame)) {
-            // multiply the timeDelta with the speed (can be negative)
-            // update the this._time accordingly
-            var timeDelta = timeDelta * this._speed;
-            this._time += timeDelta;
-            while (this._time > this._duration) {
-                if (this._playMode == 0) {
-                    this._time = this._duration;
-                    this.stop();
-                }
-                else if (this._playMode == 1) {
-                    this._time -= this._duration;
-                }
-            }
-            while (this._time < 0) {
-                if (this._playMode == 0) {
-                    this._time = 0;
-                    this.stop();
-                }
-                else if (this._playMode == 1) {
-                    this._time += this._duration;
-                }
-            }
-            // now we know the exact time of the animation that we want to display.
-            // next we need to decide which Frame needs to be displayed. (index in Array)
-            // this should always be currentFrame, or currentFrame++
-            // each frame has startTime and EndTime, so we can easily decide
-            var frameCnt = 0;
-            var curFrame;
-            var foundFrame = false;
-            while (frameCnt < this._frames.length) {
-                curFrame = this._frames[this._currentFrame];
-                //console.log("searchForFrame=="+this._time+" startTime= "+curFrame.startTime+" endTime = "+curFrame.endTime);
-                if ((this._time >= curFrame.startTime) && (this._time <= curFrame.endTime)) {
-                    foundFrame = true;
-                    frameCnt = this._frames.length;
-                }
-                else {
-                    curFrame.makeDirty(); // make sure the frame gets executed next time it should show
-                    if (this._speed < 0) {
-                        this._currentFrame--;
-                        if (this._currentFrame < 0) {
-                            this._currentFrame = this._frames.length - 1;
-                        }
-                    }
-                    else {
-                        this._currentFrame++;
-                        if (this._currentFrame >= this._frames.length) {
-                            this._currentFrame = 0;
-                        }
-                    }
-                }
-                frameCnt++;
-            }
-            //console.log("foundframe="+foundFrame+" thistime= "+this._time+" frameIDX = "+this._currentFrame);
-            // if foundFrame is true, curFrame is the frame to display.
-            if (foundFrame) {
-                //console.log("Frame dirty="+curFrame.isDirty);
-                if (curFrame.isDirty) {
-                    //console.log("Reset isOnStage value");
-                    // reset the "isOnStage" state for all the objects
-                    var commandSet = 1; // 1 = execute normal playback commands
-                    if (this._speed < 0) {
-                        commandSet = 2; //2 = execute reversed playback commands
-                    }
-                    // if we are jumping Frames, we need to hide all objects and fully init
-                    //if(jumpingToFrame) {
-                    commandSet = 0; //0 = execute full init frame commands
-                    for (tlo = 0; tlo < this._timelineObjs.length; tlo++) {
-                        if (this._timelineObjs[tlo].isActive) {
-                            this._timelineObjs[tlo].deactivate();
-                        }
-                    }
-                    // }
-                    //todo: use the correct set of commands (for now we always use set 1)
-                    curFrame.executeCommands(1, this._time, this._speed);
-                    // now we have all objects on stage, we can execute the frame script for this frame
-                    this.executeFrameScript(curFrame.script);
-                }
-                else {
-                }
-            }
-            this._isInit = true;
-        }
-        for (tlo = 0; tlo < this._timelineObjs.length; tlo++) {
-            if (this._timelineObjs[tlo].isActive) {
-                if (this._timelineObjs[tlo].asset.assetType == AssetType.TIMELINE) {
-                    this._timelineObjs[tlo].asset.update(timeDelta);
-                }
-            }
+    MovieClip.prototype.update = function (timeDelta) {
+        // TODO: Implement proper elastic racetrack logic
+        var frameMarker = 1000 / this._fps;
+        // right now, just advance frame once time marker has been reached
+        this._time += timeDelta;
+        if (this._time > frameMarker) {
+            this._time = 0;
+            console.log("--------");
+            this.advanceFrame();
         }
     };
     /**
      * Add a new TimelineFrame.
      */
     MovieClip.prototype.addFrame = function (newFrame) {
-        this._duration += newFrame.duration;
-        this._frames.push(newFrame);
+        var endFrame = (newFrame.startTime + newFrame.duration) / 1000 * this._fps;
+        if (this._totalFrames < endFrame)
+            this._totalFrames = endFrame;
+        this._keyFrames.push(newFrame);
     };
-    Object.defineProperty(MovieClip.prototype, "duration", {
-        get: function () {
-            return this._duration;
-        },
-        set: function (newDuration) {
-            this._duration = newDuration;
-        },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * This is called inside the TimelineFrame.execute() function.
      */
     MovieClip.prototype.executeFrameScript = function (frameScript) {
-        // this function should interpret the framescript.
-        // the timeline object offer functions getObjectByInstanceName(instanceName:string)
-        // a nested movieClip like "mainWindow.clip1" could be accessed like this:
-        // getObjectByInstanceName("mainWindow").getObjectByInstanceName("clip1")
-        // the AssetLibrary can be used as equivalent for the flash-library.
-        // it already has options to access library-assets by name, so i think we can work with that.
-    };
-    /**
-     * Starts playback of animation from current position
-     */
-    MovieClip.prototype.start = function () {
-        this._isplaying = true;
-        this.update(0);
     };
     /**
      * Stop playback of animation and hold current position
      */
     MovieClip.prototype.stop = function () {
-        this._isplaying = false; // no need to call any other stuff
+        this._isPlaying = false; // no need to call any other stuff
     };
-    /**
-     * Classic gotoAndPlay like as3 api - set frame by frame-number.
-     */
-    MovieClip.prototype.gotoAndPlay = function (frameNumber) {
-        this._time = frameNumber * (1000 / this._fps);
-        this._isplaying = true;
-        this.update(0, true);
+    MovieClip.prototype.resetPlayHead = function () {
+        this._time = 0;
+        this._currentFrameIndex = 0;
+        for (var i = this.numChildren - 1; i >= 0; --i)
+            this.removeChildAt(i);
+        for (var i = 0; i < this._keyFrames.length; ++i) {
+            var keyFrame = this._keyFrames[i];
+            // deactivate any currently active keyframes first
+            if (keyFrame.isActive)
+                keyFrame.deactivate(this);
+        }
     };
-    /**
-     * Classic gotoAndStop as3 api - set frame by frame-number.
-     */
-    MovieClip.prototype.gotoAndStop = function (frameNumber) {
-        this._time = frameNumber * (1000 / this._fps);
-        this.update(0, true);
-        this._isplaying = false; //stop playback again
-    };
-    /**
-     * gotoAndPlay - set frame by frame-label.
-     */
-    MovieClip.prototype.gotoAndPlayLabel = function (frameLabel) {
-        var frameNumber = -1;
-        for (var i = 0; i < this._frames.length; i++) {
-            for (var fl = 0; fl < this._frames[i].framelabels.length; fl++) {
-                if (this._frames[i].framelabels[fl] == frameLabel) {
-                    fl = this._frames[i].framelabels.length;
-                    frameNumber = i;
-                    i = this._frames.length;
+    MovieClip.prototype.advanceFrame = function (skipFrames) {
+        if (skipFrames === void 0) { skipFrames = false; }
+        var i;
+        var advance = this._isPlaying;
+        if (advance && this._currentFrameIndex == this._totalFrames - 1 && !this._loop) {
+            advance = false;
+        }
+        if (advance && this._currentFrameIndex <= 0 && this._totalFrames == 1) {
+            this._currentFrameIndex = 0;
+            advance = false;
+        }
+        if (advance) {
+            if (++this._currentFrameIndex == this._totalFrames)
+                this.resetPlayHead();
+        }
+        console.log("Frame " + this._currentFrameIndex);
+        this.updateKeyFrames(skipFrames);
+        // advance children
+        if (!skipFrames) {
+            var len = this.numChildren;
+            for (i = 0; i < len; i++) {
+                var child = this.getChildAt(i);
+                if (child instanceof MovieClip) {
+                    child.advanceFrame(skipFrames);
                 }
             }
         }
-        if (frameNumber >= 0) {
-            this._time = frameNumber * (1000 / this._fps);
-            this._isplaying = true;
-            this.update(0, true);
-        }
     };
-    /**
-     * gotoAndStop - set frame by frame-label.
-     */
-    MovieClip.prototype.gotoAndStopLabel = function (frameLabel) {
-        var frameNumber = -1;
-        for (var i = 0; i < this._frames.length; i++) {
-            for (var fl = 0; fl < this._frames[i].framelabels.length; fl++) {
-                if (this._frames[i].framelabels[fl] == frameLabel) {
-                    fl = this._frames[i].framelabels.length;
-                    frameNumber = i;
-                    i = this._frames.length;
-                }
-            }
-        }
-        if (frameNumber >= 0) {
-            this._time = frameNumber * (1000 / this._fps);
-            this.update(0, true);
-            this._isplaying = false;
-        }
-    };
-    /**
-     * gotoAndPlay - set time in ms.
-     */
-    MovieClip.prototype.gotoAndPlayTime = function (time) {
-        this._time = time;
-        this._isplaying = true;
-        this.update(0, true);
-    };
-    /**
-     * gotoAndStop - set time in ms.
-     */
-    MovieClip.prototype.gotoAndStopTime = function (time) {
-        this._time = time;
-        this.update(0, true);
-        this._isplaying = false; //stop playback again
-    };
-    MovieClip.prototype.addTimelineObject = function (newTlObj, isDisplayObj) {
-        if (isDisplayObj === void 0) { isDisplayObj = true; }
-        if (isDisplayObj) {
-            this.addChild(newTlObj.asset);
-        }
-        newTlObj.deactivate();
-        this._timelineObjs.push(newTlObj);
-    };
-    MovieClip.prototype.getTimelineObjectByID = function (objID) {
-        for (var tlo = 0; tlo < this._timelineObjs.length; tlo++) {
-            if (this._timelineObjs[tlo].objID == objID) {
-                return this._timelineObjs[tlo];
-            }
-        }
-        return undefined;
-    };
-    MovieClip.prototype.getObjectByInstanceName = function (instanceName) {
-        for (var tlo = 0; tlo < this._timelineObjs.length; tlo++) {
-            if (this._timelineObjs[tlo].asset.name == instanceName) {
-                return this._timelineObjs[tlo].asset;
-            }
+    MovieClip.prototype.updateKeyFrames = function (skipFrames) {
+        // TODO: Switch to frames over time (so we can check with ==, instead of > and active)
+        var time = this._currentFrameIndex / this._fps * 1000;
+        for (var i = 0; i < this._keyFrames.length; ++i) {
+            var keyFrame = this._keyFrames[i];
+            if (time >= keyFrame.startTime && time <= keyFrame.endTime && !keyFrame.isActive)
+                keyFrame.activate(this);
+            if (time >= keyFrame.endTime && keyFrame.isActive)
+                keyFrame.deactivate(this);
+            if (!skipFrames && keyFrame.isActive)
+                keyFrame.update(this, this._time);
         }
     };
     return MovieClip;
@@ -512,7 +372,7 @@ var CommandPropsBase = (function () {
     CommandPropsBase.prototype.deactivate = function (thisObj) {
         // should be overwritten
     };
-    CommandPropsBase.prototype.apply = function (thisObj, time, speed) {
+    CommandPropsBase.prototype.apply = function (thisObj, time) {
         // should be overwritten
     };
     return CommandPropsBase;
@@ -580,7 +440,7 @@ var CommandPropsDisplayObject = (function (_super) {
     CommandPropsDisplayObject.prototype.deactivate = function (thisObj) {
         thisObj.visible = false;
     };
-    CommandPropsDisplayObject.prototype.apply = function (thisObj, time, speed) {
+    CommandPropsDisplayObject.prototype.apply = function (thisObj, time) {
         thisObj.visible = true;
         if (this._doDisplaymatrix == 1) {
             thisObj.transform.matrix3D = this._displayMatrix;
@@ -610,66 +470,7 @@ var CommandPropsDisplayObject = (function (_super) {
 module.exports = CommandPropsDisplayObject;
 
 
-},{"awayjs-player/lib/fl/timeline/CommandPropsBase":undefined}],"awayjs-player\\lib\\fl\\timeline\\FrameCommand":[function(require,module,exports){
-/**
- * FrameCommand associates a TimeLineobject with CommandProps.
- * CommandProps can be of different class, depending on the type of Asset that the TimeLineObject references to.
- */
-var FrameCommand = (function () {
-    function FrameCommand(tlObj) {
-        this._tlObj = tlObj;
-        this.commandProps = null;
-        this._activate = true;
-    }
-    Object.defineProperty(FrameCommand.prototype, "activateObj", {
-        get: function () {
-            return this._activate;
-        },
-        set: function (newActve) {
-            this._activate = newActve;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(FrameCommand.prototype, "commandProps", {
-        get: function () {
-            return this._commandProps;
-        },
-        set: function (newProps) {
-            this._commandProps = newProps;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(FrameCommand.prototype, "tlObj", {
-        get: function () {
-            return this._tlObj;
-        },
-        set: function (newtlObj) {
-            this._tlObj = newtlObj;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    FrameCommand.prototype.execute = function (time, speed) {
-        if (this.commandProps == undefined)
-            return; //commandProps must always be defined
-        // if this is a activate command, we call the apply function of the CommandProps
-        if (this._activate) {
-            this.tlObj.isActive = true;
-            this.commandProps.apply(this.tlObj.asset, time, speed);
-        }
-        else {
-            this.tlObj.isActive = false;
-            this.commandProps.deactivate(this.tlObj.asset);
-        }
-    };
-    return FrameCommand;
-})();
-module.exports = FrameCommand;
-
-
-},{}],"awayjs-player\\lib\\fl\\timeline\\InterpolationObject":[function(require,module,exports){
+},{"awayjs-player/lib/fl/timeline/CommandPropsBase":undefined}],"awayjs-player\\lib\\fl\\timeline\\InterpolationObject":[function(require,module,exports){
 /**
  * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
  *  A TimeLineObject basically consists of an objID, and an IAsset.
@@ -709,7 +510,7 @@ var InterpolationObject = (function () {
 module.exports = InterpolationObject;
 
 
-},{}],"awayjs-player\\lib\\fl\\timeline\\TimelineFrame":[function(require,module,exports){
+},{}],"awayjs-player\\lib\\fl\\timeline\\TimelineKeyFrame":[function(require,module,exports){
 /**
  * TimelineFrame holds 3 list of FrameCommands
  *  - list1 _frameCommands should be  executed when playing the timeline (previous Frame was played)
@@ -722,201 +523,152 @@ module.exports = InterpolationObject;
  *  - duration-value (1 frame is not necessary 1 frame long)
  *  - startTime and endTime are needed internally when deciding what frame to display
  */
-var TimelineFrame = (function () {
-    function TimelineFrame() {
-        this._isDirty = true;
-        this._script = "";
+var TimelineKeyFrame = (function () {
+    function TimelineKeyFrame() {
         this._duration = 1; //use millisecs for duration ? or frames ?
         this._frameCommands = new Array();
-        this._frameCommandsReverse = new Array();
-        this._frameCommandsInit = new Array();
-        this._framelabels = new Array();
-        this._labelTypes = new Array();
+        this._frameConstructCommands = new Array();
+        this._frameDestructCommands = new Array();
+        this._isActive = false;
     }
-    TimelineFrame.prototype.addCommand = function (newCommand) {
+    TimelineKeyFrame.prototype.addCommand = function (command) {
         // make the timeline available for the commands
-        this._frameCommands.push(newCommand);
+        this._frameCommands.push(command);
     };
-    TimelineFrame.prototype.addCommandReverse = function (newCommand) {
+    TimelineKeyFrame.prototype.addConstructCommand = function (command) {
         // make the timeline available for the commands
-        this._frameCommandsReverse.push(newCommand);
+        this._frameConstructCommands.push(command);
     };
-    TimelineFrame.prototype.addCommandInit = function (newCommand) {
+    TimelineKeyFrame.prototype.addDestructCommand = function (command) {
         // make the timeline available for the commands
-        this._frameCommandsInit.push(newCommand);
+        this._frameDestructCommands.push(command);
     };
-    TimelineFrame.prototype.addLabel = function (label, type) {
-        this._framelabels.push(label);
-        this._labelTypes.push(type);
-    };
-    Object.defineProperty(TimelineFrame.prototype, "framelabels", {
-        get: function () {
-            return this._framelabels;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineFrame.prototype, "labelTypes", {
-        get: function () {
-            return this._labelTypes;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineFrame.prototype, "script", {
-        get: function () {
-            return this._script;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimelineFrame.prototype.addToScript = function (newscript) {
-        this._script += newscript;
-    };
-    Object.defineProperty(TimelineFrame.prototype, "isDirty", {
-        get: function () {
-            return this._isDirty;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimelineFrame.prototype.makeDirty = function () {
-        this._isDirty = true;
-    };
-    Object.defineProperty(TimelineFrame.prototype, "startTime", {
+    Object.defineProperty(TimelineKeyFrame.prototype, "startTime", {
         get: function () {
             return this._startTime;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TimelineFrame.prototype, "duration", {
+    Object.defineProperty(TimelineKeyFrame.prototype, "duration", {
         get: function () {
             return this._duration;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TimelineFrame.prototype, "endTime", {
+    Object.defineProperty(TimelineKeyFrame.prototype, "endTime", {
         get: function () {
             return this._endTime;
         },
         enumerable: true,
         configurable: true
     });
-    TimelineFrame.prototype.setFrameTime = function (startTime, duration) {
+    Object.defineProperty(TimelineKeyFrame.prototype, "isActive", {
+        get: function () {
+            return this._isActive;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TimelineKeyFrame.prototype.setFrameTime = function (startTime, duration) {
         this._startTime = startTime;
         this._duration = duration;
         this._endTime = startTime + duration;
     };
-    /**
-     * executes the set of Commands for this Frame.
-     * Each Frame has 3 sets of commands:
-     *  0 = init frame commands = the frame must be init as if previous frame was not played
-     *  1 = play frame commands = the previous frame was played
-     *  2 = playReverse Commands = the next frame was played
-     */
-    TimelineFrame.prototype.executeCommands = function (commandSet, time, speed) {
-        // execute all the  frame commands for this frame
-        if (commandSet == 0) {
-            for (var i = 0; i < this._frameCommandsInit.length; i++) {
-                this._frameCommandsInit[i].execute(time, speed);
-            }
-        }
-        else if (commandSet == 1) {
-            for (var i = 0; i < this._frameCommands.length; i++) {
-                this._frameCommands[i].execute(time, speed);
-            }
-        }
-        else if (commandSet == 2) {
-            for (var i = 0; i < this._frameCommandsReverse.length; i++) {
-                this._frameCommandsReverse[i].execute(time, speed);
-            }
-        }
-        // mark this frame as not dirty, so it will not get executed again, unless Timeline makes it dirty again.
-        // whenever a Frame is entered, the Timeline should mark the previous frame as dirty.
-        this._isDirty = false;
+    TimelineKeyFrame.prototype.activate = function (sourceMovieClip) {
+        this._isActive = true;
+        var len = this._frameConstructCommands.length;
+        for (var i = 0; i < len; i++)
+            this._frameConstructCommands[i].execute(sourceMovieClip, this._startTime);
     };
-    return TimelineFrame;
-})();
-module.exports = TimelineFrame;
-
-
-},{}],"awayjs-player\\lib\\fl\\timeline\\TimelineObject":[function(require,module,exports){
-/**
- * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
- *  A TimeLineObject basically consists of an objID, and an IAsset.
- *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
-
- */
-var TimelineObject = (function () {
-    function TimelineObject(asset, objID, deactiveCommandProps) {
-        this._asset = asset;
-        this._objID = objID;
-        this._is2D = true;
+    TimelineKeyFrame.prototype.deactivate = function (sourceMovieClip) {
         this._isActive = false;
-        this._deactivateCommandProps = deactiveCommandProps;
-        this._deactivateCommandProps.deactivate(this._asset);
+        var len = this._frameDestructCommands.length;
+        var endTime = this._duration + this._startTime;
+        for (var i = 0; i < len; i++)
+            this._frameDestructCommands[i].execute(sourceMovieClip, endTime);
+    };
+    TimelineKeyFrame.prototype.update = function (sourceMovieClip, time) {
+        var len = this._frameCommands.length;
+        for (var i = 0; i < len; i++)
+            this._frameCommands[i].execute(sourceMovieClip, time);
+    };
+    return TimelineKeyFrame;
+})();
+module.exports = TimelineKeyFrame;
+
+
+},{}],"awayjs-player\\lib\\fl\\timeline\\commands\\AddChildCommand":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
+var AddChildCommand = (function (_super) {
+    __extends(AddChildCommand, _super);
+    function AddChildCommand(child, id) {
+        _super.call(this);
+        this._child = child;
+        this._id = id;
     }
-    Object.defineProperty(TimelineObject.prototype, "deactivateCommandProps", {
-        set: function (newCommandprops) {
-            this._deactivateCommandProps = newCommandprops;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimelineObject.prototype.deactivate = function () {
-        //if(this._deactivateCommandProps==undefined)
-        //    return;
-        this._deactivateCommandProps.deactivate(this._asset);
-        this._isActive = false;
+    AddChildCommand.prototype.execute = function (sourceMovieClip, time) {
+        console.log("Adding " + this._id);
+        if (this._child.parent)
+            console.log("already added!");
+        sourceMovieClip.addChild(this._child);
     };
-    Object.defineProperty(TimelineObject.prototype, "asset", {
-        get: function () {
-            return this._asset;
-        },
-        set: function (newAsset) {
-            this._asset = newAsset;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineObject.prototype, "objID", {
-        get: function () {
-            return this._objID;
-        },
-        set: function (newobjID) {
-            this._objID = newobjID;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineObject.prototype, "is2D", {
-        get: function () {
-            return this._is2D;
-        },
-        set: function (newis2D) {
-            this._is2D = newis2D;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineObject.prototype, "isActive", {
-        get: function () {
-            return this._isActive;
-        },
-        set: function (newisActive) {
-            this._isActive = newisActive;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return TimelineObject;
+    return AddChildCommand;
+})(FrameCommand);
+module.exports = AddChildCommand;
+
+
+},{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}],"awayjs-player\\lib\\fl\\timeline\\commands\\FrameCommand":[function(require,module,exports){
+var AbstractMethodError = require("awayjs-core/lib/errors/AbstractMethodError");
+/**
+ * FrameCommand associates a TimeLineobject with CommandProps.
+ * CommandProps can be of different class, depending on the type of Asset that the TimeLineObject references to.
+ */
+var FrameCommand = (function () {
+    function FrameCommand() {
+    }
+    FrameCommand.prototype.execute = function (sourceMovieClip, time) {
+        throw new AbstractMethodError();
+    };
+    return FrameCommand;
 })();
-module.exports = TimelineObject;
+module.exports = FrameCommand;
 
 
-},{}]},{},[])
+},{"awayjs-core/lib/errors/AbstractMethodError":undefined}],"awayjs-player\\lib\\fl\\timeline\\commands\\RemoveChildCommand":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
+var RemoveChildCommand = (function (_super) {
+    __extends(RemoveChildCommand, _super);
+    function RemoveChildCommand(child, id) {
+        _super.call(this);
+        this._child = child;
+        this._id = id;
+    }
+    RemoveChildCommand.prototype.execute = function (sourceMovieClip, time) {
+        console.log("Removing " + this._id);
+        sourceMovieClip.removeChild(this._child);
+        if (this._child.parent)
+            console.warn("Child not properly removed?");
+    };
+    return RemoveChildCommand;
+})(FrameCommand);
+module.exports = RemoveChildCommand;
+
+
+},{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}]},{},[])
 
 
 //# sourceMappingURL=awayjs-player.js.map
