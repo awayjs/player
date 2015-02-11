@@ -260,7 +260,6 @@ var MovieClip = (function (_super) {
         this._time += timeDelta;
         if (this._time > frameMarker) {
             this._time = 0;
-            console.log("--------");
             this.advanceFrame();
         }
     };
@@ -311,7 +310,6 @@ var MovieClip = (function (_super) {
             if (++this._currentFrameIndex == this._totalFrames)
                 this.resetPlayHead();
         }
-        console.log("Frame " + this._currentFrameIndex);
         this.updateKeyFrames(skipFrames);
         // advance children
         if (!skipFrames) {
@@ -362,115 +360,7 @@ module.exports = AS2SceneGraphFactory;
 
 
 
-},{}],"awayjs-player\\lib\\fl\\timeline\\CommandPropsBase":[function(require,module,exports){
-/**
- * BaseClass for CommandProperties. Should not be instantiated directly.
- */
-var CommandPropsBase = (function () {
-    function CommandPropsBase() {
-    }
-    CommandPropsBase.prototype.deactivate = function (thisObj) {
-        // should be overwritten
-    };
-    CommandPropsBase.prototype.apply = function (thisObj, time) {
-        // should be overwritten
-    };
-    return CommandPropsBase;
-})();
-module.exports = CommandPropsBase;
-
-
-},{}],"awayjs-player\\lib\\fl\\timeline\\CommandPropsDisplayObject":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
-var CommandPropsDisplayObject = (function (_super) {
-    __extends(CommandPropsDisplayObject, _super);
-    function CommandPropsDisplayObject() {
-        _super.call(this);
-        this._doDisplaymatrix = 0;
-        this._doColorTransform = 0;
-        this._doInstanceName = false;
-        this._doDepth = false;
-        this._doFilters = false;
-        this._doDepthClip = false;
-        this._doBlendMode = false;
-    }
-    CommandPropsDisplayObject.prototype.setBlendMode = function (blendMode) {
-        this._blendMode = blendMode;
-        this._doBlendMode = true;
-    };
-    CommandPropsDisplayObject.prototype.setClipDepth = function (clipDepth) {
-        this._depthClip = clipDepth;
-        this._doDepthClip = true;
-    };
-    //todo:handle filters
-    CommandPropsDisplayObject.prototype.setFilter = function (filter) {
-        this._filter = filter;
-        this._doFilters = true;
-    };
-    CommandPropsDisplayObject.prototype.setDepth = function (depth) {
-        this._depth = depth;
-        this._doDepth = true;
-    };
-    CommandPropsDisplayObject.prototype.setDisplaymatrixInterpolate = function (interpolate) {
-        this._displayMatrixInterpolate = interpolate;
-        this._doDisplaymatrix = 2;
-    };
-    CommandPropsDisplayObject.prototype.setDisplaymatrix = function (displayMatrix) {
-        this._displayMatrix = displayMatrix;
-        this._doDisplaymatrix = 1;
-    };
-    CommandPropsDisplayObject.prototype.setColorTransform = function (colorTransform) {
-        this._colorTransform = colorTransform;
-        this._doColorTransform = 1;
-    };
-    CommandPropsDisplayObject.prototype.setColorTranformInterpolate = function (interpolate) {
-        this._colorTransformInterpolate = interpolate;
-        this._doColorTransform = 2;
-    };
-    CommandPropsDisplayObject.prototype.setInstancename = function (instanceName) {
-        this._instanceName = instanceName;
-        this._doInstanceName = true;
-    };
-    CommandPropsDisplayObject.prototype.deactivate = function (thisObj) {
-        thisObj.visible = false;
-    };
-    CommandPropsDisplayObject.prototype.apply = function (thisObj, time) {
-        thisObj.visible = true;
-        if (this._doDisplaymatrix == 1) {
-            thisObj.transform.matrix3D = this._displayMatrix;
-        }
-        else if (this._doDisplaymatrix == 2) {
-        }
-        //todo: check how to apply colortransform (i guess this will be materials of meshes)
-        //maybe we must give displayobjectcontainer the functions to pass ColorTransform to children
-        if (this._doColorTransform == 1) {
-        }
-        else if (this._doColorTransform == 2) {
-        }
-        if (this._doInstanceName) {
-            thisObj.name = this._instanceName;
-        }
-        if (this._doDepth) {
-        }
-        if (this._doBlendMode) {
-        }
-        if (this._doDepthClip) {
-        }
-        if (this._doFilters) {
-        }
-    };
-    return CommandPropsDisplayObject;
-})(CommandPropsBase);
-module.exports = CommandPropsDisplayObject;
-
-
-},{"awayjs-player/lib/fl/timeline/CommandPropsBase":undefined}],"awayjs-player\\lib\\fl\\timeline\\InterpolationObject":[function(require,module,exports){
+},{}],"awayjs-player\\lib\\fl\\timeline\\InterpolationObject":[function(require,module,exports){
 /**
  * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
  *  A TimeLineObject basically consists of an objID, and an IAsset.
@@ -609,15 +499,11 @@ var __extends = this.__extends || function (d, b) {
 var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
 var AddChildCommand = (function (_super) {
     __extends(AddChildCommand, _super);
-    function AddChildCommand(child, id) {
+    function AddChildCommand(child) {
         _super.call(this);
         this._child = child;
-        this._id = id;
     }
     AddChildCommand.prototype.execute = function (sourceMovieClip, time) {
-        console.log("Adding " + this._id);
-        if (this._child.parent)
-            console.log("already added!");
         sourceMovieClip.addChild(this._child);
     };
     return AddChildCommand;
@@ -652,20 +538,40 @@ var __extends = this.__extends || function (d, b) {
 var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
 var RemoveChildCommand = (function (_super) {
     __extends(RemoveChildCommand, _super);
-    function RemoveChildCommand(child, id) {
+    function RemoveChildCommand(child) {
         _super.call(this);
         this._child = child;
-        this._id = id;
     }
     RemoveChildCommand.prototype.execute = function (sourceMovieClip, time) {
-        console.log("Removing " + this._id);
         sourceMovieClip.removeChild(this._child);
-        if (this._child.parent)
-            console.warn("Child not properly removed?");
     };
     return RemoveChildCommand;
 })(FrameCommand);
 module.exports = RemoveChildCommand;
+
+
+},{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}],"awayjs-player\\lib\\fl\\timeline\\commands\\UpdatePropertyCommand":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
+var UpdatePropertyCommand = (function (_super) {
+    __extends(UpdatePropertyCommand, _super);
+    function UpdatePropertyCommand(target, propertyName, value) {
+        _super.call(this);
+        this._target = target;
+        this._propertyName = propertyName;
+        this._value = value;
+    }
+    UpdatePropertyCommand.prototype.execute = function (sourceMovieClip, time) {
+        this._target[this._propertyName] = this._value;
+    };
+    return UpdatePropertyCommand;
+})(FrameCommand);
+module.exports = UpdatePropertyCommand;
 
 
 },{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}]},{},[])

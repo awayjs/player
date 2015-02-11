@@ -6,18 +6,6 @@ declare module "awayjs-player/lib/fl/adapters/MovieClipAdapter" {
 	export = MovieClipAdapter;
 	
 }
-declare module "awayjs-player/lib/fl/timeline/CommandPropsBase" {
-	/**
-	 * BaseClass for CommandProperties. Should not be instantiated directly.
-	 */
-	class CommandPropsBase {
-	    constructor();
-	    deactivate(thisObj: any): void;
-	    apply(thisObj: any, time: number): void;
-	}
-	export = CommandPropsBase;
-	
-}
 declare module "awayjs-player/lib/fl/timeline/commands/FrameCommand" {
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 	/**
@@ -145,6 +133,23 @@ declare module "awayjs-player/lib/fl/adapters/AS2MovieClipAdapter" {
 	export = AS2MovieClipAdapter;
 	
 }
+declare module "awayjs-player/lib/fl/factories/TimelineSceneGraphFactory" {
+	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+	interface TimelineSceneGraphFactory {
+	    createMovieClip(): MovieClip;
+	}
+	export = TimelineSceneGraphFactory;
+	
+}
+declare module "awayjs-player/lib/fl/factories/AS2SceneGraphFactory" {
+	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+	import TimelineSceneGraphFactory = require("awayjs-player/lib/fl/factories/TimelineSceneGraphFactory");
+	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
+	    createMovieClip(): MovieClip;
+	}
+	export = AS2SceneGraphFactory;
+	
+}
 declare module "awayjs-player/lib/fl/timeline/InterpolationObject" {
 	/**
 	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
@@ -165,70 +170,13 @@ declare module "awayjs-player/lib/fl/timeline/InterpolationObject" {
 	export = InterpolationObject;
 	
 }
-declare module "awayjs-player/lib/fl/timeline/CommandPropsDisplayObject" {
-	import Matrix3D = require("awayjs-core/lib/geom/Matrix3D");
-	import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import CommandPropsBase = require("awayjs-player/lib/fl/timeline/CommandPropsBase");
-	import InterpolationObject = require("awayjs-player/lib/fl/timeline/InterpolationObject");
-	class CommandPropsDisplayObject extends CommandPropsBase {
-	    private _doDisplaymatrix;
-	    private _displayMatrix;
-	    private _displayMatrixInterpolate;
-	    private _doColorTransform;
-	    private _colorTransform;
-	    private _colorTransformInterpolate;
-	    private _doDepth;
-	    private _depth;
-	    private _doFilters;
-	    private _filter;
-	    private _doBlendMode;
-	    private _blendMode;
-	    private _doDepthClip;
-	    private _depthClip;
-	    private _doInstanceName;
-	    private _instanceName;
-	    constructor();
-	    setBlendMode(blendMode: number): void;
-	    setClipDepth(clipDepth: number): void;
-	    setFilter(filter: any): void;
-	    setDepth(depth: number): void;
-	    setDisplaymatrixInterpolate(interpolate: InterpolationObject): void;
-	    setDisplaymatrix(displayMatrix: Matrix3D): void;
-	    setColorTransform(colorTransform: ColorTransform): void;
-	    setColorTranformInterpolate(interpolate: InterpolationObject): void;
-	    setInstancename(instanceName: string): void;
-	    deactivate(thisObj: DisplayObjectContainer): void;
-	    apply(thisObj: DisplayObjectContainer, time: number): void;
-	}
-	export = CommandPropsDisplayObject;
-	
-}
-declare module "awayjs-player/lib/fl/factories/TimelineSceneGraphFactory" {
-	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
-	interface TimelineSceneGraphFactory {
-	    createMovieClip(): MovieClip;
-	}
-	export = TimelineSceneGraphFactory;
-	
-}
-declare module "awayjs-player/lib/fl/factories/AS2SceneGraphFactory" {
-	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
-	import TimelineSceneGraphFactory = require("awayjs-player/lib/fl/factories/TimelineSceneGraphFactory");
-	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
-	    createMovieClip(): MovieClip;
-	}
-	export = AS2SceneGraphFactory;
-	
-}
 declare module "awayjs-player/lib/fl/timeline/commands/AddChildCommand" {
 	import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	class AddChildCommand extends FrameCommand {
-	    private _id;
 	    private _child;
-	    constructor(child: DisplayObjectContainer, id: number);
+	    constructor(child: DisplayObjectContainer);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = AddChildCommand;
@@ -239,11 +187,24 @@ declare module "awayjs-player/lib/fl/timeline/commands/RemoveChildCommand" {
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	class RemoveChildCommand extends FrameCommand {
-	    private _id;
 	    private _child;
-	    constructor(child: DisplayObjectContainer, id: number);
+	    constructor(child: DisplayObjectContainer);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = RemoveChildCommand;
+	
+}
+declare module "awayjs-player/lib/fl/timeline/commands/UpdatePropertyCommand" {
+	import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	class UpdatePropertyCommand extends FrameCommand {
+	    private _target;
+	    private _propertyName;
+	    private _value;
+	    constructor(target: DisplayObject, propertyName: string, value: any);
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	}
+	export = UpdatePropertyCommand;
 	
 }

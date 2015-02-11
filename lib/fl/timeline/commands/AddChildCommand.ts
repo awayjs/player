@@ -4,14 +4,12 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 
 class AddChildCommand extends FrameCommand
 {
-    private _id : number;
     private _child:DisplayObjectContainer;
 
-    constructor(child:DisplayObjectContainer, id:number)
+    constructor(child:DisplayObjectContainer)
     {
         super();
         this._child = child;
-        this._id = id;
     }
 
     public execute(sourceMovieClip : MovieClip, time:number):void

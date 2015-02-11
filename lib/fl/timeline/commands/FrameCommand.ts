@@ -1,4 +1,3 @@
-import CommandPropsBase = require("../CommandPropsBase");
 import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 import AbstractMethodError = require("awayjs-core/lib/errors/AbstractMethodError");
 
