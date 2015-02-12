@@ -69,14 +69,11 @@ declare module "awayjs-player/lib/fl/display/MovieClip" {
 	    private _isPlaying;
 	    private _loop;
 	    private _totalFrames;
-	    private _df;
-	    private _Td;
 	    private _adapter;
 	    constructor();
 	    adapter: MovieClipAdapter;
 	    fps: number;
 	    assetType: string;
-	    init(): void;
 	    /**
 	     * Starts playback of animation from current position
 	     */

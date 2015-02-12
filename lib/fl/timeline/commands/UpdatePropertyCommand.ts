@@ -5,11 +5,12 @@ import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 
 class UpdatePropertyCommand extends FrameCommand
 {
-    private _target:DisplayObject;
+    private _target:any;
     private _propertyName:string;
     private _value:any; // had hoped to use generics, but that results in parser headaches
 
-    constructor(target: DisplayObject, propertyName:string, value:any)
+    // target can be MovieClip, its ColorTransform, and so on
+    constructor(target: any, propertyName:string, value:any)
     {
         super();
         this._target = target;

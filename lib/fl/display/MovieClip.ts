@@ -13,11 +13,7 @@ class MovieClip extends DisplayObjectContainer
     private _fps:number;// we use ms internally, but have fps, so user can set time by frame
     private _isPlaying:boolean;// false if paused or stopped
     private _loop:boolean = true;
-    private _totalFrames:number = 0;
-
-    // TODO: Figure out what these flags mean
-    private _df:boolean;    // dirty flag?
-    private _Td:boolean;
+    private _totalFrames:number;
 
     private _adapter:MovieClipAdapter;
 
@@ -25,13 +21,11 @@ class MovieClip extends DisplayObjectContainer
     {
         super();
         this._keyFrames = new Array<TimelineKeyFrame>();
-        this._currentFrameIndex = 0;
-        this._isPlaying = false;
+        this._currentFrameIndex = -1;
+        this._isPlaying = true; // auto-play
         this._fps = 25;
         this._time = 0;
         this._totalFrames = 0;
-        this._df = false;
-        this._Td = false;
     }
 
     // adapter is used to provide MovieClip to scripts taken from different platforms
@@ -60,22 +54,6 @@ class MovieClip extends DisplayObjectContainer
     public get assetType():string
     {
         return AssetType.TIMELINE;
-    }
-
-    public init()
-    {
-        // make sure first frame is reached in first test
-        this._currentFrameIndex = -1;
-
-        this._isPlaying = true;
-        for (var i = this.numChildren - 1; i >= 0; --i) {
-            var child = this.getChildAt(i);
-            if (child instanceof MovieClip) {
-                (<MovieClip>child).init();
-            }
-        }
-
-        this.update(0);
     }
 
     /**

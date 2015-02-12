@@ -192,15 +192,12 @@ var MovieClip = (function (_super) {
     function MovieClip() {
         _super.call(this);
         this._loop = true;
-        this._totalFrames = 0;
         this._keyFrames = new Array();
-        this._currentFrameIndex = 0;
-        this._isPlaying = false;
+        this._currentFrameIndex = -1;
+        this._isPlaying = true; // auto-play
         this._fps = 25;
         this._time = 0;
         this._totalFrames = 0;
-        this._df = false;
-        this._Td = false;
     }
     Object.defineProperty(MovieClip.prototype, "adapter", {
         // adapter is used to provide MovieClip to scripts taken from different platforms
@@ -232,18 +229,6 @@ var MovieClip = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    MovieClip.prototype.init = function () {
-        // make sure first frame is reached in first test
-        this._currentFrameIndex = -1;
-        this._isPlaying = true;
-        for (var i = this.numChildren - 1; i >= 0; --i) {
-            var child = this.getChildAt(i);
-            if (child instanceof MovieClip) {
-                child.init();
-            }
-        }
-        this.update(0);
-    };
     /**
      * Starts playback of animation from current position
      */
