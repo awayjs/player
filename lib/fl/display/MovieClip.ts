@@ -1,3 +1,4 @@
+import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 import IAsset = require("awayjs-core/lib/library/IAsset");
 import AssetType = require("awayjs-core/lib/library/AssetType");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -157,6 +158,12 @@ class MovieClip extends DisplayObjectContainer
         clone._fps = this._fps;
         clone._loop = this._loop;
         clone._totalFrames = this._totalFrames;
+        clone.name = this.name;
+        clone.transform.matrix = this.transform.matrix.clone();
+        clone.transform.matrix3D = this.transform.matrix3D;
+
+        var ct = this.transform.colorTransform;
+        if (ct) clone.transform.colorTransform = new ColorTransform(ct.redMultiplier, ct.greenMultiplier, ct.blueMultiplier, ct.alphaMultiplier, ct.redOffset, ct.greenOffset, ct.blueOffset, ct.alphaOffset);
 
         return clone;
     }
