@@ -233,6 +233,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 var AssetType = require("awayjs-core/lib/library/AssetType");
 var DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 var MovieClip = (function (_super) {
@@ -349,6 +350,12 @@ var MovieClip = (function (_super) {
         clone._fps = this._fps;
         clone._loop = this._loop;
         clone._totalFrames = this._totalFrames;
+        clone.name = this.name;
+        clone.transform.matrix = this.transform.matrix.clone();
+        clone.transform.matrix3D = this.transform.matrix3D;
+        var ct = this.transform.colorTransform;
+        if (ct)
+            clone.transform.colorTransform = new ColorTransform(ct.redMultiplier, ct.greenMultiplier, ct.blueMultiplier, ct.alphaMultiplier, ct.redOffset, ct.greenOffset, ct.blueOffset, ct.alphaOffset);
         return clone;
     };
     MovieClip.prototype.resetPlayHead = function () {
@@ -407,7 +414,7 @@ var MovieClip = (function (_super) {
 module.exports = MovieClip;
 
 
-},{"awayjs-core/lib/library/AssetType":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player\\lib\\fl\\factories\\AS2SceneGraphFactory":[function(require,module,exports){
+},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-core/lib/library/AssetType":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player\\lib\\fl\\factories\\AS2SceneGraphFactory":[function(require,module,exports){
 var AS2MovieClipAdapter = require("awayjs-player/lib/fl/adapters/AS2MovieClipAdapter");
 var MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 var AS2SceneGraphFactory = (function () {
