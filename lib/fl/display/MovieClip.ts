@@ -1,6 +1,7 @@
 import IAsset = require("awayjs-core/lib/library/IAsset");
 import AssetType = require("awayjs-core/lib/library/AssetType");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 
 import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
 import TimelineKeyFrame = require("awayjs-player/lib/fl/timeline/TimelineKeyFrame");
@@ -14,13 +15,19 @@ class MovieClip extends DisplayObjectContainer
     private _isPlaying:boolean;// false if paused or stopped
     private _loop:boolean = true;
     private _totalFrames:number;
+    // not sure if needed
+    private _prototype:MovieClip;
 
     private _adapter:MovieClipAdapter;
+
+    private _potentialChildren:Array<DisplayObject>;
 
     constructor()
     {
         super();
+        this._prototype = this;
         this._keyFrames = new Array<TimelineKeyFrame>();
+        this._potentialChildren = new Array<DisplayObject>();
         this._currentFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 25;
@@ -93,9 +100,37 @@ class MovieClip extends DisplayObjectContainer
     }
 
     /**
+     * Returns the child ID for this MovieClip
+     */
+    public getPotentialChild(id:number) : DisplayObject
+    {
+        return this._potentialChildren[id];
+    }
+
+    /**
+     * Returns the child ID for this MovieClip
+     */
+    public registerPotentialChild(prototype:DisplayObject) : number
+    {
+        var id = this._potentialChildren.length;
+        this._potentialChildren[id] = prototype.clone();
+        return id;
+    }
+
+    public activateChild(id:number)
+    {
+        this.addChild(this._potentialChildren[id]);
+    }
+
+    public deactivateChild(id:number)
+    {
+        this.removeChild(this._potentialChildren[id]);
+    }
+
+    /**
      * This is called inside the TimelineFrame.execute() function.
      */
-    public executeFrameScript(frameScript:string)
+    private executeFrameScript(frameScript:string)
     {
 
     }
@@ -106,6 +141,24 @@ class MovieClip extends DisplayObjectContainer
     public stop()
     {
         this._isPlaying = false;// no need to call any other stuff
+    }
+
+    public clone() : DisplayObject
+    {
+        var clone:MovieClip = new MovieClip();
+
+        if (this._adapter) clone.adapter = this._adapter.clone(clone);
+        clone._prototype = this._prototype;
+        clone._keyFrames = this._keyFrames;
+
+        for (var i = 0; i < this._potentialChildren.length; ++i)
+            clone._potentialChildren[i] = this._potentialChildren[i].clone();
+
+        clone._fps = this._fps;
+        clone._loop = this._loop;
+        clone._totalFrames = this._totalFrames;
+
+        return clone;
     }
 
     private resetPlayHead()
@@ -147,12 +200,10 @@ class MovieClip extends DisplayObjectContainer
         // advance children
         if (!skipFrames) {
             var len = this.numChildren;
-
             for (i = 0; i < len; i++) {
                 var child = this.getChildAt(i);
-                if (child instanceof MovieClip) {
+                if (child instanceof MovieClip)
                     (<MovieClip>child).advanceFrame(skipFrames);
-                }
             }
 
             // TODO: Not sure what deferred children are. Check w/ Claus.

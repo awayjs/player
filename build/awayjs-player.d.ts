@@ -2,6 +2,7 @@ declare module "awayjs-player/lib/fl/adapters/MovieClipAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	interface MovieClipAdapter {
 	    adaptee: DisplayObjectContainer;
+	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
 	}
 	export = MovieClipAdapter;
 	
@@ -9,10 +10,11 @@ declare module "awayjs-player/lib/fl/adapters/MovieClipAdapter" {
 declare module "awayjs-player/lib/fl/timeline/commands/FrameCommand" {
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 	/**
-	 * FrameCommand associates a TimeLineobject with CommandProps.
-	 * CommandProps can be of different class, depending on the type of Asset that the TimeLineObject references to.
+	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
+	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
+	 * across MovieClip instances.
 	 */
-	class FrameCommand {
+	interface FrameCommand {
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = FrameCommand;
@@ -59,6 +61,7 @@ declare module "awayjs-player/lib/fl/timeline/TimelineKeyFrame" {
 }
 declare module "awayjs-player/lib/fl/display/MovieClip" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import MovieClipAdapter = require("awayjs-player/lib/fl/adapters/MovieClipAdapter");
 	import TimelineKeyFrame = require("awayjs-player/lib/fl/timeline/TimelineKeyFrame");
 	class MovieClip extends DisplayObjectContainer {
@@ -69,7 +72,9 @@ declare module "awayjs-player/lib/fl/display/MovieClip" {
 	    private _isPlaying;
 	    private _loop;
 	    private _totalFrames;
+	    private _prototype;
 	    private _adapter;
+	    private _potentialChildren;
 	    constructor();
 	    adapter: MovieClipAdapter;
 	    fps: number;
@@ -87,13 +92,24 @@ declare module "awayjs-player/lib/fl/display/MovieClip" {
 	     */
 	    addFrame(newFrame: TimelineKeyFrame): void;
 	    /**
+	     * Returns the child ID for this MovieClip
+	     */
+	    getPotentialChild(id: number): DisplayObject;
+	    /**
+	     * Returns the child ID for this MovieClip
+	     */
+	    registerPotentialChild(prototype: DisplayObject): number;
+	    activateChild(id: number): void;
+	    deactivateChild(id: number): void;
+	    /**
 	     * This is called inside the TimelineFrame.execute() function.
 	     */
-	    executeFrameScript(frameScript: string): void;
+	    private executeFrameScript(frameScript);
 	    /**
 	     * Stop playback of animation and hold current position
 	     */
 	    stop(): void;
+	    clone(): DisplayObject;
 	    private resetPlayHead();
 	    private advanceFrame(skipFrames?);
 	    private updateKeyFrames(skipFrames);
@@ -126,6 +142,7 @@ declare module "awayjs-player/lib/fl/adapters/AS2MovieClipAdapter" {
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
 	    private currentFrameIndex;
 	    constructor(adaptee: DisplayObjectContainer);
+	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
 	}
 	export = AS2MovieClipAdapter;
 	
@@ -170,10 +187,9 @@ declare module "awayjs-player/lib/fl/timeline/InterpolationObject" {
 declare module "awayjs-player/lib/fl/timeline/commands/AddChildCommand" {
 	import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	class AddChildCommand extends FrameCommand {
-	    private _child;
-	    constructor(child: DisplayObjectContainer);
+	class AddChildCommand implements FrameCommand {
+	    private _childID;
+	    constructor(childID: number);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = AddChildCommand;
@@ -182,10 +198,9 @@ declare module "awayjs-player/lib/fl/timeline/commands/AddChildCommand" {
 declare module "awayjs-player/lib/fl/timeline/commands/RemoveChildCommand" {
 	import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	class RemoveChildCommand extends FrameCommand {
-	    private _child;
-	    constructor(child: DisplayObjectContainer);
+	class RemoveChildCommand implements FrameCommand {
+	    private _childID;
+	    constructor(childID: number);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = RemoveChildCommand;
@@ -194,12 +209,11 @@ declare module "awayjs-player/lib/fl/timeline/commands/RemoveChildCommand" {
 declare module "awayjs-player/lib/fl/timeline/commands/UpdatePropertyCommand" {
 	import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	class UpdatePropertyCommand extends FrameCommand {
-	    private _target;
+	class UpdatePropertyCommand implements FrameCommand {
+	    private _targetID;
 	    private _propertyName;
 	    private _value;
-	    constructor(target: DisplayObject, propertyName: string, value: any);
+	    constructor(targetID: number, propertyName: string, value: any);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = UpdatePropertyCommand;

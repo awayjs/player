@@ -2,19 +2,18 @@ import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameComma
 import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 
-class RemoveChildCommand extends FrameCommand
+class RemoveChildCommand implements FrameCommand
 {
-    private _child:DisplayObjectContainer;
+    private _childID:number;
 
-    constructor(child:DisplayObjectContainer)
+    constructor(childID:number)
     {
-        super();
-        this._child = child;
+        this._childID = childID;
     }
 
     public execute(sourceMovieClip : MovieClip, time:number):void
     {
-        sourceMovieClip.removeChild(this._child);
+        sourceMovieClip.deactivateChild(this._childID);
     }
 }
 export = RemoveChildCommand;

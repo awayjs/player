@@ -3,5 +3,6 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 interface MovieClipAdapter
 {
     adaptee : DisplayObjectContainer
+    clone(newAdaptee:DisplayObjectContainer) : MovieClipAdapter;
 }
 export = MovieClipAdapter;

@@ -130,5 +130,10 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	//swapDepths(target: Object) : void {}
 
 	//unloadMovie() : void {}
+
+    clone(newAdaptee:DisplayObjectContainer):MovieClipAdapter
+    {
+        return new AS2MovieClipAdapter(newAdaptee);
+    }
 }
 export = AS2MovieClipAdapter;

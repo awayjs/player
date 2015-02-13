@@ -20,6 +20,54 @@ var AS2MovieClipAdapter = (function (_super) {
         _super.call(this, adaptee);
         this.currentFrameIndex = -1;
     }
+    //get _totalFrames() : number
+    //{
+    //}
+    //attachAudio(id: Object) : void {	}
+    //attachBitmap(bmp: BitmapData, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
+    //attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
+    //beginBitmapFill(bmp: BitmapData, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
+    //beginFill(rgb: Number, alpha: number = 1.0) : void {}
+    //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
+    //clear() : void {}
+    //createEmptyMovieClip(name: string, depth: number) : MovieClip { return null; }
+    //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
+    //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
+    //duplicateMovieClip(name: string, depth: number, initObject: Object) : MovieClip { return null; }
+    //endFill() : void {}
+    //getBounds(bounds: Object) : Object { return null; }
+    //getBytesLoaded() : number { return 0; }
+    //getBytesTotal() : number { return 0; }
+    //getInstanceAtDepth(depth: Number) : MovieClip { return null; }
+    //getNextHighestDepth() : number { return 0; }
+    //getRect(bounds: Object) : Object { return null; }
+    //getSWFVersion() : number { return 0; }
+    //getTextSnapshot() : TextSnapshot {}
+    //getURL(url: string, window: string, method: string) : void {}
+    //globalToLocal(pt: Object) : void {}
+    //gotoAndPlay(frame: Object) : void {}
+    //gotoAndStop(frame: Object) : void {}
+    //hitTest() : boolean { return false; }
+    //lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number) : void {}
+    //lineStyle(thickness: number, rgb: number, alpha: number, pixelHinting: boolean, noScale: string, capsStyle: string, jointStyle: string, miterLimit: number) : void {}
+    //lineTo(x: number, y: number) : void {}
+    //loadMovie(url: string, method: string = null) : void {}
+    //loadVariables(url: string, method: string = null) : void {}
+    //localToGlobal(pt: Object) : void {}
+    //moveTo(x: number, y: number) : void {}
+    //nextFrame() : void {}
+    //play() : void {}
+    //prevFrame() : void {}
+    //removeMovieClip() : void {}
+    //setMask(mc: Object) : void {}
+    //startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
+    //stop() : void {}
+    //stopDrag() : void {}
+    //swapDepths(target: Object) : void {}
+    //unloadMovie() : void {}
+    AS2MovieClipAdapter.prototype.clone = function (newAdaptee) {
+        return new AS2MovieClipAdapter(newAdaptee);
+    };
     return AS2MovieClipAdapter;
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
@@ -192,7 +240,9 @@ var MovieClip = (function (_super) {
     function MovieClip() {
         _super.call(this);
         this._loop = true;
+        this._prototype = this;
         this._keyFrames = new Array();
+        this._potentialChildren = new Array();
         this._currentFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 25;
@@ -258,6 +308,26 @@ var MovieClip = (function (_super) {
         this._keyFrames.push(newFrame);
     };
     /**
+     * Returns the child ID for this MovieClip
+     */
+    MovieClip.prototype.getPotentialChild = function (id) {
+        return this._potentialChildren[id];
+    };
+    /**
+     * Returns the child ID for this MovieClip
+     */
+    MovieClip.prototype.registerPotentialChild = function (prototype) {
+        var id = this._potentialChildren.length;
+        this._potentialChildren[id] = prototype.clone();
+        return id;
+    };
+    MovieClip.prototype.activateChild = function (id) {
+        this.addChild(this._potentialChildren[id]);
+    };
+    MovieClip.prototype.deactivateChild = function (id) {
+        this.removeChild(this._potentialChildren[id]);
+    };
+    /**
      * This is called inside the TimelineFrame.execute() function.
      */
     MovieClip.prototype.executeFrameScript = function (frameScript) {
@@ -267,6 +337,19 @@ var MovieClip = (function (_super) {
      */
     MovieClip.prototype.stop = function () {
         this._isPlaying = false; // no need to call any other stuff
+    };
+    MovieClip.prototype.clone = function () {
+        var clone = new MovieClip();
+        if (this._adapter)
+            clone.adapter = this._adapter.clone(clone);
+        clone._prototype = this._prototype;
+        clone._keyFrames = this._keyFrames;
+        for (var i = 0; i < this._potentialChildren.length; ++i)
+            clone._potentialChildren[i] = this._potentialChildren[i].clone();
+        clone._fps = this._fps;
+        clone._loop = this._loop;
+        clone._totalFrames = this._totalFrames;
+        return clone;
     };
     MovieClip.prototype.resetPlayHead = function () {
         this._time = 0;
@@ -301,9 +384,8 @@ var MovieClip = (function (_super) {
             var len = this.numChildren;
             for (i = 0; i < len; i++) {
                 var child = this.getChildAt(i);
-                if (child instanceof MovieClip) {
+                if (child instanceof MovieClip)
                     child.advanceFrame(skipFrames);
-                }
             }
         }
     };
@@ -475,91 +557,53 @@ module.exports = TimelineKeyFrame;
 
 
 },{}],"awayjs-player\\lib\\fl\\timeline\\commands\\AddChildCommand":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
-var AddChildCommand = (function (_super) {
-    __extends(AddChildCommand, _super);
-    function AddChildCommand(child) {
-        _super.call(this);
-        this._child = child;
+var AddChildCommand = (function () {
+    function AddChildCommand(childID) {
+        this._childID = childID;
     }
     AddChildCommand.prototype.execute = function (sourceMovieClip, time) {
-        sourceMovieClip.addChild(this._child);
+        sourceMovieClip.activateChild(this._childID);
     };
     return AddChildCommand;
-})(FrameCommand);
+})();
 module.exports = AddChildCommand;
 
 
-},{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}],"awayjs-player\\lib\\fl\\timeline\\commands\\FrameCommand":[function(require,module,exports){
-var AbstractMethodError = require("awayjs-core/lib/errors/AbstractMethodError");
-/**
- * FrameCommand associates a TimeLineobject with CommandProps.
- * CommandProps can be of different class, depending on the type of Asset that the TimeLineObject references to.
- */
-var FrameCommand = (function () {
-    function FrameCommand() {
-    }
-    FrameCommand.prototype.execute = function (sourceMovieClip, time) {
-        throw new AbstractMethodError();
-    };
-    return FrameCommand;
-})();
-module.exports = FrameCommand;
+},{}],"awayjs-player\\lib\\fl\\timeline\\commands\\FrameCommand":[function(require,module,exports){
 
 
-},{"awayjs-core/lib/errors/AbstractMethodError":undefined}],"awayjs-player\\lib\\fl\\timeline\\commands\\RemoveChildCommand":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
-var RemoveChildCommand = (function (_super) {
-    __extends(RemoveChildCommand, _super);
-    function RemoveChildCommand(child) {
-        _super.call(this);
-        this._child = child;
+
+},{}],"awayjs-player\\lib\\fl\\timeline\\commands\\RemoveChildCommand":[function(require,module,exports){
+var RemoveChildCommand = (function () {
+    function RemoveChildCommand(childID) {
+        this._childID = childID;
     }
     RemoveChildCommand.prototype.execute = function (sourceMovieClip, time) {
-        sourceMovieClip.removeChild(this._child);
+        sourceMovieClip.deactivateChild(this._childID);
     };
     return RemoveChildCommand;
-})(FrameCommand);
+})();
 module.exports = RemoveChildCommand;
 
 
-},{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}],"awayjs-player\\lib\\fl\\timeline\\commands\\UpdatePropertyCommand":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
-var UpdatePropertyCommand = (function (_super) {
-    __extends(UpdatePropertyCommand, _super);
-    function UpdatePropertyCommand(target, propertyName, value) {
-        _super.call(this);
-        this._target = target;
+},{}],"awayjs-player\\lib\\fl\\timeline\\commands\\UpdatePropertyCommand":[function(require,module,exports){
+var UpdatePropertyCommand = (function () {
+    // target can be MovieClip, its ColorTransform, and so on
+    function UpdatePropertyCommand(targetID, propertyName, value) {
+        this._targetID = targetID;
         this._propertyName = propertyName;
         this._value = value;
     }
     UpdatePropertyCommand.prototype.execute = function (sourceMovieClip, time) {
-        this._target[this._propertyName] = this._value;
+        var target = sourceMovieClip.getPotentialChild(this._targetID);
+        target[this._propertyName] = this._value;
     };
     return UpdatePropertyCommand;
-})(FrameCommand);
+})();
 module.exports = UpdatePropertyCommand;
 
 
-},{"awayjs-player/lib/fl/timeline/commands/FrameCommand":undefined}]},{},[])
+},{}]},{},[])
 
 
 //# sourceMappingURL=awayjs-player.js.map
