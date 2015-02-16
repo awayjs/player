@@ -113,6 +113,7 @@ class MovieClip extends DisplayObjectContainer
      */
     public registerPotentialChild(prototype:DisplayObject) : number
     {
+        console.log(prototype);
         var id = this._potentialChildren.length;
         this._potentialChildren[id] = prototype.clone();
         return id;
@@ -152,14 +153,18 @@ class MovieClip extends DisplayObjectContainer
         clone._prototype = this._prototype;
         clone._keyFrames = this._keyFrames;
 
-        for (var i = 0; i < this._potentialChildren.length; ++i)
+        for (var i = 0; i < this._potentialChildren.length; ++i) {
             clone._potentialChildren[i] = this._potentialChildren[i].clone();
+        }
 
         clone._fps = this._fps;
         clone._loop = this._loop;
         clone._totalFrames = this._totalFrames;
         clone.name = this.name;
-        clone.transform.matrix = this.transform.matrix.clone();
+
+        if (this.transform.matrix)
+            clone.transform.matrix = this.transform.matrix.clone();
+
         clone.transform.matrix3D = this.transform.matrix3D;
 
         var ct = this.transform.colorTransform;
