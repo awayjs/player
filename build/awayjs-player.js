@@ -303,7 +303,7 @@ var MovieClip = (function (_super) {
      * Add a new TimelineFrame.
      */
     MovieClip.prototype.addFrame = function (newFrame) {
-        var endFrame = (newFrame.startTime + newFrame.duration) / 1000 * this._fps;
+        var endFrame = Math.ceil((newFrame.startTime + newFrame.duration) / 1000 * this._fps);
         if (this._totalFrames < endFrame)
             this._totalFrames = endFrame;
         this._keyFrames.push(newFrame);
@@ -385,6 +385,7 @@ var MovieClip = (function (_super) {
             advance = false;
         }
         if (advance) {
+            console.log("Resetting playhead: ", this._currentFrameIndex, this._totalFrames);
             if (++this._currentFrameIndex == this._totalFrames)
                 this.resetPlayHead();
         }
