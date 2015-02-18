@@ -290,6 +290,7 @@ var MovieClip = (function (_super) {
      * should be called right before the call to away3d-render.
      */
     MovieClip.prototype.update = function (timeDelta) {
+        //this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker = 1000 / this._fps;
         // right now, just advance frame once time marker has been reached
@@ -318,7 +319,6 @@ var MovieClip = (function (_super) {
      * Returns the child ID for this MovieClip
      */
     MovieClip.prototype.registerPotentialChild = function (prototype) {
-        console.log(prototype);
         var id = this._potentialChildren.length;
         this._potentialChildren[id] = prototype.clone();
         return id;
@@ -385,7 +385,6 @@ var MovieClip = (function (_super) {
             advance = false;
         }
         if (advance) {
-            console.log("Resetting playhead: ", this._currentFrameIndex, this._totalFrames);
             if (++this._currentFrameIndex == this._totalFrames)
                 this.resetPlayHead();
         }
@@ -413,6 +412,26 @@ var MovieClip = (function (_super) {
                 keyFrame.update(this, this._time);
         }
     };
+    // DEBUG CODE:
+    MovieClip.prototype.logHierarchy = function (depth) {
+        if (depth === void 0) { depth = 0; }
+        this.printHierarchyName(depth, this);
+        var len = this.numChildren;
+        for (var i = 0; i < len; i++) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip)
+                child.logHierarchy(depth + 1);
+            else
+                this.printHierarchyName(depth + 1, child);
+        }
+    };
+    MovieClip.prototype.printHierarchyName = function (depth, target) {
+        var str = "";
+        for (var i = 0; i < depth; ++i)
+            str += "--";
+        str += " " + target.name;
+        console.log(str);
+    };
     return MovieClip;
 })(DisplayObjectContainer);
 module.exports = MovieClip;
@@ -438,7 +457,68 @@ module.exports = AS2SceneGraphFactory;
 
 
 
-},{}],"awayjs-player\\lib\\fl\\timeline\\InterpolationObject":[function(require,module,exports){
+},{}],"awayjs-player\\lib\\fl\\partition\\Partition2DNode":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+var NodeBase = require("awayjs-display/lib/partition/NodeBase");
+var Partition2DNode = (function (_super) {
+    __extends(Partition2DNode, _super);
+    function Partition2DNode(root) {
+        _super.call(this);
+        this._root = root;
+    }
+    Partition2DNode.prototype.acceptTraverser = function (traverser) {
+        if (traverser.enterNode(this)) {
+            this.traverseSceneGraph(this._root, traverser);
+        }
+    };
+    // pass any so we can convert to IEntity. Sigh, TypeScript.
+    Partition2DNode.prototype.traverseSceneGraph = function (displayObject, traverser) {
+        // typechecking is nasty, but we have little choice:
+        if (displayObject instanceof DisplayObjectContainer)
+            this.traverseChildren(displayObject, traverser);
+        // (typechecking an interface doesn't work, ie instanceof IEntity is impossible)
+        if (displayObject._iCollectRenderables) {
+            var entity = (displayObject);
+            console.log(entity);
+            traverser.applyEntity(entity);
+        }
+    };
+    Partition2DNode.prototype.traverseChildren = function (container, traverser) {
+        var len = container.numChildren;
+        for (var i = 0; i < len; ++i)
+            this.traverseSceneGraph(container.getChildAt(i), traverser);
+    };
+    return Partition2DNode;
+})(NodeBase);
+module.exports = Partition2DNode;
+
+
+},{"awayjs-display/lib/containers/DisplayObjectContainer":undefined,"awayjs-display/lib/partition/NodeBase":undefined}],"awayjs-player\\lib\\fl\\partition\\Partition2D":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Partition = require("awayjs-display/lib/partition/Partition");
+var Partition2DNode = require("awayjs-player/lib/fl/partition/Partition2DNode");
+var Partition2D = (function (_super) {
+    __extends(Partition2D, _super);
+    function Partition2D(root) {
+        _super.call(this, new Partition2DNode(root));
+    }
+    return Partition2D;
+})(Partition);
+module.exports = Partition2D;
+
+
+},{"awayjs-display/lib/partition/Partition":undefined,"awayjs-player/lib/fl/partition/Partition2DNode":undefined}],"awayjs-player\\lib\\fl\\timeline\\InterpolationObject":[function(require,module,exports){
 /**
  * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
  *  A TimeLineObject basically consists of an objID, and an IAsset.
@@ -578,6 +658,30 @@ var AddChildCommand = (function () {
     return AddChildCommand;
 })();
 module.exports = AddChildCommand;
+
+
+},{}],"awayjs-player\\lib\\fl\\timeline\\commands\\ApplyAS2DepthsCommand":[function(require,module,exports){
+// We're using a specific command so we don't need to manage an AS2-like "depth" property, which has no meaning in Away3D's display hierarchy
+// This implementation itself is a hack, tho, but it works.
+var ApplyAS2DepthsCommand = (function () {
+    function ApplyAS2DepthsCommand() {
+    }
+    ApplyAS2DepthsCommand.prototype.execute = function (sourceMovieClip, time) {
+        var childrenArray = sourceMovieClip["_children"];
+        childrenArray.sort(this.sortChildrenByDepth);
+    };
+    ApplyAS2DepthsCommand.prototype.sortChildrenByDepth = function (a, b) {
+        var da = (a["__AS2Depth"]);
+        var db = (b["__AS2Depth"]);
+        if (da === undefined)
+            da = 0;
+        if (db === undefined)
+            db = 0;
+        return db - da;
+    };
+    return ApplyAS2DepthsCommand;
+})();
+module.exports = ApplyAS2DepthsCommand;
 
 
 },{}],"awayjs-player\\lib\\fl\\timeline\\commands\\FrameCommand":[function(require,module,exports){

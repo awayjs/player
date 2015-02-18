@@ -113,6 +113,8 @@ declare module "awayjs-player/lib/fl/display/MovieClip" {
 	    private resetPlayHead();
 	    private advanceFrame(skipFrames?);
 	    private updateKeyFrames(skipFrames);
+	    logHierarchy(depth?: number): void;
+	    printHierarchyName(depth: number, target: DisplayObject): void;
 	}
 	export = MovieClip;
 	
@@ -164,6 +166,29 @@ declare module "awayjs-player/lib/fl/factories/AS2SceneGraphFactory" {
 	export = AS2SceneGraphFactory;
 	
 }
+declare module "awayjs-player/lib/fl/partition/Partition2DNode" {
+	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	import NodeBase = require("awayjs-display/lib/partition/NodeBase");
+	class Partition2DNode extends NodeBase {
+	    private _root;
+	    constructor(root: DisplayObject);
+	    acceptTraverser(traverser: CollectorBase): void;
+	    traverseSceneGraph(displayObject: any, traverser: CollectorBase): void;
+	    private traverseChildren(container, traverser);
+	}
+	export = Partition2DNode;
+	
+}
+declare module "awayjs-player/lib/fl/partition/Partition2D" {
+	import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import Partition = require("awayjs-display/lib/partition/Partition");
+	class Partition2D extends Partition {
+	    constructor(root: DisplayObject);
+	}
+	export = Partition2D;
+	
+}
 declare module "awayjs-player/lib/fl/timeline/InterpolationObject" {
 	/**
 	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
@@ -193,6 +218,17 @@ declare module "awayjs-player/lib/fl/timeline/commands/AddChildCommand" {
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = AddChildCommand;
+	
+}
+declare module "awayjs-player/lib/fl/timeline/commands/ApplyAS2DepthsCommand" {
+	import FrameCommand = require("awayjs-player/lib/fl/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/fl/display/MovieClip");
+	class ApplyAS2DepthsCommand implements FrameCommand {
+	    constructor();
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	    private sortChildrenByDepth(a, b);
+	}
+	export = ApplyAS2DepthsCommand;
 	
 }
 declare module "awayjs-player/lib/fl/timeline/commands/RemoveChildCommand" {

@@ -77,6 +77,7 @@ class MovieClip extends DisplayObjectContainer
      */
     public update(timeDelta:number)
     {
+        //this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker : number = 1000 / this._fps;
 
@@ -113,7 +114,6 @@ class MovieClip extends DisplayObjectContainer
      */
     public registerPotentialChild(prototype:DisplayObject) : number
     {
-        console.log(prototype);
         var id = this._potentialChildren.length;
         this._potentialChildren[id] = prototype.clone();
         return id;
@@ -203,7 +203,6 @@ class MovieClip extends DisplayObjectContainer
         }
 
         if (advance) {
-            console.log("Resetting playhead: ", this._currentFrameIndex, this._totalFrames);
             if (++this._currentFrameIndex == this._totalFrames)
                 this.resetPlayHead();
         }
@@ -246,6 +245,32 @@ class MovieClip extends DisplayObjectContainer
             if (!skipFrames && keyFrame.isActive)
                 keyFrame.update(this, this._time);
         }
+    }
+
+// DEBUG CODE:
+    logHierarchy(depth: number = 0):void
+    {
+        this.printHierarchyName(depth, this);
+
+        var len = this.numChildren;
+        for (var i = 0; i < len; i++) {
+            var child = this.getChildAt(i);
+
+            if (child instanceof MovieClip)
+                (<MovieClip>child).logHierarchy(depth + 1);
+            else
+                this.printHierarchyName(depth + 1, child);
+        }
+    }
+
+    printHierarchyName(depth:number, target:DisplayObject)
+    {
+        var str = "";
+        for (var i = 0; i < depth; ++i)
+            str += "--";
+
+        str += " " + target.name;
+        console.log(str);
     }
 }
 export = MovieClip;
