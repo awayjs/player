@@ -176,6 +176,7 @@ declare module "awayjs-player/lib/fl/partition/Partition2DNode" {
 	    acceptTraverser(traverser: CollectorBase): void;
 	    traverseSceneGraph(displayObject: any, traverser: CollectorBase): void;
 	    private traverseChildren(container, traverser);
+	    iAddNode(node: NodeBase): void;
 	}
 	export = Partition2DNode;
 	

@@ -3,6 +3,7 @@ import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectConta
 import Partition = require("awayjs-display/lib/partition/Partition");
 
 import Partition2DNode = require("awayjs-player/lib/fl/partition/Partition2DNode");
+import IEntity = require("awayjs-display/lib/entities/IEntity");
 
 
 class Partition2D extends Partition

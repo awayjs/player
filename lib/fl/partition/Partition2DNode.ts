@@ -3,6 +3,7 @@ import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import IEntity = require("awayjs-display/lib/entities/IEntity");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import NodeBase = require("awayjs-display/lib/partition/NodeBase");
+import EntityNode = require("awayjs-display/lib/partition/EntityNode");
 
 class Partition2DNode extends NodeBase
 {
@@ -28,11 +29,10 @@ class Partition2DNode extends NodeBase
         if (displayObject instanceof DisplayObjectContainer)
             this.traverseChildren(<DisplayObjectContainer>displayObject, traverser);
 
-        // (typechecking an interface doesn't work, ie instanceof IEntity is impossible)
+        // (typechecking an interface doesn't work, ie "displayObject instanceof IEntity" is impossible)
         if (displayObject._iCollectRenderables) {
             var entity = <IEntity>(displayObject);
-            console.log(entity);
-            traverser.applyEntity(entity);
+            entity["node2D"].acceptTraverser(traverser);
         }
     }
 
@@ -42,6 +42,14 @@ class Partition2DNode extends NodeBase
 
         for (var i = 0; i < len; ++i)
             this.traverseSceneGraph(container.getChildAt(i), traverser);
+    }
+
+    public iAddNode(node:NodeBase)
+    {
+        super.iAddNode(node);
+        // HORRIBLE:
+        var entityNode = <EntityNode>(node);
+        entityNode.entity["node2D"] = node;
     }
 }
 export = Partition2DNode;
