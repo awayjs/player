@@ -166,26 +166,6 @@ declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	export = AS2SceneGraphFactory;
 	
 }
-declare module "awayjs-player/lib/timeline/InterpolationObject" {
-	/**
-	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
-	 *  A TimeLineObject basically consists of an objID, and an IAsset.
-	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
-	
-	 */
-	class InterpolationObject {
-	    private _type;
-	    private _startValue;
-	    private _startTime;
-	    private _endValue;
-	    private _endTime;
-	    private _duration;
-	    constructor(type: number, startValue: any, endValue: any, startTime: number, endTime: number);
-	    getState(time: number, speed: number): any;
-	}
-	export = InterpolationObject;
-	
-}
 declare module "awayjs-player/lib/partition/Partition2DNode" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
@@ -208,6 +188,26 @@ declare module "awayjs-player/lib/partition/Partition2D" {
 	    constructor(root: DisplayObject);
 	}
 	export = Partition2D;
+	
+}
+declare module "awayjs-player/lib/timeline/InterpolationObject" {
+	/**
+	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
+	 *  A TimeLineObject basically consists of an objID, and an IAsset.
+	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
+	
+	 */
+	class InterpolationObject {
+	    private _type;
+	    private _startValue;
+	    private _startTime;
+	    private _endValue;
+	    private _endTime;
+	    private _duration;
+	    constructor(type: number, startValue: any, endValue: any, startTime: number, endTime: number);
+	    getState(time: number, speed: number): any;
+	}
+	export = InterpolationObject;
 	
 }
 declare module "awayjs-player/lib/timeline/commands/AddChildCommand" {
