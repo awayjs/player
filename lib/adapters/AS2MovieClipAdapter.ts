@@ -1,4 +1,4 @@
-import BitmapData = require("awayjs-core/lib/base/BitmapData");
+import BitmapData = require("awayjs-core/lib/data/BitmapData");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
