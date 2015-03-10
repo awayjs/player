@@ -65,6 +65,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 	import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 	class MovieClip extends DisplayObjectContainer {
+	    static assetType: string;
 	    private _keyFrames;
 	    private _time;
 	    private _currentFrameIndex;

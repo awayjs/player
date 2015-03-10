@@ -234,7 +234,6 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
-var AssetType = require("awayjs-core/lib/library/AssetType");
 var DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 var MovieClip = (function (_super) {
     __extends(MovieClip, _super);
@@ -275,7 +274,7 @@ var MovieClip = (function (_super) {
     });
     Object.defineProperty(MovieClip.prototype, "assetType", {
         get: function () {
-            return AssetType.TIMELINE;
+            return MovieClip.assetType;
         },
         enumerable: true,
         configurable: true
@@ -432,12 +431,13 @@ var MovieClip = (function (_super) {
         str += " " + target.name;
         console.log(str);
     };
+    MovieClip.assetType = "[asset MovieClip]";
     return MovieClip;
 })(DisplayObjectContainer);
 module.exports = MovieClip;
 
 
-},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-core/lib/library/AssetType":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
+},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
 var AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
 var AS2SceneGraphFactory = (function () {
