@@ -9,7 +9,8 @@
   "dependencies": {
     "awayjs-core": "^0.4.3",
     "awayjs-display": "^0.7.4",
-    "awayjs-stagegl": "^0.7.2"
+    "awayjs-stagegl": "^0.7.2",
+    "awayjs-renderergl": "^0.7.9"
   },
   "devDependencies": {
     "browserify": "^8.1.3",

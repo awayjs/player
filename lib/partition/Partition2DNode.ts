@@ -5,9 +5,11 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 import NodeBase = require("awayjs-display/lib/partition/NodeBase");
 import EntityNode = require("awayjs-display/lib/partition/EntityNode");
 
+// Warning: contains horrible hacks
 class Partition2DNode extends NodeBase
 {
     private _root : DisplayObject;
+    private _maskConfigID : number;
 
     constructor(root:DisplayObject)
     {
@@ -17,37 +19,61 @@ class Partition2DNode extends NodeBase
 
     public acceptTraverser(traverser:CollectorBase)
     {
+        this._maskConfigID = 0;
         if (traverser.enterNode(this)) {
             this.traverseSceneGraph(this._root, traverser);
         }
     }
 
     // pass any so we can convert to IEntity. Sigh, TypeScript.
-    public traverseSceneGraph(displayObject:any, traverser:CollectorBase)
+    public traverseSceneGraph(displayObject:any, traverser:CollectorBase, maskID:number = -1, appliedMasks:DisplayObject[] = null)
     {
+        if (displayObject._iMaskID != -1) {
+            if (maskID != -1) throw "masks within masker currently not supported";
+            maskID = displayObject._iMaskID;
+
+            // TODO: this could be implemented similar to implicit mouse enabled, partition, and other parent-child-propagated properties
+            // just not sure if we want to keep it like this
+            console.log(maskID);
+        }
+        else {
+            console.log(displayObject._iMasks);
+            if (displayObject._iMasks) {
+                appliedMasks = appliedMasks? appliedMasks.concat(displayObject._iMasks) : displayObject._iMasks.concat();
+                // signify that applied masks have changed
+                ++this._maskConfigID;
+            }
+        }
+
+        displayObject["hierarchicalMaskID"] = maskID;
+        displayObject["hierarchicalMasks"] = appliedMasks;
+        displayObject["maskConfigID"] = this._maskConfigID;
+
+        // moving back up the tree, mask will change again
+        if (displayObject._iMasks)
+            ++this._maskConfigID;
+
         // typechecking is nasty, but we have little choice:
         if (displayObject instanceof DisplayObjectContainer)
-            this.traverseChildren(<DisplayObjectContainer>displayObject, traverser);
+            this.traverseChildren(<DisplayObjectContainer>displayObject, traverser, maskID, appliedMasks);
 
-        // (typechecking an interface doesn't work, ie "displayObject instanceof IEntity" is impossible)
-        if (displayObject._iCollectRenderables) {
-            var entity = <IEntity>(displayObject);
+        if (displayObject.isEntity) {
+            var entity : IEntity = <IEntity>displayObject;
             entity["node2D"].acceptTraverser(traverser);
         }
     }
 
-    private traverseChildren(container:DisplayObjectContainer, traverser:CollectorBase)
+    private traverseChildren(container:DisplayObjectContainer, traverser:CollectorBase, maskID:number, appliedMasks:DisplayObject[])
     {
         var len = container.numChildren;
 
         for (var i = 0; i < len; ++i)
-            this.traverseSceneGraph(container.getChildAt(i), traverser);
+            this.traverseSceneGraph(container.getChildAt(i), traverser, maskID, appliedMasks);
     }
 
     public iAddNode(node:NodeBase)
     {
         super.iAddNode(node);
-        // HORRIBLE:
         var entityNode = <EntityNode>(node);
         entityNode.entity["node2D"] = node;
     }

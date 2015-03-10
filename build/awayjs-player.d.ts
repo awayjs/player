@@ -173,10 +173,11 @@ declare module "awayjs-player/lib/partition/Partition2DNode" {
 	import NodeBase = require("awayjs-display/lib/partition/NodeBase");
 	class Partition2DNode extends NodeBase {
 	    private _root;
+	    private _maskConfigID;
 	    constructor(root: DisplayObject);
 	    acceptTraverser(traverser: CollectorBase): void;
-	    traverseSceneGraph(displayObject: any, traverser: CollectorBase): void;
-	    private traverseChildren(container, traverser);
+	    traverseSceneGraph(displayObject: any, traverser: CollectorBase, maskID?: number, appliedMasks?: DisplayObject[]): void;
+	    private traverseChildren(container, traverser, maskID, appliedMasks);
 	    iAddNode(node: NodeBase): void;
 	}
 	export = Partition2DNode;
@@ -189,6 +190,38 @@ declare module "awayjs-player/lib/partition/Partition2D" {
 	    constructor(root: DisplayObject);
 	}
 	export = Partition2D;
+	
+}
+declare module "awayjs-player/lib/renderer/Renderer2D" {
+	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
+	import Stage = require("awayjs-stagegl/lib/base/Stage");
+	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
+	import IRendererPoolClass = require("awayjs-renderergl/lib/pool/IRendererPoolClass");
+	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
+	class Renderer2D extends DefaultRenderer {
+	    private _mask;
+	    constructor(rendererPoolClass?: IRendererPoolClass, stage?: Stage);
+	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
+	}
+	export = Renderer2D;
+	
+}
+declare module "awayjs-player/lib/renderer/Mask" {
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
+	import Stage = require("awayjs-stagegl/lib/base/Stage");
+	import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
+	class Mask {
+	    private _stage;
+	    private _renderer;
+	    private _registeredMasks;
+	    constructor(stage: Stage, renderer: Renderer2D);
+	    registerMask(obj: RenderableBase): void;
+	    renderMasks(masks: DisplayObject[], configID: number): void;
+	    reset(): void;
+	    private _draw(renderable);
+	}
+	export = Mask;
 	
 }
 declare module "awayjs-player/lib/timeline/InterpolationObject" {
