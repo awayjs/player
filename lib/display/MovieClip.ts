@@ -1,6 +1,5 @@
 import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 import IAsset = require("awayjs-core/lib/library/IAsset");
-import AssetType = require("awayjs-core/lib/library/AssetType");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 
@@ -9,6 +8,8 @@ import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame")
 
 class MovieClip extends DisplayObjectContainer
 {
+	public static assetType:string = "[asset MovieClip]";
+
     private _keyFrames:Array<TimelineKeyFrame>;
     private _time:number;// the current time inside the animation
     private _currentFrameIndex:number;// the current frame
@@ -61,7 +62,7 @@ class MovieClip extends DisplayObjectContainer
 
     public get assetType():string
     {
-        return AssetType.TIMELINE;
+        return MovieClip.assetType;
     }
 
     /**

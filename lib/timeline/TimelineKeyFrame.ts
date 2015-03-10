@@ -1,5 +1,3 @@
-import AssetType                    = require("awayjs-core/lib/library/AssetType");
-import IAsset                        = require("awayjs-core/lib/library/IAsset");
 import Matrix3D                        = require("awayjs-core/lib/geom/Matrix3D");
 import Matrix                        = require("awayjs-core/lib/geom/Matrix");
 import SubGeometryBase                = require("awayjs-core/lib/data/SubGeometryBase");
