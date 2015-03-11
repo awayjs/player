@@ -10,6 +10,7 @@ class Partition2DNode extends NodeBase
 {
     private _root : DisplayObject;
     private _maskConfigID : number;
+    private _index : number;
 
     constructor(root:DisplayObject)
     {
@@ -20,6 +21,7 @@ class Partition2DNode extends NodeBase
     public acceptTraverser(traverser:CollectorBase)
     {
         this._maskConfigID = 0;
+        this._index = 0;
         if (traverser.enterNode(this)) {
             this.traverseSceneGraph(this._root, traverser);
         }
@@ -28,18 +30,17 @@ class Partition2DNode extends NodeBase
     // pass any so we can convert to IEntity. Sigh, TypeScript.
     public traverseSceneGraph(displayObject:any, traverser:CollectorBase, maskID:number = -1, appliedMasks:DisplayObject[] = null)
     {
-        if (displayObject._iMaskID != -1) {
-            if (maskID != -1) throw "masks within masker currently not supported";
+        if (displayObject._iMaskID !== -1) {
+            if (maskID !== -1) throw "masks within masker currently not supported";
             maskID = displayObject._iMaskID;
 
             // TODO: this could be implemented similar to implicit mouse enabled, partition, and other parent-child-propagated properties
             // just not sure if we want to keep it like this
-            console.log(maskID);
         }
         else {
-            console.log(displayObject._iMasks);
+            //console.log(displayObject._iMasks);
             if (displayObject._iMasks) {
-                appliedMasks = appliedMasks? appliedMasks.concat(displayObject._iMasks) : displayObject._iMasks.concat();
+                appliedMasks = appliedMasks? appliedMasks.concat(displayObject._iMasks) : displayObject._iMasks;
                 // signify that applied masks have changed
                 ++this._maskConfigID;
             }
@@ -59,6 +60,7 @@ class Partition2DNode extends NodeBase
 
         if (displayObject.isEntity) {
             var entity : IEntity = <IEntity>displayObject;
+            entity.zOffset = ++this._index;
             entity["node2D"].acceptTraverser(traverser);
         }
     }

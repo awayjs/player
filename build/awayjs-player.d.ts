@@ -174,6 +174,7 @@ declare module "awayjs-player/lib/partition/Partition2DNode" {
 	class Partition2DNode extends NodeBase {
 	    private _root;
 	    private _maskConfigID;
+	    private _index;
 	    constructor(root: DisplayObject);
 	    acceptTraverser(traverser: CollectorBase): void;
 	    traverseSceneGraph(displayObject: any, traverser: CollectorBase, maskID?: number, appliedMasks?: DisplayObject[]): void;
@@ -192,6 +193,19 @@ declare module "awayjs-player/lib/partition/Partition2D" {
 	export = Partition2D;
 	
 }
+declare module "awayjs-player/lib/renderer/RenderableSort2D" {
+	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
+	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
+	/**
+	 * @class away.sort.RenderableMergeSort
+	 */
+	class RenderableMergeSort implements IEntitySorter {
+	    sortBlendedRenderables(head: IRenderable): IRenderable;
+	    sortOpaqueRenderables(head: IRenderable): IRenderable;
+	}
+	export = RenderableMergeSort;
+	
+}
 declare module "awayjs-player/lib/renderer/Renderer2D" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
@@ -202,6 +216,7 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	    private _mask;
 	    constructor(rendererPoolClass?: IRendererPoolClass, stage?: Stage);
 	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
+	    applyRenderable(renderable: RenderableBase): void;
 	}
 	export = Renderer2D;
 	
@@ -217,7 +232,7 @@ declare module "awayjs-player/lib/renderer/Mask" {
 	    private _registeredMasks;
 	    constructor(stage: Stage, renderer: Renderer2D);
 	    registerMask(obj: RenderableBase): void;
-	    renderMasks(masks: DisplayObject[], configID: number): void;
+	    renderMasks(masks: DisplayObject[]): void;
 	    reset(): void;
 	    private _draw(renderable);
 	}

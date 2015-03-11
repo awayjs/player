@@ -3,6 +3,7 @@ import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
 import RenderObjectBase	= require("awayjs-renderergl/lib/compilation/RenderObjectBase");
 import Stage = require("awayjs-stagegl/lib/base/Stage");
+import ContextGLClearMask = require("awayjs-stagegl/lib/base/ContextGLClearMask");
 
 import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
 
@@ -32,10 +33,11 @@ class Mask
 
     public registerMask(obj:RenderableBase) : void
     {
+        //console.log("registerMask");
         this._registeredMasks.push(obj);
     }
 
-    public renderMasks(masks:DisplayObject[], configID:number)
+    public renderMasks(masks:DisplayObject[])
     {
         //var oldRenderTarget = this._stage.renderTarget;
 
@@ -44,7 +46,7 @@ class Mask
         var context = this._stage.context;
         context.setColorMask(false, false, false, false);
         // TODO: Could we create masks within masks by providing a previous configID, and supply "clear/keep" on stencil fail
-        context.setStencilActions("frontAndBack", "always", "set", "set", "set");
+        //context.setStencilActions("frontAndBack", "always", "set", "set", "set");
 
         if (masks) {
             var numMasks = masks.length;
@@ -55,7 +57,7 @@ class Mask
                 for (var j = 0; j < numRenderables; ++j) {
                     var obj = this._registeredMasks[j];
                     if (obj.sourceEntity["hierarchicalMaskID"] === mask["hierarchicalMaskID"]) {
-                        console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
+                        //console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
                         this._draw(obj);
                     }
                 }

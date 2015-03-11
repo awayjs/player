@@ -161,6 +161,8 @@ class MovieClip extends DisplayObjectContainer
         clone._fps = this._fps;
         clone._loop = this._loop;
         clone._totalFrames = this._totalFrames;
+        clone._iMaskID = this._iMaskID;
+        clone._iMasks = this._iMasks? this._iMasks.concat() : null;
         clone.name = this.name;
 
         if (this.transform.matrix)

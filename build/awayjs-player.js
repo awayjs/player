@@ -351,6 +351,8 @@ var MovieClip = (function (_super) {
         clone._fps = this._fps;
         clone._loop = this._loop;
         clone._totalFrames = this._totalFrames;
+        clone._iMaskID = this._iMaskID;
+        clone._iMasks = this._iMasks ? this._iMasks.concat() : null;
         clone.name = this.name;
         if (this.transform.matrix)
             clone.transform.matrix = this.transform.matrix.clone();
@@ -475,6 +477,7 @@ var Partition2DNode = (function (_super) {
     }
     Partition2DNode.prototype.acceptTraverser = function (traverser) {
         this._maskConfigID = 0;
+        this._index = 0;
         if (traverser.enterNode(this)) {
             this.traverseSceneGraph(this._root, traverser);
         }
@@ -483,18 +486,15 @@ var Partition2DNode = (function (_super) {
     Partition2DNode.prototype.traverseSceneGraph = function (displayObject, traverser, maskID, appliedMasks) {
         if (maskID === void 0) { maskID = -1; }
         if (appliedMasks === void 0) { appliedMasks = null; }
-        if (displayObject._iMaskID != -1) {
-            if (maskID != -1)
+        if (displayObject._iMaskID !== -1) {
+            if (maskID !== -1)
                 throw "masks within masker currently not supported";
             maskID = displayObject._iMaskID;
-            // TODO: this could be implemented similar to implicit mouse enabled, partition, and other parent-child-propagated properties
-            // just not sure if we want to keep it like this
-            console.log(maskID);
         }
         else {
-            console.log(displayObject._iMasks);
+            //console.log(displayObject._iMasks);
             if (displayObject._iMasks) {
-                appliedMasks = appliedMasks ? appliedMasks.concat(displayObject._iMasks) : displayObject._iMasks.concat();
+                appliedMasks = appliedMasks ? appliedMasks.concat(displayObject._iMasks) : displayObject._iMasks;
                 // signify that applied masks have changed
                 ++this._maskConfigID;
             }
@@ -510,6 +510,7 @@ var Partition2DNode = (function (_super) {
             this.traverseChildren(displayObject, traverser, maskID, appliedMasks);
         if (displayObject.isEntity) {
             var entity = displayObject;
+            entity.zOffset = ++this._index;
             entity["node2D"].acceptTraverser(traverser);
         }
     };
@@ -563,16 +564,17 @@ var Mask = (function () {
     //    this._texture.dispose();
     //}
     Mask.prototype.registerMask = function (obj) {
+        //console.log("registerMask");
         this._registeredMasks.push(obj);
     };
-    Mask.prototype.renderMasks = function (masks, configID) {
+    Mask.prototype.renderMasks = function (masks) {
         //var oldRenderTarget = this._stage.renderTarget;
         //this._stage.setRenderTarget(this._texture);
         //this._stage.clear();
         var context = this._stage.context;
         context.setColorMask(false, false, false, false);
         // TODO: Could we create masks within masks by providing a previous configID, and supply "clear/keep" on stencil fail
-        context.setStencilActions("frontAndBack", "always", "set", "set", "set");
+        //context.setStencilActions("frontAndBack", "always", "set", "set", "set");
         if (masks) {
             var numMasks = masks.length;
             var numRenderables = this._registeredMasks.length;
@@ -581,7 +583,7 @@ var Mask = (function () {
                 for (var j = 0; j < numRenderables; ++j) {
                     var obj = this._registeredMasks[j];
                     if (obj.sourceEntity["hierarchicalMaskID"] === mask["hierarchicalMaskID"]) {
-                        console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
+                        //console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
                         this._draw(obj);
                     }
                 }
@@ -628,6 +630,72 @@ var Mask = (function () {
 module.exports = Mask;
 
 
+},{}],"awayjs-player/lib/renderer/RenderableSort2D":[function(require,module,exports){
+/**
+ * @class away.sort.RenderableMergeSort
+ */
+var RenderableMergeSort = (function () {
+    function RenderableMergeSort() {
+    }
+    RenderableMergeSort.prototype.sortBlendedRenderables = function (head) {
+        var headB;
+        var fast;
+        var slow;
+        if (!head || !head.next) {
+            return head;
+        }
+        // split in two sublists
+        slow = head;
+        fast = head.next;
+        while (fast) {
+            fast = fast.next;
+            if (fast) {
+                slow = slow.next;
+                fast = fast.next;
+            }
+        }
+        headB = slow.next;
+        slow.next = null;
+        // recurse
+        head = this.sortBlendedRenderables(head);
+        headB = this.sortBlendedRenderables(headB);
+        // merge sublists while respecting order
+        var result;
+        var curr;
+        var l;
+        if (!head)
+            return headB;
+        if (!headB)
+            return head;
+        while (head && headB) {
+            if (head.zIndex < headB.zIndex) {
+                l = head;
+                head = head.next;
+            }
+            else {
+                l = headB;
+                headB = headB.next;
+            }
+            if (!result)
+                result = l;
+            else
+                curr.next = l;
+            curr = l;
+        }
+        if (head)
+            curr.next = head;
+        else if (headB)
+            curr.next = headB;
+        return result;
+    };
+    RenderableMergeSort.prototype.sortOpaqueRenderables = function (head) {
+        return this.sortBlendedRenderables(head);
+    };
+    return RenderableMergeSort;
+})();
+module.exports = RenderableMergeSort;
+
+
 },{}],"awayjs-player/lib/renderer/Renderer2D":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -635,16 +703,17 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var RenderableNullSort = require("awayjs-display/lib/sort/RenderableNullSort");
+var DefaultMaterialManager = require("awayjs-display/lib/managers/DefaultMaterialManager");
 var DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
 var Mask = require("awayjs-player/lib/renderer/Mask");
+var RenderableSort2D = require("awayjs-player/lib/renderer/RenderableSort2D");
 var Renderer2D = (function (_super) {
     __extends(Renderer2D, _super);
     function Renderer2D(rendererPoolClass, stage) {
         if (rendererPoolClass === void 0) { rendererPoolClass = null; }
         if (stage === void 0) { stage = null; }
         _super.call(this, rendererPoolClass, stage);
-        this.renderableSorter = new RenderableNullSort();
+        this.renderableSorter = new RenderableSort2D();
         this._mask = new Mask(this._pStage, this);
     }
     Renderer2D.prototype.drawRenderables = function (renderable, entityCollector) {
@@ -655,17 +724,22 @@ var Renderer2D = (function (_super) {
         var passes;
         var pass;
         var camera = entityCollector.camera;
-        var maskConfigID = undefined;
+        var maskConfigID = -1;
         /*// TypeScript does not allow calling super.setters -_-
-        // TODO: There's no reason to stick to POT-textures, but AwayJS complains if we don't
         //this._mask.width = this._pRttBufferManager.textureWidth;
         //this._mask.height = this._pRttBufferManager.textureHeight;*/
         this._mask.reset();
+        this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
+        //console.log("------");
+        var gl = this._pContext["_gl"];
+        var gl = this._pContext["_gl"];
+        gl.disable(gl.STENCIL_TEST);
         while (renderable) {
             renderObject = renderable.renderObject;
             passes = renderObject.passes;
-            if (renderable.sourceEntity._iMaskID) {
+            if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
+                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"]);
                 this._mask.registerMask(renderable);
             }
             else if (this._disableColor && renderObject._renderObjectOwner.alphaThreshold != 0) {
@@ -675,43 +749,74 @@ var Renderer2D = (function (_super) {
                 } while (renderable2 && renderable2.renderObject == renderObject);
             }
             else {
+                var newMaskConfigID = renderable.sourceEntity["maskConfigID"];
+                if (maskConfigID !== newMaskConfigID) {
+                    if (newMaskConfigID === -1) {
+                        // disable stencil
+                        //this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
+                        gl.disable(gl.STENCIL_TEST);
+                        gl.stencilFunc(gl.ALWAYS, 0, 0xff);
+                        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+                    }
+                    else {
+                        //console.log("Rendering masks with configID " + newMaskConfigID);
+                        //this._pContext.setStencilReferenceValue(newMaskConfigID);
+                        gl.enable(gl.STENCIL_TEST);
+                        gl.stencilFunc(gl.ALWAYS, newMaskConfigID, 0xff);
+                        gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
+                        this._mask.renderMasks(renderable.sourceEntity["hierarchicalMasks"]);
+                        gl.stencilFunc(gl.EQUAL, newMaskConfigID, 0xff);
+                        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+                    }
+                    maskConfigID = newMaskConfigID;
+                }
                 //iterate through each shader object
                 len = passes.length;
                 for (i = 0; i < len; i++) {
                     renderable2 = renderable;
-                    var newMaskConfigID = renderable2.sourceEntity["maskConfigID"];
-                    if (maskConfigID !== newMaskConfigID) {
-                        if (newMaskConfigID == -1) {
-                            // disable stencil
-                            this._pContext.setStencilActions();
-                            console.log("Let's not use stencil!");
-                        }
-                        else {
-                            console.log("Rendering masks with configID " + newMaskConfigID);
-                            this._pContext.setStencilReferenceValue(newMaskConfigID);
-                            this._mask.renderMasks(renderable2.sourceEntity["hierarchicalMasks"], newMaskConfigID);
-                            this._pContext.setStencilActions("frontAndBack", "equal", "keep", "keep", "keep");
-                        }
-                        maskConfigID = newMaskConfigID;
-                    }
                     pass = passes[i];
                     this.activatePass(renderable, pass, camera);
                     do {
+                        //console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
-                    } while (renderable2 && renderable2.renderObject == renderObject && renderable2.sourceEntity["maskConfigID"] == maskConfigID);
+                    } while (renderable2 && renderable2.renderObject == renderObject && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);
                     this.deactivatePass(renderable, pass);
                 }
             }
             renderable = renderable2;
         }
     };
+    Renderer2D.prototype.applyRenderable = function (renderable) {
+        //set local vars for faster referencing
+        var renderObject = this._pGetRenderObject(renderable, renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        renderable.renderObject = renderObject;
+        renderable.renderObjectId = renderObject.renderObjectId;
+        renderable.renderOrderId = renderObject.renderOrderId;
+        renderable.cascaded = false;
+        var entity = renderable.sourceEntity;
+        renderable.zIndex = entity["hierarchicalMaskID"] === -1 ? entity.zOffset : -entity.zOffset;
+        //store reference to scene transform
+        renderable.renderSceneTransform = renderable.sourceEntity.getRenderSceneTransform(this._pCamera);
+        if (renderObject.requiresBlending) {
+            renderable.next = this._pBlendedRenderableHead;
+            this._pBlendedRenderableHead = renderable;
+        }
+        else {
+            renderable.next = this._pOpaqueRenderableHead;
+            this._pOpaqueRenderableHead = renderable;
+        }
+        this._pNumTriangles += renderable.numTriangles;
+        //handle any overflow for renderables with data that exceeds GPU limitations
+        if (renderable.overflow)
+            this.applyRenderable(renderable.overflow);
+    };
     return Renderer2D;
 })(DefaultRenderer);
 module.exports = Renderer2D;
 
 
-},{"awayjs-display/lib/sort/RenderableNullSort":undefined,"awayjs-player/lib/renderer/Mask":"awayjs-player/lib/renderer/Mask","awayjs-renderergl/lib/DefaultRenderer":undefined}],"awayjs-player/lib/timeline/InterpolationObject":[function(require,module,exports){
+},{"awayjs-display/lib/managers/DefaultMaterialManager":undefined,"awayjs-player/lib/renderer/Mask":"awayjs-player/lib/renderer/Mask","awayjs-player/lib/renderer/RenderableSort2D":"awayjs-player/lib/renderer/RenderableSort2D","awayjs-renderergl/lib/DefaultRenderer":undefined}],"awayjs-player/lib/timeline/InterpolationObject":[function(require,module,exports){
 /**
  * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
  *  A TimeLineObject basically consists of an objID, and an IAsset.
