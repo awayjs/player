@@ -72,7 +72,6 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-
 },{"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
 var AS2SymbolAdapter = (function () {
     function AS2SymbolAdapter(adaptee) {
@@ -150,81 +149,7 @@ var AS2SymbolAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-
 },{}],"awayjs-player/lib/adapters/MovieClipAdapter":[function(require,module,exports){
-
-
-
-},{}],"awayjs-player/lib/adapters/SymbolAdapter":[function(require,module,exports){
-var SymbolAdapter = (function () {
-    function SymbolAdapter(adaptee) {
-        this.adaptee = adaptee;
-    }
-    Object.defineProperty(SymbolAdapter.prototype, "_rotation", {
-        get: function () {
-            return this.adaptee.rotationZ;
-        },
-        set: function (value) {
-            this.adaptee.rotationZ = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolAdapter.prototype, "_x", {
-        get: function () {
-            return this.adaptee.x;
-        },
-        set: function (value) {
-            this.adaptee.x = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolAdapter.prototype, "_y", {
-        get: function () {
-            return this.adaptee.y;
-        },
-        set: function (value) {
-            this.adaptee.y = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolAdapter.prototype, "_xscale", {
-        get: function () {
-            return this.adaptee.scaleX;
-        },
-        set: function (value) {
-            this.adaptee.scaleX = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolAdapter.prototype, "_yscale", {
-        get: function () {
-            return this.adaptee.scaleY;
-        },
-        set: function (value) {
-            this.adaptee.scaleY = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolAdapter.prototype, "_parent", {
-        get: function () {
-            var parentMC = this.adaptee.parent;
-            return parentMC.adapter;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    SymbolAdapter.prototype.getDepth = function () {
-        return this.adaptee.z;
-    };
-    return SymbolAdapter;
-})();
-module.exports = SymbolAdapter;
-
 
 },{}],"awayjs-player/lib/display/MovieClip":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
@@ -438,7 +363,6 @@ var MovieClip = (function (_super) {
 })(DisplayObjectContainer);
 module.exports = MovieClip;
 
-
 },{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
 var AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -454,10 +378,7 @@ var AS2SceneGraphFactory = (function () {
 })();
 module.exports = AS2SceneGraphFactory;
 
-
 },{"awayjs-player/lib/adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/factories/TimelineSceneGraphFactory":[function(require,module,exports){
-
-
 
 },{}],"awayjs-player/lib/partition/Partition2DNode":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
@@ -528,7 +449,6 @@ var Partition2DNode = (function (_super) {
 })(NodeBase);
 module.exports = Partition2DNode;
 
-
 },{"awayjs-display/lib/containers/DisplayObjectContainer":undefined,"awayjs-display/lib/partition/NodeBase":undefined}],"awayjs-player/lib/partition/Partition2D":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -546,7 +466,6 @@ var Partition2D = (function (_super) {
     return Partition2D;
 })(Partition);
 module.exports = Partition2D;
-
 
 },{"awayjs-display/lib/partition/Partition":undefined,"awayjs-player/lib/partition/Partition2DNode":"awayjs-player/lib/partition/Partition2DNode"}],"awayjs-player/lib/renderer/Mask":[function(require,module,exports){
 var Mask = (function () {
@@ -629,7 +548,6 @@ var Mask = (function () {
 })();
 module.exports = Mask;
 
-
 },{}],"awayjs-player/lib/renderer/RenderableSort2D":[function(require,module,exports){
 /**
  * @class away.sort.RenderableMergeSort
@@ -694,7 +612,6 @@ var RenderableMergeSort = (function () {
     return RenderableMergeSort;
 })();
 module.exports = RenderableMergeSort;
-
 
 },{}],"awayjs-player/lib/renderer/Renderer2D":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
@@ -815,7 +732,6 @@ var Renderer2D = (function (_super) {
 })(DefaultRenderer);
 module.exports = Renderer2D;
 
-
 },{"awayjs-display/lib/managers/DefaultMaterialManager":undefined,"awayjs-player/lib/renderer/Mask":"awayjs-player/lib/renderer/Mask","awayjs-player/lib/renderer/RenderableSort2D":"awayjs-player/lib/renderer/RenderableSort2D","awayjs-renderergl/lib/DefaultRenderer":undefined}],"awayjs-player/lib/timeline/InterpolationObject":[function(require,module,exports){
 /**
  * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
@@ -854,7 +770,6 @@ var InterpolationObject = (function () {
     return InterpolationObject;
 })();
 module.exports = InterpolationObject;
-
 
 },{}],"awayjs-player/lib/timeline/TimelineKeyFrame":[function(require,module,exports){
 /**
@@ -944,7 +859,6 @@ var TimelineKeyFrame = (function () {
 })();
 module.exports = TimelineKeyFrame;
 
-
 },{}],"awayjs-player/lib/timeline/commands/AddChildCommand":[function(require,module,exports){
 var AddChildCommand = (function () {
     function AddChildCommand(childID) {
@@ -956,7 +870,6 @@ var AddChildCommand = (function () {
     return AddChildCommand;
 })();
 module.exports = AddChildCommand;
-
 
 },{}],"awayjs-player/lib/timeline/commands/ApplyAS2DepthsCommand":[function(require,module,exports){
 // We're using a specific command so we don't need to manage an AS2-like "depth" property, which has no meaning in Away3D's display hierarchy
@@ -981,10 +894,7 @@ var ApplyAS2DepthsCommand = (function () {
 })();
 module.exports = ApplyAS2DepthsCommand;
 
-
 },{}],"awayjs-player/lib/timeline/commands/FrameCommand":[function(require,module,exports){
-
-
 
 },{}],"awayjs-player/lib/timeline/commands/RemoveChildCommand":[function(require,module,exports){
 var RemoveChildCommand = (function () {
@@ -997,7 +907,6 @@ var RemoveChildCommand = (function () {
     return RemoveChildCommand;
 })();
 module.exports = RemoveChildCommand;
-
 
 },{}],"awayjs-player/lib/timeline/commands/UpdatePropertyCommand":[function(require,module,exports){
 var UpdatePropertyCommand = (function () {
@@ -1014,7 +923,6 @@ var UpdatePropertyCommand = (function () {
     return UpdatePropertyCommand;
 })();
 module.exports = UpdatePropertyCommand;
-
 
 },{}]},{},[])
 
