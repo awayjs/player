@@ -4,6 +4,7 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 
 import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
+import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 
 class MovieClip extends DisplayObjectContainer
@@ -16,7 +17,7 @@ class MovieClip extends DisplayObjectContainer
     private _fps:number;// we use ms internally, but have fps, so user can set time by frame
     private _isPlaying:boolean;// false if paused or stopped
     private _loop:boolean = true;
-    private _totalFrames:number;
+    private _numFrames:number;
     // not sure if needed
     private _prototype:MovieClip;
 
@@ -34,7 +35,52 @@ class MovieClip extends DisplayObjectContainer
         this._isPlaying = true; // auto-play
         this._fps = 25;
         this._time = 0;
-        this._totalFrames = 0;
+        this._numFrames = 0;
+    }
+
+    public get numFrames() : number
+    {
+        return this._numFrames;
+    }
+
+    public jumpToLabel(label:string) : void
+    {
+        var index = -1;
+        var len = this._keyFrames.length;
+
+        for (var i = 0; i < len; ++i) {
+            if (this._keyFrames[i].label) {
+                index = Math.round(this._keyFrames[i].startTime * this._fps);
+                break;
+            }
+        }
+
+        if (index !== -1)
+            this.currentFrameIndex = index;
+    }
+
+    public get currentFrameIndex() : number
+    {
+        return this._currentFrameIndex;
+    }
+
+    public set currentFrameIndex(value : number)
+    {
+        if (value < 0)
+            value = 0;
+        else if (value >= this._numFrames)
+            value = this._numFrames - 1;
+
+        this._time = 0;
+
+        var isPlaying = this._isPlaying;
+        this._isPlaying = true;
+
+        while (this._currentFrameIndex != value)
+            // skip frames
+            this.advanceFrame(true);
+
+        this._isPlaying = isPlaying;
     }
 
     // adapter is used to provide MovieClip to scripts taken from different platforms
@@ -48,6 +94,37 @@ class MovieClip extends DisplayObjectContainer
     public set adapter(value:MovieClipAdapter)
     {
         this._adapter = value;
+    }
+
+    public get name() : string
+    {
+        return this._pName;
+    }
+
+    public set name(value:string)
+    {
+        if (this._pName !== value) {
+            this._pName = value;
+            this.dispatchEvent(new MovieClipEvent(MovieClipEvent.NAME_CHANGED, this));
+        }
+    }
+
+    public addChild(child:DisplayObject):DisplayObject
+    {
+        super.addChild(child);
+
+        this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_ADDED, child));
+
+        return child;
+    }
+
+    public removeChild(child:DisplayObject):DisplayObject
+    {
+        super.removeChild(child);
+
+        this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_REMOVED, child));
+
+        return child;
     }
 
     public get fps():number
@@ -97,8 +174,8 @@ class MovieClip extends DisplayObjectContainer
     public addFrame(newFrame:TimelineKeyFrame)
     {
         var endFrame = Math.ceil((newFrame.startTime + newFrame.duration) / 1000 * this._fps);
-        if (this._totalFrames < endFrame)
-            this._totalFrames = endFrame;
+        if (this._numFrames < endFrame)
+            this._numFrames = endFrame;
         this._keyFrames.push(newFrame);
     }
 
@@ -160,7 +237,7 @@ class MovieClip extends DisplayObjectContainer
 
         clone._fps = this._fps;
         clone._loop = this._loop;
-        clone._totalFrames = this._totalFrames;
+        clone._numFrames = this._numFrames;
         clone._iMaskID = this._iMaskID;
         clone._iMasks = this._iMasks? this._iMasks.concat() : null;
         clone.name = this.name;
@@ -197,25 +274,24 @@ class MovieClip extends DisplayObjectContainer
     {
         var i;
         var advance = this._isPlaying;
-        if (advance && this._currentFrameIndex == this._totalFrames - 1 && !this._loop) {
+        if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
             advance = false;
         }
-        if (advance && this._currentFrameIndex <= 0 && this._totalFrames == 1) {
+        if (advance && this._currentFrameIndex <= 0 && this._numFrames == 1) {
             this._currentFrameIndex = 0;
             advance = false;
         }
 
         if (advance) {
-            if (++this._currentFrameIndex == this._totalFrames)
+            if (++this._currentFrameIndex == this._numFrames)
                 this.resetPlayHead();
         }
 
         this.updateKeyFrames(skipFrames);
 
-        // advance children
+        // advance children, last child first
         if (!skipFrames) {
-            var len = this.numChildren;
-            for (i = 0; i < len; i++) {
+            for (i = this.numChildren - 1; i >= 0; --i) {
                 var child = this.getChildAt(i);
                 if (child instanceof MovieClip)
                     (<MovieClip>child).advanceFrame(skipFrames);

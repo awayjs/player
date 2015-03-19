@@ -1,51 +1,69 @@
 import BitmapData = require("awayjs-core/lib/data/BitmapData");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
+import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
+import MovieClip = require("awayjs-player/lib/display/MovieClip");
+import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
+import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
+import Point = require("awayjs-core/lib/geom/Point");
 
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 {
-	// _currentframe [read-only]
 	// _droptarget [read-only]
-	// enabled: Boolean
 	// focusEnabled: Boolean
 	// forceSmoothing: Boolean
-	// _framesloaded: Number [read-only]
 	// hitArea: Object
 	// _lockroot: Boolean
-	// _name: String
 	// opaqueBackground: Number
 	// scrollRect: Object
 	// tabChildren: Boolean
-	// _totalframes: Number [read-only]
 	// transform: Transform		// contains matrix + color matrix
-	// globalToLocal(obj)
-	// localToGlobal(obj)
-	// moveTo
-	// getBounds
-	// getRect
+
 
 	private currentFrameIndex: number;
+    private _nameChangeCallback : Function;
 
 	// translate to scripts:
-	/*public onData: Function;
-	public onEnterFrame: Function;
-	public onLoad: Function;
-	public onMouseDown: Function;
-	public onMouseMove: Function;
-	public onMouseUp: Function;
-	public onUnload: Function;*/
+    private _onEnterFrame: Function;
+    private _onRelease: Function;
 
 	constructor(adaptee : DisplayObjectContainer)
 	{
-		super(adaptee);
+        // create an empty MovieClip if none is passed
+		super(adaptee || new MovieClip());
+
 		this.currentFrameIndex = -1;
+        var self = this;
+        adaptee.addEventListener(MovieClipEvent.CHILD_ADDED,
+            function(event:MovieClipEvent) { self._pOnChildAdded.call(self, event); }
+        );
+        adaptee.addEventListener(MovieClipEvent.CHILD_REMOVED,
+            function(event:MovieClipEvent) { self._pOnChildRemoved.call(self, event); }
+        );
 	}
 
-	//get _totalFrames() : number
-	//{
-	//}
+    get _framesloaded() : number
+    {
+        // not loading frame by frame?
+        return (<MovieClip>this.adaptee).numFrames;
+    }
+
+    get _currentframe() : number
+    {
+        return (<MovieClip>this.adaptee).currentFrameIndex - 1;
+    }
+
+	get _totalFrames() : number
+	{
+        return (<MovieClip>this.adaptee).numFrames;
+	}
+
+    get enabled() : boolean
+    {
+        return (<MovieClip>this.adaptee).mouseEnabled;
+    }
 
 	//attachAudio(id: Object) : void {	}
 
@@ -67,19 +85,59 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	//curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
 
-	//duplicateMovieClip(name: string, depth: number, initObject: Object) : MovieClip { return null; }
+	duplicateMovieClip(name: string, depth: number, initObject: Object) : MovieClip
+    {
+        var duplicate = <MovieClip>(this.adaptee.clone());
+        duplicate.name = name;
+        duplicate["__AS2Depth"] = depth;
+
+        if (initObject) {
+            for (var key in initObject) {
+                if (initObject.hasOwnProperty(key))
+                    duplicate.adapter[key] = initObject;
+            }
+        }
+
+        this._updateDepths(<MovieClip>this.adaptee.parent);
+        return duplicate;
+    }
 
 	//endFill() : void {}
 
 	//getBounds(bounds: Object) : Object { return null; }
 
-	//getBytesLoaded() : number { return 0; }
+    // not applicable?
+	getBytesLoaded() : number { return 1; }
 
-	//getBytesTotal() : number { return 0; }
+    // not applicable?
+	getBytesTotal() : number { return 1; }
 
-	//getInstanceAtDepth(depth: Number) : MovieClip { return null; }
+	getInstanceAtDepth(depth: number) : MovieClip
+    {
+        var adaptee = this.adaptee;
+        var len = adaptee.numChildren;
+        for (var i = 0; i < len; ++i) {
+            var child = adaptee.getChildAt(i);
+            if (child["__AS2Depth"] === depth)
+                return <MovieClip>child;
+        }
+        return null;
+    }
 
-	//getNextHighestDepth() : number { return 0; }
+	getNextHighestDepth() : number
+    {
+        var maxDepth = 0;
+        var adaptee = this.adaptee;
+        var len = adaptee.numChildren;
+        for (var i = 0; i < len; ++i) {
+            var child = adaptee.getChildAt(i);
+            var depth = child["__AS2Depth"];
+            if (depth > maxDepth)
+                maxDepth = depth;
+        }
+
+        return maxDepth + 1;
+    }
 
 	//getRect(bounds: Object) : Object { return null; }
 
@@ -89,11 +147,24 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	//getURL(url: string, window: string, method: string) : void {}
 
-	//globalToLocal(pt: Object) : void {}
+	globalToLocal(pt: any) : void
+    {
+        var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+        pt.x = newPoint.x;
+        pt.y = newPoint.y;
+    }
 
-	//gotoAndPlay(frame: Object) : void {}
+	gotoAndPlay(frame: any) : void
+    {
+        this.play();
+        this._gotoFrame(frame);
+    }
 
-	//gotoAndStop(frame: Object) : void {}
+	gotoAndStop(frame: any) : void
+    {
+        this.stop();
+        this._gotoFrame(frame);
+    }
 
 	//hitTest() : boolean { return false; }
 
@@ -107,33 +178,164 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	//loadVariables(url: string, method: string = null) : void {}
 
-	//localToGlobal(pt: Object) : void {}
+	localToGlobal(pt: any) : void
+    {
+        var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+        pt.x = newPoint.x;
+        pt.y = newPoint.y;
+    }
 
 	//moveTo(x: number, y: number) : void {}
 
-	//nextFrame() : void {}
+	nextFrame() : void
+    {
+        ++(<MovieClip>this.adaptee).currentFrameIndex;
+    }
 
-	//play() : void {}
+	play() : void
+    {
+        (<MovieClip>this.adaptee).play();
+    }
 
-	//prevFrame() : void {}
+	prevFrame() : void
+    {
+        --(<MovieClip>this.adaptee).currentFrameIndex;
+    }
 
 	//removeMovieClip() : void {}
 
-	//setMask(mc: Object) : void {}
+	setMask(mc: DisplayObject) : void
+    {
+        (<MovieClip>this.adaptee)._iMasks = [ mc ];
+    }
 
 	//startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
 
-	//stop() : void {}
+	stop() : void
+    {
+        (<MovieClip>this.adaptee).stop();
+    }
 
 	//stopDrag() : void {}
 
-	//swapDepths(target: Object) : void {}
+	swapDepths(target: DisplayObject) : void
+    {
+        var adaptee = this.adaptee;
+        var tmp = adaptee["__AS2Depth"];
+        this["__AS2Depth"] = target["__AS2Depth"];
+        adaptee["__AS2Depth"] = tmp;
+        this._updateDepths(<MovieClip>this.adaptee.parent);
+    }
 
 	//unloadMovie() : void {}
 
     clone(newAdaptee:DisplayObjectContainer):MovieClipAdapter
     {
         return new AS2MovieClipAdapter(newAdaptee);
+    }
+
+    public get onEnterFrame(): Function
+    {
+        return this._onEnterFrame;
+    }
+
+    public set onEnterFrame(value : Function)
+    {
+        this._onEnterFrame = this._replaceEventListener(MovieClipEvent.ENTER_FRAME, this._onEnterFrame, value);
+    }
+
+    public get onRelease(): Function
+    {
+        return this._onRelease;
+    }
+
+    public set onRelease(value : Function)
+    {
+        this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
+    }
+
+    public get _parent() : AS2MovieClipAdapter
+    {
+        return <AS2MovieClipAdapter>((<MovieClip>this.adaptee.parent).adapter);
+    }
+
+    public _pRegisterChild(child : DisplayObject)
+    {
+        if (child.name)
+            this[child.name] = child;
+    }
+
+    public _pUnregisterChild(child : DisplayObject)
+    {
+        for (var key in this) {
+            if (this.hasOwnProperty(key) && this[key] === child) {
+                delete this[key];
+                return;
+            }
+        }
+    }
+
+    public _pOnChildAdded(event:MovieClipEvent)
+    {
+        var child = event.displayObject;
+        var self = this;
+
+        // scope is broken, so fix it
+        this._nameChangeCallback = function(event:MovieClipEvent) { self._pOnChildNameChanged.call(self, event); }
+        child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback );
+        this._pRegisterChild(child);
+    }
+
+    private _pOnChildRemoved(event:MovieClipEvent)
+    {
+        var child = event.displayObject;
+        child.removeEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
+        if (child.name) this._pUnregisterChild(child);
+    }
+
+    private _pOnChildNameChanged(event:MovieClipEvent)
+    {
+        var child = event.displayObject;
+        this._pUnregisterChild(child);
+        this._pRegisterChild(child);
+    }
+
+    private _gotoFrame(frame:any)
+    {
+        var mc = <MovieClip>this.adaptee;
+        if (typeof frame === "string")
+            mc.jumpToLabel(<string>frame);
+        else
+            mc.currentFrameIndex = <number>frame;
+    }
+
+    private _updateDepths(target:MovieClip)
+    {
+        var childrenArray = target["_children"];
+        childrenArray.sort(this.sortChildrenByDepth);
+    }
+
+    private sortChildrenByDepth(a:DisplayObject, b:DisplayObject) : number
+    {
+        var da = <number>(a["__AS2Depth"]);
+        var db = <number>(b["__AS2Depth"]);
+        if (da === undefined) da = 0;
+        if (db === undefined) db = 0;
+        return db - da;
+    }
+
+    private _replaceEventListener(eventType:string, currentListener:Function, newListener:Function)
+    {
+        var mc = this.adaptee;
+        if (currentListener) mc.removeEventListener(eventType, currentListener);
+
+        if (newListener) {
+            var self = this;
+            var delegate = function() { newListener.call(self); };
+            mc.addEventListener(MovieClipEvent.ENTER_FRAME, delegate);
+        }
+
+        return delegate;
     }
 }
 export = AS2MovieClipAdapter;

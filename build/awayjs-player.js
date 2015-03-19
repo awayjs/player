@@ -1,4 +1,42 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"awayjs-player/lib/adapters/AS2ColorAdapter":[function(require,module,exports){
+var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+// also contains global AS2 functions
+var AS2ColorAdapter = (function () {
+    function AS2ColorAdapter(target) {
+        this._rgb = 0xffffff;
+        this._target = target.adaptee.transform.colorTransform;
+        this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
+    }
+    AS2ColorAdapter.prototype.getRGB = function () {
+        return this._rgb;
+    };
+    AS2ColorAdapter.prototype.setRGB = function (value) {
+        this._rgb = value;
+        var r = (value >> 16) & 0xff;
+        var g = (value >> 8) & 0xff;
+        var b = value & 0xff;
+        this.setTransform({ ra: r / 0xff * 100, ga: g / 0xff * 100, ba: b / 0xff * 100, aa: 100, rb: 0, gb: 0, bb: 0, ab: 0 });
+    };
+    AS2ColorAdapter.prototype.getTransform = function () {
+        return this._transform;
+    };
+    AS2ColorAdapter.prototype.setTransform = function (value) {
+        this._transform = value;
+        var ct = this._target;
+        ct.redMultiplier = value.ra === undefined ? 1 : value.ra / 100;
+        ct.greenMultiplier = value.ga === undefined ? 1 : value.ga / 100;
+        ct.blueMultiplier = value.ba === undefined ? 1 : value.ba / 100;
+        ct.alphaMultiplier = value.aa === undefined ? 1 : value.aa / 100;
+        ct.redOffset = value.rb || 0;
+        ct.greenOffset = value.gb || 0;
+        ct.blueOffset = value.bb || 0;
+        ct.alphaOffset = value.ab || 0;
+    };
+    return AS2ColorAdapter;
+})();
+module.exports = AS2SymbolAdapter;
+
+},{"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -6,23 +44,53 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+var MovieClip = require("awayjs-player/lib/display/MovieClip");
+var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
+var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
+var Point = require("awayjs-core/lib/geom/Point");
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
-    // translate to scripts:
-    /*public onData: Function;
-    public onEnterFrame: Function;
-    public onLoad: Function;
-    public onMouseDown: Function;
-    public onMouseMove: Function;
-    public onMouseUp: Function;
-    public onUnload: Function;*/
     function AS2MovieClipAdapter(adaptee) {
-        _super.call(this, adaptee);
+        // create an empty MovieClip if none is passed
+        _super.call(this, adaptee || new MovieClip());
         this.currentFrameIndex = -1;
+        var self = this;
+        adaptee.addEventListener(MovieClipEvent.CHILD_ADDED, function (event) {
+            self._pOnChildAdded.call(self, event);
+        });
+        adaptee.addEventListener(MovieClipEvent.CHILD_REMOVED, function (event) {
+            self._pOnChildRemoved.call(self, event);
+        });
     }
-    //get _totalFrames() : number
-    //{
-    //}
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "_framesloaded", {
+        get: function () {
+            // not loading frame by frame?
+            return this.adaptee.numFrames;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "_currentframe", {
+        get: function () {
+            return this.adaptee.currentFrameIndex - 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "_totalFrames", {
+        get: function () {
+            return this.adaptee.numFrames;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "enabled", {
+        get: function () {
+            return this.adaptee.mouseEnabled;
+        },
+        enumerable: true,
+        configurable: true
+    });
     //attachAudio(id: Object) : void {	}
     //attachBitmap(bmp: BitmapData, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
     //attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
@@ -33,53 +101,229 @@ var AS2MovieClipAdapter = (function (_super) {
     //createEmptyMovieClip(name: string, depth: number) : MovieClip { return null; }
     //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
     //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
-    //duplicateMovieClip(name: string, depth: number, initObject: Object) : MovieClip { return null; }
+    AS2MovieClipAdapter.prototype.duplicateMovieClip = function (name, depth, initObject) {
+        var duplicate = (this.adaptee.clone());
+        duplicate.name = name;
+        duplicate["__AS2Depth"] = depth;
+        if (initObject) {
+            for (var key in initObject) {
+                if (initObject.hasOwnProperty(key))
+                    duplicate.adapter[key] = initObject;
+            }
+        }
+        this._updateDepths(this.adaptee.parent);
+        return duplicate;
+    };
     //endFill() : void {}
     //getBounds(bounds: Object) : Object { return null; }
-    //getBytesLoaded() : number { return 0; }
-    //getBytesTotal() : number { return 0; }
-    //getInstanceAtDepth(depth: Number) : MovieClip { return null; }
-    //getNextHighestDepth() : number { return 0; }
+    // not applicable?
+    AS2MovieClipAdapter.prototype.getBytesLoaded = function () {
+        return 1;
+    };
+    // not applicable?
+    AS2MovieClipAdapter.prototype.getBytesTotal = function () {
+        return 1;
+    };
+    AS2MovieClipAdapter.prototype.getInstanceAtDepth = function (depth) {
+        var adaptee = this.adaptee;
+        var len = adaptee.numChildren;
+        for (var i = 0; i < len; ++i) {
+            var child = adaptee.getChildAt(i);
+            if (child["__AS2Depth"] === depth)
+                return child;
+        }
+        return null;
+    };
+    AS2MovieClipAdapter.prototype.getNextHighestDepth = function () {
+        var maxDepth = 0;
+        var adaptee = this.adaptee;
+        var len = adaptee.numChildren;
+        for (var i = 0; i < len; ++i) {
+            var child = adaptee.getChildAt(i);
+            var depth = child["__AS2Depth"];
+            if (depth > maxDepth)
+                maxDepth = depth;
+        }
+        return maxDepth + 1;
+    };
     //getRect(bounds: Object) : Object { return null; }
     //getSWFVersion() : number { return 0; }
     //getTextSnapshot() : TextSnapshot {}
     //getURL(url: string, window: string, method: string) : void {}
-    //globalToLocal(pt: Object) : void {}
-    //gotoAndPlay(frame: Object) : void {}
-    //gotoAndStop(frame: Object) : void {}
+    AS2MovieClipAdapter.prototype.globalToLocal = function (pt) {
+        var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+        pt.x = newPoint.x;
+        pt.y = newPoint.y;
+    };
+    AS2MovieClipAdapter.prototype.gotoAndPlay = function (frame) {
+        this.play();
+        this._gotoFrame(frame);
+    };
+    AS2MovieClipAdapter.prototype.gotoAndStop = function (frame) {
+        this.stop();
+        this._gotoFrame(frame);
+    };
     //hitTest() : boolean { return false; }
     //lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number) : void {}
     //lineStyle(thickness: number, rgb: number, alpha: number, pixelHinting: boolean, noScale: string, capsStyle: string, jointStyle: string, miterLimit: number) : void {}
     //lineTo(x: number, y: number) : void {}
     //loadMovie(url: string, method: string = null) : void {}
     //loadVariables(url: string, method: string = null) : void {}
-    //localToGlobal(pt: Object) : void {}
+    AS2MovieClipAdapter.prototype.localToGlobal = function (pt) {
+        var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+        pt.x = newPoint.x;
+        pt.y = newPoint.y;
+    };
     //moveTo(x: number, y: number) : void {}
-    //nextFrame() : void {}
-    //play() : void {}
-    //prevFrame() : void {}
+    AS2MovieClipAdapter.prototype.nextFrame = function () {
+        ++this.adaptee.currentFrameIndex;
+    };
+    AS2MovieClipAdapter.prototype.play = function () {
+        this.adaptee.play();
+    };
+    AS2MovieClipAdapter.prototype.prevFrame = function () {
+        --this.adaptee.currentFrameIndex;
+    };
     //removeMovieClip() : void {}
-    //setMask(mc: Object) : void {}
+    AS2MovieClipAdapter.prototype.setMask = function (mc) {
+        this.adaptee._iMasks = [mc];
+    };
     //startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
-    //stop() : void {}
+    AS2MovieClipAdapter.prototype.stop = function () {
+        this.adaptee.stop();
+    };
     //stopDrag() : void {}
-    //swapDepths(target: Object) : void {}
+    AS2MovieClipAdapter.prototype.swapDepths = function (target) {
+        var adaptee = this.adaptee;
+        var tmp = adaptee["__AS2Depth"];
+        this["__AS2Depth"] = target["__AS2Depth"];
+        adaptee["__AS2Depth"] = tmp;
+        this._updateDepths(this.adaptee.parent);
+    };
     //unloadMovie() : void {}
     AS2MovieClipAdapter.prototype.clone = function (newAdaptee) {
         return new AS2MovieClipAdapter(newAdaptee);
+    };
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onEnterFrame", {
+        get: function () {
+            return this._onEnterFrame;
+        },
+        set: function (value) {
+            this._onEnterFrame = this._replaceEventListener(MovieClipEvent.ENTER_FRAME, this._onEnterFrame, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onRelease", {
+        get: function () {
+            return this._onRelease;
+        },
+        set: function (value) {
+            this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "_parent", {
+        get: function () {
+            return (this.adaptee.parent.adapter);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2MovieClipAdapter.prototype._pRegisterChild = function (child) {
+        if (child.name)
+            this[child.name] = child;
+    };
+    AS2MovieClipAdapter.prototype._pUnregisterChild = function (child) {
+        for (var key in this) {
+            if (this.hasOwnProperty(key) && this[key] === child) {
+                delete this[key];
+                return;
+            }
+        }
+    };
+    AS2MovieClipAdapter.prototype._pOnChildAdded = function (event) {
+        var child = event.displayObject;
+        var self = this;
+        // scope is broken, so fix it
+        this._nameChangeCallback = function (event) {
+            self._pOnChildNameChanged.call(self, event);
+        };
+        child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
+        this._pRegisterChild(child);
+    };
+    AS2MovieClipAdapter.prototype._pOnChildRemoved = function (event) {
+        var child = event.displayObject;
+        child.removeEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
+        if (child.name)
+            this._pUnregisterChild(child);
+    };
+    AS2MovieClipAdapter.prototype._pOnChildNameChanged = function (event) {
+        var child = event.displayObject;
+        this._pUnregisterChild(child);
+        this._pRegisterChild(child);
+    };
+    AS2MovieClipAdapter.prototype._gotoFrame = function (frame) {
+        var mc = this.adaptee;
+        if (typeof frame === "string")
+            mc.jumpToLabel(frame);
+        else
+            mc.currentFrameIndex = frame;
+    };
+    AS2MovieClipAdapter.prototype._updateDepths = function (target) {
+        var childrenArray = target["_children"];
+        childrenArray.sort(this.sortChildrenByDepth);
+    };
+    AS2MovieClipAdapter.prototype.sortChildrenByDepth = function (a, b) {
+        var da = (a["__AS2Depth"]);
+        var db = (b["__AS2Depth"]);
+        if (da === undefined)
+            da = 0;
+        if (db === undefined)
+            db = 0;
+        return db - da;
+    };
+    AS2MovieClipAdapter.prototype._replaceEventListener = function (eventType, currentListener, newListener) {
+        var mc = this.adaptee;
+        if (currentListener)
+            mc.removeEventListener(eventType, currentListener);
+        if (newListener) {
+            var self = this;
+            var delegate = function () {
+                newListener.call(self);
+            };
+            mc.addEventListener(MovieClipEvent.ENTER_FRAME, delegate);
+        }
+        return delegate;
     };
     return AS2MovieClipAdapter;
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
+// also contains global AS2 functions
 var AS2SymbolAdapter = (function () {
     function AS2SymbolAdapter(adaptee) {
+        this.__quality = "high";
         this._adaptee = adaptee;
+        if (AS2SymbolAdapter.REFERENCE_TIME === -1)
+            AS2SymbolAdapter.REFERENCE_TIME = new Date().getMilliseconds();
+        if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
+            AS2SymbolAdapter.CLASS_REPLACEMENTS = {};
+            AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "AS2ColorAdapter";
+        }
     }
     Object.defineProperty(AS2SymbolAdapter.prototype, "adaptee", {
         get: function () {
             return this._adaptee;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_name", {
+        get: function () {
+            return this._adaptee.name;
         },
         enumerable: true,
         configurable: true
@@ -134,10 +378,12 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AS2SymbolAdapter.prototype, "_parent", {
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_visible", {
         get: function () {
-            var parentMC = this._adaptee.parent;
-            return parentMC.adapter;
+            return this._adaptee.visible;
+        },
+        set: function (value) {
+            this._adaptee.visible = value;
         },
         enumerable: true,
         configurable: true
@@ -145,6 +391,55 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.getDepth = function () {
         return this._adaptee.z;
     };
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_quality", {
+        // just assure consistency for scripts, doesn't actually effect rendering.
+        get: function () {
+            return this.__quality;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "quality", {
+        set: function (value) {
+            this.__quality = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2SymbolAdapter.prototype.trace = function () {
+        console.log.apply(this, arguments);
+    };
+    // may need proper high-def timer mechanism
+    AS2SymbolAdapter.prototype.getTimer = function () {
+        return new Date().getMilliseconds() - AS2SymbolAdapter.REFERENCE_TIME;
+    };
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_root", {
+        get: function () {
+            if (!AS2SymbolAdapter.ROOT) {
+                // parents are always MovieClips
+                var clip = this.adaptee;
+                while (clip.parent && clip.parent.adapter) {
+                    clip = clip.parent;
+                }
+                AS2SymbolAdapter.ROOT = clip.adapter;
+            }
+            return AS2SymbolAdapter.ROOT;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2SymbolAdapter.prototype.random = function (range) {
+        // TODO: Verify if floor is required
+        return Math.floor(Math.random() * range);
+    };
+    Object.defineProperty(AS2SymbolAdapter.prototype, "classReplacements", {
+        get: function () {
+            return AS2SymbolAdapter.CLASS_REPLACEMENTS;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2SymbolAdapter.REFERENCE_TIME = -1;
     return AS2SymbolAdapter;
 })();
 module.exports = AS2SymbolAdapter;
@@ -160,6 +455,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 var DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 var MovieClip = (function (_super) {
     __extends(MovieClip, _super);
     function MovieClip() {
@@ -172,8 +468,39 @@ var MovieClip = (function (_super) {
         this._isPlaying = true; // auto-play
         this._fps = 25;
         this._time = 0;
-        this._totalFrames = 0;
+        this._numFrames = 0;
     }
+    Object.defineProperty(MovieClip.prototype, "numFrames", {
+        get: function () {
+            return this._numFrames;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    MovieClip.prototype.jumpToLabel = function (label) {
+        var index;
+        throw "NOT IMPLEMENTED YET";
+        this.currentFrameIndex = index;
+    };
+    Object.defineProperty(MovieClip.prototype, "currentFrameIndex", {
+        get: function () {
+            return this._currentFrameIndex;
+        },
+        set: function (value) {
+            if (value < 0)
+                value = 0;
+            else if (value >= this._numFrames)
+                value = this._numFrames - 1;
+            this._time = 0;
+            var isPlaying = this._isPlaying;
+            this._isPlaying = true;
+            while (this._currentFrameIndex != value)
+                this.advanceFrame();
+            this._isPlaying = isPlaying;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MovieClip.prototype, "adapter", {
         // adapter is used to provide MovieClip to scripts taken from different platforms
         // TODO: Perhaps adapters should be created dynamically whenever needed, rather than storing them
@@ -187,6 +514,29 @@ var MovieClip = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(MovieClip.prototype, "name", {
+        get: function () {
+            return this._pName;
+        },
+        set: function (value) {
+            if (this._pName !== value) {
+                this._pName = value;
+                this.dispatchEvent(new MovieClipEvent(MovieClipEvent.NAME_CHANGED, this));
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    MovieClip.prototype.addChild = function (child) {
+        _super.prototype.addChild.call(this, child);
+        this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_ADDED, child));
+        return child;
+    };
+    MovieClip.prototype.removeChild = function (child) {
+        _super.prototype.removeChild.call(this, child);
+        this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_REMOVED, child));
+        return child;
+    };
     Object.defineProperty(MovieClip.prototype, "fps", {
         get: function () {
             return this._fps;
@@ -229,8 +579,8 @@ var MovieClip = (function (_super) {
      */
     MovieClip.prototype.addFrame = function (newFrame) {
         var endFrame = Math.ceil((newFrame.startTime + newFrame.duration) / 1000 * this._fps);
-        if (this._totalFrames < endFrame)
-            this._totalFrames = endFrame;
+        if (this._numFrames < endFrame)
+            this._numFrames = endFrame;
         this._keyFrames.push(newFrame);
     };
     /**
@@ -275,7 +625,7 @@ var MovieClip = (function (_super) {
         }
         clone._fps = this._fps;
         clone._loop = this._loop;
-        clone._totalFrames = this._totalFrames;
+        clone._numFrames = this._numFrames;
         clone._iMaskID = this._iMaskID;
         clone._iMasks = this._iMasks ? this._iMasks.concat() : null;
         clone.name = this.name;
@@ -303,22 +653,21 @@ var MovieClip = (function (_super) {
         if (skipFrames === void 0) { skipFrames = false; }
         var i;
         var advance = this._isPlaying;
-        if (advance && this._currentFrameIndex == this._totalFrames - 1 && !this._loop) {
+        if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
             advance = false;
         }
-        if (advance && this._currentFrameIndex <= 0 && this._totalFrames == 1) {
+        if (advance && this._currentFrameIndex <= 0 && this._numFrames == 1) {
             this._currentFrameIndex = 0;
             advance = false;
         }
         if (advance) {
-            if (++this._currentFrameIndex == this._totalFrames)
+            if (++this._currentFrameIndex == this._numFrames)
                 this.resetPlayHead();
         }
         this.updateKeyFrames(skipFrames);
-        // advance children
+        // advance children, last child first
         if (!skipFrames) {
-            var len = this.numChildren;
-            for (i = 0; i < len; i++) {
+            for (i = this.numChildren - 1; i >= 0; --i) {
                 var child = this.getChildAt(i);
                 if (child instanceof MovieClip)
                     child.advanceFrame(skipFrames);
@@ -363,7 +712,28 @@ var MovieClip = (function (_super) {
 })(DisplayObjectContainer);
 module.exports = MovieClip;
 
-},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
+},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/containers/DisplayObjectContainer":undefined,"awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/events/MovieClipEvent":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Event = require("awayjs-core/lib/events/Event");
+var MovieClipEvent = (function (_super) {
+    __extends(MovieClipEvent, _super);
+    function MovieClipEvent(type, displayObject) {
+        _super.call(this, type);
+        this.displayObject = displayObject;
+    }
+    MovieClipEvent.NAME_CHANGED = "nameChanged";
+    MovieClipEvent.CHILD_ADDED = "childAdded";
+    MovieClipEvent.CHILD_REMOVED = "childRemoved";
+    return MovieClipEvent;
+})(Event);
+module.exports = MovieClipEvent;
+
+},{"awayjs-core/lib/events/Event":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
 var AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
 var AS2SceneGraphFactory = (function () {
@@ -772,18 +1142,6 @@ var InterpolationObject = (function () {
 module.exports = InterpolationObject;
 
 },{}],"awayjs-player/lib/timeline/TimelineKeyFrame":[function(require,module,exports){
-/**
- * TimelineFrame holds 3 list of FrameCommands
- *  - list1 _frameCommands should be  executed when playing the timeline (previous Frame was played)
- *  - list2 _frameCommandsReverse should be executed when playing the timeline reversed (previous Frame was played)
- *  - list3 _frameCommandsInit should be executed when jumping to a frame, so we need to fully init the frame
- *
- *  Addionial TimelineFrame properties are:
- *  - script - can be executed, after the frameCommands have been executed
- *  - list of FrameLabels, and list of corresponding labelTypes
- *  - duration-value (1 frame is not necessary 1 frame long)
- *  - startTime and endTime are needed internally when deciding what frame to display
- */
 var TimelineKeyFrame = (function () {
     function TimelineKeyFrame() {
         this._duration = 1; //use millisecs for duration ? or frames ?
@@ -894,6 +1252,39 @@ var ApplyAS2DepthsCommand = (function () {
 })();
 module.exports = ApplyAS2DepthsCommand;
 
+},{}],"awayjs-player/lib/timeline/commands/ExecuteScriptCommand":[function(require,module,exports){
+var ExecuteScriptCommand = (function () {
+    function ExecuteScriptCommand(script) {
+        if (typeof script == "string")
+            this._script = script;
+        else
+            this._translatedScript = script;
+    }
+    ExecuteScriptCommand.prototype.execute = function (sourceMovieClip, time) {
+        if (!this._translatedScript)
+            this.translateScript(sourceMovieClip.adapter.classReplacements);
+        var caller = sourceMovieClip.adapter ? sourceMovieClip.adapter : sourceMovieClip;
+        this._translatedScript.call(caller);
+    };
+    // TODO: handle this in the exporter so it's safe!
+    ExecuteScriptCommand.prototype.translateScript = function (classReplacements) {
+        var replaced = this._script.replace(/(\\n|\r)/g, "");
+        // where "this" is a single word
+        replaced = replaced.replace(/\wthis\./g, "___scoped_this___.");
+        for (var srcName in classReplacements) {
+            var dstName = classReplacements[srcName];
+            // where class name is a single word
+            var regex = "\b" + srcName + "\b";
+            replaced = replaced.replace(new RegExp(regex, "g"), dstName);
+        }
+        // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
+        var str = "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}";
+        this._translatedScript = new Function(str);
+    };
+    return ExecuteScriptCommand;
+})();
+module.exports = ExecuteScriptCommand;
+
 },{}],"awayjs-player/lib/timeline/commands/FrameCommand":[function(require,module,exports){
 
 },{}],"awayjs-player/lib/timeline/commands/RemoveChildCommand":[function(require,module,exports){
@@ -907,6 +1298,22 @@ var RemoveChildCommand = (function () {
     return RemoveChildCommand;
 })();
 module.exports = RemoveChildCommand;
+
+},{}],"awayjs-player/lib/timeline/commands/SetInstanceNameCommand":[function(require,module,exports){
+// can't use SetPropertyCommand since we NEED the setter to be called properly
+var SetInstanceNameCommand = (function () {
+    // target can be MovieClip, its ColorTransform, and so on
+    function SetInstanceNameCommand(targetID, name) {
+        this._targetID = targetID;
+        this._name = name;
+    }
+    SetInstanceNameCommand.prototype.execute = function (sourceMovieClip, time) {
+        var target = sourceMovieClip.getPotentialChild(this._targetID);
+        target.name = this._name;
+    };
+    return SetInstanceNameCommand;
+})();
+module.exports = SetInstanceNameCommand;
 
 },{}],"awayjs-player/lib/timeline/commands/UpdatePropertyCommand":[function(require,module,exports){
 var UpdatePropertyCommand = (function () {

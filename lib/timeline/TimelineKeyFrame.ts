@@ -17,18 +17,6 @@ import MovieClip                    = require("awayjs-player/lib/display/MovieCl
 import FrameCommand                 = require("awayjs-player/lib/timeline/commands/FrameCommand");
 
 
-/**
- * TimelineFrame holds 3 list of FrameCommands
- *  - list1 _frameCommands should be  executed when playing the timeline (previous Frame was played)
- *  - list2 _frameCommandsReverse should be executed when playing the timeline reversed (previous Frame was played)
- *  - list3 _frameCommandsInit should be executed when jumping to a frame, so we need to fully init the frame
- *
- *  Addionial TimelineFrame properties are:
- *  - script - can be executed, after the frameCommands have been executed
- *  - list of FrameLabels, and list of corresponding labelTypes
- *  - duration-value (1 frame is not necessary 1 frame long)
- *  - startTime and endTime are needed internally when deciding what frame to display
- */
 class TimelineKeyFrame
 {
     private _startTime:number;
@@ -42,9 +30,9 @@ class TimelineKeyFrame
     constructor()
     {
         this._duration = 1;//use millisecs for duration ? or frames ?
-        this._frameCommands = new Array<FrameCommand>();
-        this._frameConstructCommands = new Array<FrameCommand>();
-        this._frameDestructCommands = new Array<FrameCommand>();
+        this._frameCommands = [];
+        this._frameConstructCommands = [];
+        this._frameDestructCommands = [];
         this._isActive = false;
     }
 
@@ -97,6 +85,7 @@ class TimelineKeyFrame
     {
         this._isActive = true;
         var len = this._frameConstructCommands.length;
+
         // rather pointless to pass time info here
         for (var i = 0; i < len; i++)
             this._frameConstructCommands[i].execute(sourceMovieClip, this._startTime);

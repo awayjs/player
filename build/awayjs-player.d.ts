@@ -1,11 +1,54 @@
+declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
+	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+	export = AS2SymbolAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
 	    private currentFrameIndex;
+	    private _nameChangeCallback;
+	    private _onEnterFrame;
+	    private _onRelease;
 	    constructor(adaptee: DisplayObjectContainer);
+	    _framesloaded: number;
+	    _currentframe: number;
+	    _totalFrames: number;
+	    enabled: boolean;
+	    duplicateMovieClip(name: string, depth: number, initObject: Object): MovieClip;
+	    getBytesLoaded(): number;
+	    getBytesTotal(): number;
+	    getInstanceAtDepth(depth: number): MovieClip;
+	    getNextHighestDepth(): number;
+	    globalToLocal(pt: any): void;
+	    gotoAndPlay(frame: any): void;
+	    gotoAndStop(frame: any): void;
+	    localToGlobal(pt: any): void;
+	    nextFrame(): void;
+	    play(): void;
+	    prevFrame(): void;
+	    setMask(mc: DisplayObject): void;
+	    stop(): void;
+	    swapDepths(target: DisplayObject): void;
 	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
+	    onEnterFrame: Function;
+	    onRelease: Function;
+	    _parent: AS2MovieClipAdapter;
+	    _pRegisterChild(child: DisplayObject): void;
+	    _pUnregisterChild(child: DisplayObject): void;
+	    _pOnChildAdded(event: MovieClipEvent): void;
+	    private _pOnChildRemoved(event);
+	    private _pOnChildNameChanged(event);
+	    private _gotoFrame(frame);
+	    private _updateDepths(target);
+	    private sortChildrenByDepth(a, b);
+	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
 	export = AS2MovieClipAdapter;
 	
@@ -16,15 +59,27 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SymbolAdapter {
 	    private _adaptee;
+	    private __quality;
+	    private static ROOT;
+	    private static REFERENCE_TIME;
+	    private static CLASS_REPLACEMENTS;
 	    constructor(adaptee: DisplayObjectContainer);
 	    adaptee: DisplayObjectContainer;
+	    _name: string;
 	    _rotation: number;
 	    _x: number;
 	    _y: number;
 	    _xscale: number;
 	    _yscale: number;
-	    _parent: AS2MovieClipAdapter;
+	    _visible: boolean;
 	    getDepth(): number;
+	    _quality: string;
+	    quality: string;
+	    trace(): void;
+	    getTimer(): Number;
+	    _root: AS2MovieClipAdapter;
+	    random(range: number): number;
+	    classReplacements: Object;
 	}
 	export = AS2SymbolAdapter;
 	
@@ -35,6 +90,7 @@ declare module "awayjs-player/lib/adapters/MovieClipAdapter" {
 	interface MovieClipAdapter {
 	    adaptee: DisplayObjectContainer;
 	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
+	    classReplacements: Object;
 	}
 	export = MovieClipAdapter;
 	
@@ -53,12 +109,18 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _fps;
 	    private _isPlaying;
 	    private _loop;
-	    private _totalFrames;
+	    private _numFrames;
 	    private _prototype;
 	    private _adapter;
 	    private _potentialChildren;
 	    constructor();
+	    numFrames: number;
+	    jumpToLabel(label: string): void;
+	    currentFrameIndex: number;
 	    adapter: MovieClipAdapter;
+	    name: string;
+	    addChild(child: DisplayObject): DisplayObject;
+	    removeChild(child: DisplayObject): DisplayObject;
 	    fps: number;
 	    assetType: string;
 	    /**
@@ -99,6 +161,20 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    printHierarchyName(depth: number, target: DisplayObject): void;
 	}
 	export = MovieClip;
+	
+}
+
+declare module "awayjs-player/lib/events/MovieClipEvent" {
+	import Event = require("awayjs-core/lib/events/Event");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	class MovieClipEvent extends Event {
+	    static NAME_CHANGED: string;
+	    static CHILD_ADDED: string;
+	    static CHILD_REMOVED: string;
+	    displayObject: DisplayObject;
+	    constructor(type: string, displayObject: DisplayObject);
+	}
+	export = MovieClipEvent;
 	
 }
 
@@ -222,18 +298,6 @@ declare module "awayjs-player/lib/timeline/InterpolationObject" {
 declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	/**
-	 * TimelineFrame holds 3 list of FrameCommands
-	 *  - list1 _frameCommands should be  executed when playing the timeline (previous Frame was played)
-	 *  - list2 _frameCommandsReverse should be executed when playing the timeline reversed (previous Frame was played)
-	 *  - list3 _frameCommandsInit should be executed when jumping to a frame, so we need to fully init the frame
-	 *
-	 *  Addionial TimelineFrame properties are:
-	 *  - script - can be executed, after the frameCommands have been executed
-	 *  - list of FrameLabels, and list of corresponding labelTypes
-	 *  - duration-value (1 frame is not necessary 1 frame long)
-	 *  - startTime and endTime are needed internally when deciding what frame to display
-	 */
 	class TimelineKeyFrame {
 	    private _startTime;
 	    private _endTime;
@@ -283,6 +347,21 @@ declare module "awayjs-player/lib/timeline/commands/ApplyAS2DepthsCommand" {
 	
 }
 
+declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
+	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	class ExecuteScriptCommand implements FrameCommand {
+	    private _script;
+	    private _translatedScript;
+	    constructor(script: Function);
+	    constructor(script: string);
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	    translateScript(classReplacements: any): void;
+	}
+	export = ExecuteScriptCommand;
+	
+}
+
 declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	/**
@@ -306,6 +385,19 @@ declare module "awayjs-player/lib/timeline/commands/RemoveChildCommand" {
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = RemoveChildCommand;
+	
+}
+
+declare module "awayjs-player/lib/timeline/commands/SetInstanceNameCommand" {
+	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	class SetInstanceNameCommand implements FrameCommand {
+	    private _targetID;
+	    private _name;
+	    constructor(targetID: number, name: string);
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	}
+	export = SetInstanceNameCommand;
 	
 }
 
