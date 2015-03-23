@@ -46,14 +46,15 @@ class MovieClip extends DisplayObjectContainer
     public jumpToLabel(label:string) : void
     {
         var index = -1;
-        var len = this._keyFrames.length;
+        /*var len = this._keyFrames.length;
 
         for (var i = 0; i < len; ++i) {
             if (this._keyFrames[i].label) {
                 index = Math.round(this._keyFrames[i].startTime * this._fps);
                 break;
             }
-        }
+        }*/
+        console.log("Implement labels")
 
         if (index !== -1)
             this.currentFrameIndex = index;
