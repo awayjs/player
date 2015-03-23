@@ -77,6 +77,8 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    quality: string;
 	    trace(): void;
 	    getTimer(): Number;
+	    _alpha: number;
+	    _url: string;
 	    _root: AS2MovieClipAdapter;
 	    random(range: number): number;
 	    classReplacements: Object;

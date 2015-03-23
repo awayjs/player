@@ -413,6 +413,23 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.getTimer = function () {
         return new Date().getMilliseconds() - AS2SymbolAdapter.REFERENCE_TIME;
     };
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
+        get: function () {
+            return this.adaptee.transform.colorTransform.alphaMultiplier;
+        },
+        set: function (value) {
+            this.adaptee.transform.colorTransform.alphaMultiplier = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_url", {
+        get: function () {
+            return document.URL;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_root", {
         get: function () {
             if (!AS2SymbolAdapter.ROOT) {
@@ -429,8 +446,7 @@ var AS2SymbolAdapter = (function () {
         configurable: true
     });
     AS2SymbolAdapter.prototype.random = function (range) {
-        // TODO: Verify if floor is required
-        return Math.floor(Math.random() * range);
+        return Math.random() * range;
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "classReplacements", {
         get: function () {
@@ -478,9 +494,18 @@ var MovieClip = (function (_super) {
         configurable: true
     });
     MovieClip.prototype.jumpToLabel = function (label) {
-        var index;
-        throw "NOT IMPLEMENTED YET";
-        this.currentFrameIndex = index;
+        var index = -1;
+        /*var len = this._keyFrames.length;
+
+        for (var i = 0; i < len; ++i) {
+            if (this._keyFrames[i].label) {
+                index = Math.round(this._keyFrames[i].startTime * this._fps);
+                break;
+            }
+        }*/
+        console.log("Implement labels");
+        if (index !== -1)
+            this.currentFrameIndex = index;
     };
     Object.defineProperty(MovieClip.prototype, "currentFrameIndex", {
         get: function () {
@@ -495,7 +520,8 @@ var MovieClip = (function (_super) {
             var isPlaying = this._isPlaying;
             this._isPlaying = true;
             while (this._currentFrameIndex != value)
-                this.advanceFrame();
+                // skip frames
+                this.advanceFrame(true);
             this._isPlaying = isPlaying;
         },
         enumerable: true,
@@ -1145,9 +1171,9 @@ module.exports = InterpolationObject;
 var TimelineKeyFrame = (function () {
     function TimelineKeyFrame() {
         this._duration = 1; //use millisecs for duration ? or frames ?
-        this._frameCommands = new Array();
-        this._frameConstructCommands = new Array();
-        this._frameDestructCommands = new Array();
+        this._frameCommands = [];
+        this._frameConstructCommands = [];
+        this._frameDestructCommands = [];
         this._isActive = false;
     }
     TimelineKeyFrame.prototype.addCommand = function (command) {
@@ -1269,6 +1295,8 @@ var ExecuteScriptCommand = (function () {
     // TODO: handle this in the exporter so it's safe!
     ExecuteScriptCommand.prototype.translateScript = function (classReplacements) {
         var replaced = this._script.replace(/(\\n|\r)/g, "");
+        var replacementPreface = "";
+        var replacementPostface = "";
         // where "this" is a single word
         replaced = replaced.replace(/\wthis\./g, "___scoped_this___.");
         for (var srcName in classReplacements) {
@@ -1276,9 +1304,12 @@ var ExecuteScriptCommand = (function () {
             // where class name is a single word
             var regex = "\b" + srcName + "\b";
             replaced = replaced.replace(new RegExp(regex, "g"), dstName);
+            // store old references to stuff in a temporary var to be reset after script execution;
+            replacementPreface += "var __OLD_" + srcName + " = " + srcName + ";\n";
+            replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
-        var str = "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}";
+        var str = replacementPreface + "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}\n" + replacementPostface;
         this._translatedScript = new Function(str);
     };
     return ExecuteScriptCommand;
