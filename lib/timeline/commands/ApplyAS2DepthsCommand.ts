@@ -23,7 +23,7 @@ class ApplyAS2DepthsCommand implements FrameCommand
         var db = <number>(b["__AS2Depth"]);
         if (da === undefined) da = 0;
         if (db === undefined) db = 0;
-        return db - da;
+        return da - db;
     }
 }
 export = ApplyAS2DepthsCommand;
