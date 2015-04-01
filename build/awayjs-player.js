@@ -1243,6 +1243,22 @@ var TimelineKeyFrame = (function () {
 })();
 module.exports = TimelineKeyFrame;
 
+},{}],"awayjs-player/lib/timeline/commands/AddChildAtDepthCommand":[function(require,module,exports){
+var AddChildAtDepthCommand = (function () {
+    function AddChildAtDepthCommand(childID, target_depth) {
+        this._childID = childID;
+        this._target_depth = target_depth;
+    }
+    AddChildAtDepthCommand.prototype.execute = function (sourceMovieClip, time) {
+        var target = sourceMovieClip.getPotentialChild(this._childID);
+        target["__AS2Depth"] = this._target_depth;
+        sourceMovieClip.activateChild(this._childID);
+        sourceMovieClip.visible = true;
+    };
+    return AddChildAtDepthCommand;
+})();
+module.exports = AddChildAtDepthCommand;
+
 },{}],"awayjs-player/lib/timeline/commands/AddChildCommand":[function(require,module,exports){
 var AddChildCommand = (function () {
     function AddChildCommand(childID) {
@@ -1272,7 +1288,7 @@ var ApplyAS2DepthsCommand = (function () {
             da = 0;
         if (db === undefined)
             db = 0;
-        return db - da;
+        return da - db;
     };
     return ApplyAS2DepthsCommand;
 })();
@@ -1329,6 +1345,26 @@ var RemoveChildCommand = (function () {
     return RemoveChildCommand;
 })();
 module.exports = RemoveChildCommand;
+
+},{}],"awayjs-player/lib/timeline/commands/RemoveChildrenAtDepthCommand":[function(require,module,exports){
+var RemoveChildrenAtDepthCommand = (function () {
+    function RemoveChildrenAtDepthCommand(depth_to_remove) {
+        this._depth_to_remove = depth_to_remove;
+    }
+    RemoveChildrenAtDepthCommand.prototype.execute = function (sourceMovieClip, time) {
+        var childrenArray = sourceMovieClip["_children"];
+        for (var i = 0; i < this._depth_to_remove.length; i++) {
+            for (var c = 0; c < childrenArray.length; c++) {
+                if (childrenArray[c].__AS2Depth == this._depth_to_remove[i]) {
+                    sourceMovieClip.removeChild(childrenArray[c]);
+                    break;
+                }
+            }
+        }
+    };
+    return RemoveChildrenAtDepthCommand;
+})();
+module.exports = RemoveChildrenAtDepthCommand;
 
 },{}],"awayjs-player/lib/timeline/commands/SetInstanceNameCommand":[function(require,module,exports){
 // can't use SetPropertyCommand since we NEED the setter to be called properly
