@@ -180,12 +180,32 @@ declare module "awayjs-player/lib/events/MovieClipEvent" {
 	
 }
 
+declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
+	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
+	    createMovieClip(): MovieClip;
+	}
+	export = AS2SceneGraphFactory;
+	
+}
+
 declare module "awayjs-player/lib/factories/TimelineSceneGraphFactory" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	interface TimelineSceneGraphFactory {
 	    createMovieClip(): MovieClip;
 	}
 	export = TimelineSceneGraphFactory;
+	
+}
+
+declare module "awayjs-player/lib/partition/Partition2D" {
+	import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import Partition = require("awayjs-display/lib/partition/Partition");
+	class Partition2D extends Partition {
+	    constructor(root: DisplayObject);
+	}
+	export = Partition2D;
 	
 }
 
@@ -204,16 +224,6 @@ declare module "awayjs-player/lib/partition/Partition2DNode" {
 	    iAddNode(node: NodeBase): void;
 	}
 	export = Partition2DNode;
-	
-}
-
-declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
-	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
-	    createMovieClip(): MovieClip;
-	}
-	export = AS2SceneGraphFactory;
 	
 }
 
@@ -236,16 +246,6 @@ declare module "awayjs-player/lib/renderer/Mask" {
 	
 }
 
-declare module "awayjs-player/lib/partition/Partition2D" {
-	import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import Partition = require("awayjs-display/lib/partition/Partition");
-	class Partition2D extends Partition {
-	    constructor(root: DisplayObject);
-	}
-	export = Partition2D;
-	
-}
-
 declare module "awayjs-player/lib/renderer/RenderableSort2D" {
 	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
 	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
@@ -257,6 +257,43 @@ declare module "awayjs-player/lib/renderer/RenderableSort2D" {
 	    sortOpaqueRenderables(head: IRenderable): IRenderable;
 	}
 	export = RenderableMergeSort;
+	
+}
+
+declare module "awayjs-player/lib/renderer/Renderer2D" {
+	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
+	import Stage = require("awayjs-stagegl/lib/base/Stage");
+	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
+	import IRendererPoolClass = require("awayjs-renderergl/lib/pool/IRendererPoolClass");
+	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
+	class Renderer2D extends DefaultRenderer {
+	    private _mask;
+	    constructor(rendererPoolClass?: IRendererPoolClass, stage?: Stage);
+	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
+	    applyRenderable(renderable: RenderableBase): void;
+	}
+	export = Renderer2D;
+	
+}
+
+declare module "awayjs-player/lib/timeline/InterpolationObject" {
+	/**
+	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
+	 *  A TimeLineObject basically consists of an objID, and an IAsset.
+	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
+	
+	 */
+	class InterpolationObject {
+	    private _type;
+	    private _startValue;
+	    private _startTime;
+	    private _endValue;
+	    private _endTime;
+	    private _duration;
+	    constructor(type: number, startValue: any, endValue: any, startTime: number, endTime: number);
+	    getState(time: number, speed: number): any;
+	}
+	export = InterpolationObject;
 	
 }
 
@@ -288,22 +325,6 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	
 }
 
-declare module "awayjs-player/lib/renderer/Renderer2D" {
-	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
-	import Stage = require("awayjs-stagegl/lib/base/Stage");
-	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
-	import IRendererPoolClass = require("awayjs-renderergl/lib/pool/IRendererPoolClass");
-	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
-	class Renderer2D extends DefaultRenderer {
-	    private _mask;
-	    constructor(rendererPoolClass?: IRendererPoolClass, stage?: Stage);
-	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
-	    applyRenderable(renderable: RenderableBase): void;
-	}
-	export = Renderer2D;
-	
-}
-
 declare module "awayjs-player/lib/timeline/commands/AddChildAtDepthCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -314,27 +335,6 @@ declare module "awayjs-player/lib/timeline/commands/AddChildAtDepthCommand" {
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = AddChildAtDepthCommand;
-	
-}
-
-declare module "awayjs-player/lib/timeline/InterpolationObject" {
-	/**
-	 * TimeLineObject represents a unique object that is (or will be) used by a TimeLine.
-	 *  A TimeLineObject basically consists of an objID, and an IAsset.
-	 *  The FrameCommands hold references to these TimeLineObjects, so they can access and modify the IAssets
-	
-	 */
-	class InterpolationObject {
-	    private _type;
-	    private _startValue;
-	    private _startTime;
-	    private _endValue;
-	    private _endTime;
-	    private _duration;
-	    constructor(type: number, startValue: any, endValue: any, startTime: number, endTime: number);
-	    getState(time: number, speed: number): any;
-	}
-	export = InterpolationObject;
 	
 }
 

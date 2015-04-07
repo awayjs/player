@@ -46,18 +46,21 @@ class ExecuteScriptCommand implements FrameCommand
             replaced = replaced.replace(new RegExp(regex, "g"), dstName);
 
             // store old references to stuff in a temporary var to be reset after script execution;
-            replacementPreface += "var __OLD_" + srcName + " = " + srcName + ";\n";
+            // make sure a definition exists, even if it's undefined
+            replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
+
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
 
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
-        var str =   replacementPreface +
+        var str =   replacementPreface;/* +
                     "var ___scoped_this___ = this;" +
                     "with(___scoped_this___) { \n" +
                         replaced +
                     "}\n" +
-                    replacementPostface;
+                    replacementPostface;*/
 
+        console.log(str);
         this._translatedScript = new Function(str);
     }
 }
