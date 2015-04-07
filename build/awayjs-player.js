@@ -1326,13 +1326,8 @@ var ExecuteScriptCommand = (function () {
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
-        var str = replacementPreface; /* +
-                    "var ___scoped_this___ = this;" +
-                    "with(___scoped_this___) { \n" +
-                        replaced +
-                    "}\n" +
-                    replacementPostface;*/
-        console.log(str);
+        var str = replacementPreface + "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}\n" + replacementPostface;
+        //console.log(str);
         this._translatedScript = new Function(str);
     };
     return ExecuteScriptCommand;
