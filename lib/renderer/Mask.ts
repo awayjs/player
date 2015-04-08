@@ -56,6 +56,7 @@ class Mask
                 var mask = masks[i];
                 for (var j = 0; j < numRenderables; ++j) {
                     var obj = this._registeredMasks[j];
+                    //console.log("testing for " + mask["hierarchicalMaskID"] + ", " + mask.name);
                     if (obj.sourceEntity["hierarchicalMaskID"] === mask["hierarchicalMaskID"]) {
                         //console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
                         this._draw(obj);

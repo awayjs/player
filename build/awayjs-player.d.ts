@@ -428,6 +428,19 @@ declare module "awayjs-player/lib/timeline/commands/SetInstanceNameCommand" {
 	
 }
 
+declare module "awayjs-player/lib/timeline/commands/SetMaskCommand" {
+	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	class SetMaskCommand implements FrameCommand {
+	    private _targetID;
+	    private _maskIDs;
+	    constructor(targetID: number, maskIDs: Array<number>);
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	}
+	export = SetMaskCommand;
+	
+}
+
 declare module "awayjs-player/lib/timeline/commands/UpdatePropertyCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");

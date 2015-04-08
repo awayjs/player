@@ -30,6 +30,7 @@ class Partition2DNode extends NodeBase
     // pass any so we can convert to IEntity. Sigh, TypeScript.
     public traverseSceneGraph(displayObject:any, traverser:CollectorBase, maskID:number = -1, appliedMasks:DisplayObject[] = null)
     {
+        //console.log(displayObject.name);
         if (displayObject._iMaskID !== -1) {
             if (maskID !== -1) throw "masks within masker currently not supported";
             maskID = displayObject._iMaskID;

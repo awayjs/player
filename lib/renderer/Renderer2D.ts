@@ -42,7 +42,6 @@ class Renderer2D extends DefaultRenderer
         this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
         //console.log("------");
         var gl = this._pContext["_gl"];
-        var gl = this._pContext["_gl"];
         gl.disable(gl.STENCIL_TEST);
 
         while (renderable) {
@@ -51,7 +50,7 @@ class Renderer2D extends DefaultRenderer
 
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
-                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"]);
+                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
             // otherwise this would result in depth rendered anyway because fragment shader kil is ignored

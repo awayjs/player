@@ -590,7 +590,7 @@ var MovieClip = (function (_super) {
      * should be called right before the call to away3d-render.
      */
     MovieClip.prototype.update = function (timeDelta) {
-        //this.logHierarchy();
+        this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker = 1000 / this._fps;
         // right now, just advance frame once time marker has been reached
@@ -803,6 +803,7 @@ var Partition2DNode = (function (_super) {
     Partition2DNode.prototype.traverseSceneGraph = function (displayObject, traverser, maskID, appliedMasks) {
         if (maskID === void 0) { maskID = -1; }
         if (appliedMasks === void 0) { appliedMasks = null; }
+        //console.log(displayObject.name);
         if (displayObject._iMaskID !== -1) {
             if (maskID !== -1)
                 throw "masks within masker currently not supported";
@@ -897,6 +898,7 @@ var Mask = (function () {
                 var mask = masks[i];
                 for (var j = 0; j < numRenderables; ++j) {
                     var obj = this._registeredMasks[j];
+                    //console.log("testing for " + mask["hierarchicalMaskID"] + ", " + mask.name);
                     if (obj.sourceEntity["hierarchicalMaskID"] === mask["hierarchicalMaskID"]) {
                         //console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
                         this._draw(obj);
@@ -1045,14 +1047,13 @@ var Renderer2D = (function (_super) {
         this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
         //console.log("------");
         var gl = this._pContext["_gl"];
-        var gl = this._pContext["_gl"];
         gl.disable(gl.STENCIL_TEST);
         while (renderable) {
             renderObject = renderable.renderObject;
             passes = renderObject.passes;
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
-                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"]);
+                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
             else if (this._disableColor && renderObject._renderObjectOwner.alphaThreshold != 0) {
@@ -1327,7 +1328,7 @@ var ExecuteScriptCommand = (function () {
         }
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
         var str = replacementPreface + "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}\n" + replacementPostface;
-        //console.log(str);
+        console.log(str);
         this._translatedScript = new Function(str);
     };
     return ExecuteScriptCommand;
@@ -1383,6 +1384,25 @@ var SetInstanceNameCommand = (function () {
     return SetInstanceNameCommand;
 })();
 module.exports = SetInstanceNameCommand;
+
+},{}],"awayjs-player/lib/timeline/commands/SetMaskCommand":[function(require,module,exports){
+var SetMaskCommand = (function () {
+    // target can be MovieClip, its ColorTransform, and so on
+    function SetMaskCommand(targetID, maskIDs) {
+        this._targetID = targetID;
+        this._maskIDs = maskIDs;
+    }
+    SetMaskCommand.prototype.execute = function (sourceMovieClip, time) {
+        var len = this._maskIDs.length;
+        var masks = new Array();
+        for (var i = 0; i < len; ++i) {
+            masks[i] = sourceMovieClip.getPotentialChild(this._maskIDs[i]);
+        }
+        sourceMovieClip.getPotentialChild(this._targetID)._iMasks = masks;
+    };
+    return SetMaskCommand;
+})();
+module.exports = SetMaskCommand;
 
 },{}],"awayjs-player/lib/timeline/commands/UpdatePropertyCommand":[function(require,module,exports){
 var UpdatePropertyCommand = (function () {

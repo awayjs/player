@@ -60,7 +60,7 @@ class ExecuteScriptCommand implements FrameCommand
                     "}\n" +
                     replacementPostface;
 
-        //console.log(str);
+        console.log(str);
         this._translatedScript = new Function(str);
     }
 }
