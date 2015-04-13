@@ -407,7 +407,7 @@ var AS2SymbolAdapter = (function () {
         configurable: true
     });
     AS2SymbolAdapter.prototype.trace = function () {
-        console.log.apply(this, arguments);
+        //console.log.apply(window, arguments);
     };
     // may need proper high-def timer mechanism
     AS2SymbolAdapter.prototype.getTimer = function () {
@@ -426,6 +426,20 @@ var AS2SymbolAdapter = (function () {
     Object.defineProperty(AS2SymbolAdapter.prototype, "_url", {
         get: function () {
             return document.URL;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_global", {
+        get: function () {
+            return null;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_level0", {
+        get: function () {
+            return this._root;
         },
         enumerable: true,
         configurable: true
@@ -590,7 +604,7 @@ var MovieClip = (function (_super) {
      * should be called right before the call to away3d-render.
      */
     MovieClip.prototype.update = function (timeDelta) {
-        this.logHierarchy();
+        //this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker = 1000 / this._fps;
         // right now, just advance frame once time marker has been reached
@@ -1309,13 +1323,17 @@ var ExecuteScriptCommand = (function () {
         var caller = sourceMovieClip.adapter ? sourceMovieClip.adapter : sourceMovieClip;
         this._translatedScript.call(caller);
     };
+    ExecuteScriptCommand.prototype.regexIndexOf = function (str, regex, startpos) {
+        var indexOf = str.substring(startpos || 0).search(regex);
+        return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+    };
     // TODO: handle this in the exporter so it's safe!
     ExecuteScriptCommand.prototype.translateScript = function (classReplacements) {
         var replaced = this._script.replace(/(\\n|\r)/g, "");
         var replacementPreface = "";
         var replacementPostface = "";
         // where "this" is a single word
-        replaced = replaced.replace(/\wthis\./g, "___scoped_this___.");
+        replaced = replaced.replace(/\bthis\./, "___scoped_this___.");
         for (var srcName in classReplacements) {
             var dstName = classReplacements[srcName];
             // where class name is a single word
@@ -1325,6 +1343,39 @@ var ExecuteScriptCommand = (function () {
             // make sure a definition exists, even if it's undefined
             replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
+        }
+        var functions = [];
+        var index = -1;
+        var functionRegEx = /\bfunction\s+[A-Za-z_][A-Za-z0-9_]*/g;
+        do {
+            // find a function definition, and pray we can replace global scope
+            index = this.regexIndexOf(replaced, functionRegEx, index >= 0 ? index : 0);
+            if (index >= 0) {
+                functions.push(replaced.substring(index + 9, replaced.indexOf("(", index)));
+                var insertIndex = replaced.indexOf("{", index) + 1;
+                replaced = replaced.slice(0, insertIndex) + "\nwith (___scoped_this___) {\n" + replaced.slice(insertIndex);
+                insertIndex += 27;
+                // insert a closing bracket before the closing bracket of the function (and not one that belongs to another index
+                var closingFound = 0;
+                var openingFound = 1; // count the opening bracket for the function
+                var len = replaced.length;
+                while (insertIndex < len) {
+                    var char = replaced.charAt(insertIndex);
+                    if (char === "{")
+                        ++openingFound;
+                    else if (char === "}")
+                        ++closingFound;
+                    // matching closing found
+                    if (closingFound === openingFound)
+                        break;
+                    ++insertIndex;
+                }
+                replaced = replaced.slice(0, insertIndex) + "\n}\n" + replaced.slice(insertIndex);
+                index = insertIndex + 3;
+            }
+        } while (index !== -1);
+        for (var i = 0; i < functions.length; ++i) {
+            replacementPostface += "___scoped_this___." + functions[i] + " = " + functions[i] + ";\n";
         }
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
         var str = replacementPreface + "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}\n" + replacementPostface;

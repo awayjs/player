@@ -79,6 +79,8 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    getTimer(): Number;
 	    _alpha: number;
 	    _url: string;
+	    _global: AS2MovieClipAdapter;
+	    _level0: AS2MovieClipAdapter;
 	    _root: AS2MovieClipAdapter;
 	    random(range: number): number;
 	    classReplacements: Object;
@@ -371,6 +373,7 @@ declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	    constructor(script: Function);
 	    constructor(script: string);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
+	    private regexIndexOf(str, regex, startpos);
 	    translateScript(classReplacements: any): void;
 	}
 	export = ExecuteScriptCommand;

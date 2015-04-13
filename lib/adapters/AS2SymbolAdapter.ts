@@ -154,7 +154,7 @@ class AS2SymbolAdapter
 
     trace() : void
     {
-        console.log.apply(this, arguments);
+        //console.log.apply(window, arguments);
     }
 
     // may need proper high-def timer mechanism
@@ -176,6 +176,16 @@ class AS2SymbolAdapter
     get _url() : string
     {
         return document.URL;
+    }
+
+    get _global() : AS2MovieClipAdapter
+    {
+        return null;
+    }
+
+    get _level0() : AS2MovieClipAdapter
+    {
+        return this._root;
     }
 
     get _root() : AS2MovieClipAdapter
