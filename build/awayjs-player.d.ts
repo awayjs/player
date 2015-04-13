@@ -64,6 +64,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    private static REFERENCE_TIME;
 	    private static CLASS_REPLACEMENTS;
 	    constructor(adaptee: DisplayObjectContainer);
+	    getVersion(): number;
 	    adaptee: DisplayObjectContainer;
 	    _name: string;
 	    _rotation: number;
@@ -81,11 +82,34 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _url: string;
 	    _global: AS2MovieClipAdapter;
 	    _level0: AS2MovieClipAdapter;
+	    _level10301: AS2MovieClipAdapter;
 	    _root: AS2MovieClipAdapter;
 	    random(range: number): number;
 	    classReplacements: Object;
 	}
 	export = AS2SymbolAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
+	class AS2SystemAdapter {
+	    static security: Object;
+	    static capabilities: Object;
+	}
+	export = AS2SystemAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
+	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
+	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+	class AS2TextFieldAdapter implements TextFieldAdapter {
+	    private _adaptee;
+	    constructor(adaptee: AdaptedTextField);
+	    adaptee: AdaptedTextField;
+	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
+	}
+	export = AS2TextFieldAdapter;
 	
 }
 
@@ -97,6 +121,30 @@ declare module "awayjs-player/lib/adapters/MovieClipAdapter" {
 	    classReplacements: Object;
 	}
 	export = MovieClipAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/TextFieldAdapter" {
+	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+	interface TextFieldAdapter {
+	    adaptee: AdaptedTextField;
+	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
+	}
+	export = TextFieldAdapter;
+	
+}
+
+declare module "awayjs-player/lib/display/AdaptedTextField" {
+	import TextField = require("awayjs-display/lib/entities/TextField");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
+	class AdaptedTextField extends TextField {
+	    private _adapter;
+	    constructor();
+	    adapter: TextFieldAdapter;
+	    clone(): DisplayObject;
+	}
+	export = AdaptedTextField;
 	
 }
 
@@ -184,9 +232,11 @@ declare module "awayjs-player/lib/events/MovieClipEvent" {
 
 declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
 	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
 	    createMovieClip(): MovieClip;
+	    createTextField(): AdaptedTextField;
 	}
 	export = AS2SceneGraphFactory;
 	
@@ -194,8 +244,10 @@ declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 
 declare module "awayjs-player/lib/factories/TimelineSceneGraphFactory" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	import TextField = require("awayjs-display/lib/entities/TextField");
 	interface TimelineSceneGraphFactory {
 	    createMovieClip(): MovieClip;
+	    createTextField(): TextField;
 	}
 	export = TimelineSceneGraphFactory;
 	

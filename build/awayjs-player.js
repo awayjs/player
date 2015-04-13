@@ -311,9 +311,13 @@ var AS2SymbolAdapter = (function () {
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getMilliseconds();
         if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
             AS2SymbolAdapter.CLASS_REPLACEMENTS = {};
-            AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "AS2ColorAdapter";
+            AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "awayjs-player/lib/adapters/AS2ColorAdapter";
+            AS2SymbolAdapter.CLASS_REPLACEMENTS["System"] = "awayjs-player/lib/adapters/AS2SystemAdapter";
         }
     }
+    AS2SymbolAdapter.prototype.getVersion = function () {
+        return 0;
+    };
     Object.defineProperty(AS2SymbolAdapter.prototype, "adaptee", {
         get: function () {
             return this._adaptee;
@@ -444,6 +448,14 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_level10301", {
+        // temporary:
+        get: function () {
+            return this._root;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_root", {
         get: function () {
             if (!AS2SymbolAdapter.ROOT) {
@@ -474,9 +486,79 @@ var AS2SymbolAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-},{}],"awayjs-player/lib/adapters/MovieClipAdapter":[function(require,module,exports){
+},{}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+// also contains global AS2 functions
+var AS2SystemAdapter = (function () {
+    function AS2SystemAdapter() {
+    }
+    AS2SystemAdapter.security = null;
+    AS2SystemAdapter.capabilities = { version: 6 };
+    return AS2SystemAdapter;
+})();
+module.exports = AS2SystemAdapter;
 
-},{}],"awayjs-player/lib/display/MovieClip":[function(require,module,exports){
+},{}],"awayjs-player/lib/adapters/AS2TextFieldAdapter":[function(require,module,exports){
+var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+var AS2TextFieldAdapter = (function () {
+    function AS2TextFieldAdapter(adaptee) {
+        // create an empty text field if none is passed
+        this._adaptee = adaptee || new AdaptedTextField();
+    }
+    Object.defineProperty(AS2TextFieldAdapter.prototype, "adaptee", {
+        get: function () {
+            return this._adaptee;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2TextFieldAdapter.prototype.clone = function (newAdaptee) {
+        return new AS2TextFieldAdapter(newAdaptee);
+    };
+    return AS2TextFieldAdapter;
+})();
+module.exports = AS2TextFieldAdapter;
+
+},{"awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField"}],"awayjs-player/lib/adapters/MovieClipAdapter":[function(require,module,exports){
+
+},{}],"awayjs-player/lib/adapters/TextFieldAdapter":[function(require,module,exports){
+
+},{}],"awayjs-player/lib/display/AdaptedTextField":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var TextField = require("awayjs-display/lib/entities/TextField");
+var AdaptedTextField = (function (_super) {
+    __extends(AdaptedTextField, _super);
+    function AdaptedTextField() {
+        _super.call(this);
+    }
+    Object.defineProperty(AdaptedTextField.prototype, "adapter", {
+        // adapter is used to provide MovieClip to scripts taken from different platforms
+        // TODO: Perhaps adapters should be created dynamically whenever needed, rather than storing them
+        get: function () {
+            return this._adapter;
+        },
+        // setter typically managed by factor
+        set: function (value) {
+            this._adapter = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AdaptedTextField.prototype.clone = function () {
+        var clone = new AdaptedTextField();
+        this._iCopyToTextField(clone);
+        clone.adapter = this.adapter.clone(clone);
+        return clone;
+    };
+    return AdaptedTextField;
+})(TextField);
+module.exports = AdaptedTextField;
+
+},{"awayjs-display/lib/entities/TextField":undefined}],"awayjs-player/lib/display/MovieClip":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -604,7 +686,7 @@ var MovieClip = (function (_super) {
      * should be called right before the call to away3d-render.
      */
     MovieClip.prototype.update = function (timeDelta) {
-        //this.logHierarchy();
+        this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker = 1000 / this._fps;
         // right now, just advance frame once time marker has been reached
@@ -775,7 +857,9 @@ module.exports = MovieClipEvent;
 
 },{"awayjs-core/lib/events/Event":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
 var AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+var AS2TextFieldAdapter = require("awayjs-player/lib/adapters/AS2TextFieldAdapter");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
+var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 var AS2SceneGraphFactory = (function () {
     function AS2SceneGraphFactory() {
     }
@@ -784,11 +868,16 @@ var AS2SceneGraphFactory = (function () {
         mc.adapter = new AS2MovieClipAdapter(mc);
         return mc;
     };
+    AS2SceneGraphFactory.prototype.createTextField = function () {
+        var tf = new AdaptedTextField();
+        tf.adapter = new AS2TextFieldAdapter(tf);
+        return tf;
+    };
     return AS2SceneGraphFactory;
 })();
 module.exports = AS2SceneGraphFactory;
 
-},{"awayjs-player/lib/adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/factories/TimelineSceneGraphFactory":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","awayjs-player/lib/adapters/AS2TextFieldAdapter":"awayjs-player/lib/adapters/AS2TextFieldAdapter","awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/factories/TimelineSceneGraphFactory":[function(require,module,exports){
 
 },{}],"awayjs-player/lib/partition/Partition2DNode":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
@@ -1337,11 +1426,12 @@ var ExecuteScriptCommand = (function () {
         for (var srcName in classReplacements) {
             var dstName = classReplacements[srcName];
             // where class name is a single word
-            var regex = "\b" + srcName + "\b";
-            replaced = replaced.replace(new RegExp(regex, "g"), dstName);
+            //var regex = "\b" + srcName + "\b";
+            //replaced = replaced.replace(new RegExp(regex, "g"), dstName);
             // store old references to stuff in a temporary var to be reset after script execution;
             // make sure a definition exists, even if it's undefined
             replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
+            replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
         var functions = [];
@@ -1430,6 +1520,7 @@ var SetInstanceNameCommand = (function () {
     }
     SetInstanceNameCommand.prototype.execute = function (sourceMovieClip, time) {
         var target = sourceMovieClip.getPotentialChild(this._targetID);
+        sourceMovieClip[this._name] = target;
         target.name = this._name;
     };
     return SetInstanceNameCommand;

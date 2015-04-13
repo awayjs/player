@@ -47,13 +47,13 @@ class ExecuteScriptCommand implements FrameCommand
         for (var srcName in classReplacements) {
             var dstName = classReplacements[srcName];
             // where class name is a single word
-            var regex = "\b" + srcName + "\b";
-            replaced = replaced.replace(new RegExp(regex, "g"), dstName);
+            //var regex = "\b" + srcName + "\b";
+            //replaced = replaced.replace(new RegExp(regex, "g"), dstName);
 
             // store old references to stuff in a temporary var to be reset after script execution;
             // make sure a definition exists, even if it's undefined
             replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
-
+            replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
 

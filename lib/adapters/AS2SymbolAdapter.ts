@@ -62,8 +62,14 @@ class AS2SymbolAdapter
 
         if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
             AS2SymbolAdapter.CLASS_REPLACEMENTS = {};
-            AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "AS2ColorAdapter";
+            AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "awayjs-player/lib/adapters/AS2ColorAdapter";
+            AS2SymbolAdapter.CLASS_REPLACEMENTS["System"] = "awayjs-player/lib/adapters/AS2SystemAdapter";
         }
+    }
+
+    getVersion() : number
+    {
+        return 0;
     }
 
     get adaptee() : DisplayObjectContainer
@@ -184,6 +190,12 @@ class AS2SymbolAdapter
     }
 
     get _level0() : AS2MovieClipAdapter
+    {
+        return this._root;
+    }
+
+    // temporary:
+    get _level10301() : AS2MovieClipAdapter
     {
         return this._root;
     }
