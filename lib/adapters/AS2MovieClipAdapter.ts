@@ -1,4 +1,4 @@
-import BitmapData = require("awayjs-core/lib/data/BitmapData");
+import BitmapImage2D = require("awayjs-core/lib/data/BitmapImage2D");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -67,11 +67,11 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	//attachAudio(id: Object) : void {	}
 
-	//attachBitmap(bmp: BitmapData, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
+	//attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
 
 	//attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
 
-	//beginBitmapFill(bmp: BitmapData, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
+	//beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
 
 	//beginFill(rgb: Number, alpha: number = 1.0) : void {}
 

@@ -1,4 +1,4 @@
-import RenderTexture = require("awayjs-core/lib/textures/RenderTexture");
+import Image2D = require("awayjs-core/lib/data/Image2D");
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
 import RenderObjectBase	= require("awayjs-renderergl/lib/compilation/RenderObjectBase");
@@ -9,7 +9,7 @@ import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
 
 class Mask
 {
-    //private _texture : RenderTexture;
+    //private _texture : Image2D;
     private _stage : Stage;
     private _renderer : Renderer2D;
     private _registeredMasks : RenderableBase[];
@@ -18,7 +18,7 @@ class Mask
     {
         this._stage = stage;
         this._renderer = renderer;
-        //this._texture = new RenderTexture(renderer.width, renderer.height);
+        //this._texture = new Image2D(renderer.width, renderer.height);
     }
 
     //public get texture()
@@ -41,7 +41,7 @@ class Mask
     {
         //var oldRenderTarget = this._stage.renderTarget;
 
-        //this._stage.setRenderTarget(this._texture);
+        //this._stage.setRenderTarget(this._image);
         //this._stage.clear();
         var context = this._stage.context;
         context.setColorMask(false, false, false, false);
@@ -76,22 +76,22 @@ class Mask
 
 /*    public get width() : number
     {
-        return this._texture.width;
+        return this._image.width;
     }
 
     public set width(value:number)
     {
-        this._texture.width = value;
+        this._image.width = value;
     }
 
     public get height() : number
     {
-        return this._texture.height;
+        return this._image.height;
     }
 
     public set height(value:number)
     {
-        this._texture.height = value;
+        this._image.height = value;
     }*/
 
     private _draw(renderable:RenderableBase)
