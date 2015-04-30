@@ -92,9 +92,9 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     //attachAudio(id: Object) : void {	}
-    //attachBitmap(bmp: BitmapData, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
+    //attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
     //attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
-    //beginBitmapFill(bmp: BitmapData, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
+    //beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
     //beginFill(rgb: Number, alpha: number = 1.0) : void {}
     //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
     //clear() : void {}
@@ -972,7 +972,7 @@ var Mask = (function () {
     function Mask(stage, renderer) {
         this._stage = stage;
         this._renderer = renderer;
-        //this._texture = new RenderTexture(renderer.width, renderer.height);
+        //this._texture = new Image2D(renderer.width, renderer.height);
     }
     //public get texture()
     //{
@@ -988,7 +988,7 @@ var Mask = (function () {
     };
     Mask.prototype.renderMasks = function (masks) {
         //var oldRenderTarget = this._stage.renderTarget;
-        //this._stage.setRenderTarget(this._texture);
+        //this._stage.setRenderTarget(this._image);
         //this._stage.clear();
         var context = this._stage.context;
         context.setColorMask(false, false, false, false);
@@ -1017,22 +1017,22 @@ var Mask = (function () {
     };
     /*    public get width() : number
         {
-            return this._texture.width;
+            return this._image.width;
         }
     
         public set width(value:number)
         {
-            this._texture.width = value;
+            this._image.width = value;
         }
     
         public get height() : number
         {
-            return this._texture.height;
+            return this._image.height;
         }
     
         public set height(value:number)
         {
-            this._texture.height = value;
+            this._image.height = value;
         }*/
     Mask.prototype._draw = function (renderable) {
         var renderObject = renderable.renderObject;
