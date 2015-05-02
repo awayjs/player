@@ -5,7 +5,6 @@ import IEntity = require("awayjs-display/lib/entities/IEntity");
 import RenderableNullSort = require("awayjs-display/lib/sort/RenderableNullSort");
 import Stage = require("awayjs-stagegl/lib/base/Stage");
 import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
-import IRendererPoolClass = require("awayjs-renderergl/lib/pool/IRendererPoolClass");
 import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
 import RenderObjectBase    = require("awayjs-renderergl/lib/compilation/RenderObjectBase");
 import RenderPassBase = require("awayjs-renderergl/lib/passes/RenderPassBase");
@@ -17,9 +16,9 @@ class Renderer2D extends DefaultRenderer
 {
     private _mask : Mask;
 
-    constructor(rendererPoolClass:IRendererPoolClass = null, stage:Stage = null)
+    constructor(stage:Stage = null)
     {
-        super(rendererPoolClass, stage);
+        super(stage);
         this.renderableSorter = new RenderableSort2D();
         this._mask = new Mask(this._pStage, this);
     }
@@ -113,7 +112,7 @@ class Renderer2D extends DefaultRenderer
     public applyRenderable(renderable:RenderableBase)
     {
         //set local vars for faster referencing
-        var renderObject:RenderObjectBase = this._pGetRenderObject(renderable, renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        var renderObject:RenderObjectBase = this._pRenderablePool.getRenderObjectPool(renderable.renderableOwner).getItem(renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
 
         renderable.renderObject = renderObject;
         renderable.renderObjectId = renderObject.renderObjectId;

@@ -10,7 +10,6 @@ import ISubMesh                        = require("awayjs-display/lib/base/ISubMe
 import ISubMeshClass                = require("awayjs-display/lib/base/ISubMeshClass");
 import MaterialBase                    = require("awayjs-display/lib/materials/MaterialBase");
 import EntityNode                    = require("awayjs-display/lib/partition/EntityNode");
-import IRenderer                    = require("awayjs-display/lib/render/IRenderer");
 import DisplayObjectContainer        = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import Mesh                            = require("awayjs-display/lib/entities/Mesh");
 import MovieClip                    = require("awayjs-player/lib/display/MovieClip");
