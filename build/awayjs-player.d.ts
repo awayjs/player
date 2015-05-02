@@ -318,11 +318,10 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
 	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
-	import IRendererPoolClass = require("awayjs-renderergl/lib/pool/IRendererPoolClass");
 	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
 	class Renderer2D extends DefaultRenderer {
 	    private _mask;
-	    constructor(rendererPoolClass?: IRendererPoolClass, stage?: Stage);
+	    constructor(stage?: Stage);
 	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
 	    applyRenderable(renderable: RenderableBase): void;
 	}

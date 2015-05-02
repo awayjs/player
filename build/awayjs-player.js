@@ -1127,10 +1127,9 @@ var Mask = require("awayjs-player/lib/renderer/Mask");
 var RenderableSort2D = require("awayjs-player/lib/renderer/RenderableSort2D");
 var Renderer2D = (function (_super) {
     __extends(Renderer2D, _super);
-    function Renderer2D(rendererPoolClass, stage) {
-        if (rendererPoolClass === void 0) { rendererPoolClass = null; }
+    function Renderer2D(stage) {
         if (stage === void 0) { stage = null; }
-        _super.call(this, rendererPoolClass, stage);
+        _super.call(this, stage);
         this.renderableSorter = new RenderableSort2D();
         this._mask = new Mask(this._pStage, this);
     }
@@ -1206,7 +1205,7 @@ var Renderer2D = (function (_super) {
     };
     Renderer2D.prototype.applyRenderable = function (renderable) {
         //set local vars for faster referencing
-        var renderObject = this._pGetRenderObject(renderable, renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        var renderObject = this._pRenderablePool.getRenderObjectPool(renderable.renderableOwner).getItem(renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
         renderable.renderObject = renderObject;
         renderable.renderObjectId = renderObject.renderObjectId;
         renderable.renderOrderId = renderObject.renderOrderId;
