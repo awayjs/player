@@ -1,7 +1,7 @@
 import Image2D = require("awayjs-core/lib/data/Image2D");
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
-import RenderObjectBase	= require("awayjs-renderergl/lib/compilation/RenderObjectBase");
+import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
+import RenderBase	= require("awayjs-renderergl/lib/render/RenderBase");
 import Stage = require("awayjs-stagegl/lib/base/Stage");
 import ContextGLClearMask = require("awayjs-stagegl/lib/base/ContextGLClearMask");
 
@@ -96,8 +96,8 @@ class Mask
 
     private _draw(renderable:RenderableBase)
     {
-        var renderObject = renderable.renderObject;
-        var passes = renderObject.passes;
+        var render = renderable.render;
+        var passes = render.passes;
         var len = passes.length;
         var pass = passes[len-1];
         var camera = this._renderer._pCamera;

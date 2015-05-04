@@ -5,9 +5,9 @@ import IEntity = require("awayjs-display/lib/entities/IEntity");
 import RenderableNullSort = require("awayjs-display/lib/sort/RenderableNullSort");
 import Stage = require("awayjs-stagegl/lib/base/Stage");
 import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
-import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
-import RenderObjectBase    = require("awayjs-renderergl/lib/compilation/RenderObjectBase");
-import RenderPassBase = require("awayjs-renderergl/lib/passes/RenderPassBase");
+import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
+import RenderBase    = require("awayjs-renderergl/lib/render/RenderBase");
+import IPass = require("awayjs-renderergl/lib/render/passes/IPass");
 
 import Mask = require("awayjs-player/lib/renderer/Mask");
 import RenderableSort2D = require("awayjs-player/lib/renderer/RenderableSort2D");
@@ -28,9 +28,9 @@ class Renderer2D extends DefaultRenderer
         var i:number;
         var len:number;
         var renderable2:RenderableBase;
-        var renderObject:RenderObjectBase;
-        var passes:Array<RenderPassBase>;
-        var pass:RenderPassBase;
+        var render:RenderBase;
+        var passes:Array<IPass>;
+        var pass:IPass;
         var camera:Camera = entityCollector.camera;
         var maskConfigID:number = -1;
 
@@ -44,8 +44,8 @@ class Renderer2D extends DefaultRenderer
         gl.disable(gl.STENCIL_TEST);
 
         while (renderable) {
-            renderObject = renderable.renderObject;
-            passes = renderObject.passes;
+            render = renderable.render;
+            passes = render.passes;
 
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
@@ -53,12 +53,12 @@ class Renderer2D extends DefaultRenderer
                 this._mask.registerMask(renderable);
             }
             // otherwise this would result in depth rendered anyway because fragment shader kil is ignored
-            else if (this._disableColor && renderObject._renderObjectOwner.alphaThreshold != 0) {
+            else if (this._disableColor && render._renderOwner.alphaThreshold != 0) {
                 renderable2 = renderable;
                 // fast forward
                 do {
                     renderable2 = renderable2.next;
-                } while (renderable2 && renderable2.renderObject == renderObject);
+                } while (renderable2 && renderable2.render == render);
             }
             else {
                 var newMaskConfigID = renderable.sourceEntity["maskConfigID"];
@@ -99,7 +99,7 @@ class Renderer2D extends DefaultRenderer
                         //console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
-                    } while (renderable2 && renderable2.renderObject == renderObject && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);
+                    } while (renderable2 && renderable2.render == render && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);
 
                     this.deactivatePass(renderable, pass);
                 }
@@ -112,11 +112,11 @@ class Renderer2D extends DefaultRenderer
     public applyRenderable(renderable:RenderableBase)
     {
         //set local vars for faster referencing
-        var renderObject:RenderObjectBase = this._pRenderablePool.getRenderObjectPool(renderable.renderableOwner).getItem(renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        var render:RenderBase = this._pRenderablePool.getRenderPool(renderable.renderableOwner).getItem(renderable.renderOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
 
-        renderable.renderObject = renderObject;
-        renderable.renderObjectId = renderObject.renderObjectId;
-        renderable.renderOrderId = renderObject.renderOrderId;
+        renderable.render = render;
+        renderable.renderId = render.renderId;
+        renderable.renderOrderId = render.renderOrderId;
 
         renderable.cascaded = false;
 
@@ -126,7 +126,7 @@ class Renderer2D extends DefaultRenderer
         //store reference to scene transform
         renderable.renderSceneTransform = renderable.sourceEntity.getRenderSceneTransform(this._pCamera);
 
-        if (renderObject.requiresBlending) {
+        if (render.requiresBlending) {
             renderable.next = this._pBlendedRenderableHead;
             this._pBlendedRenderableHead = renderable;
         } else {
