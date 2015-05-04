@@ -1035,8 +1035,8 @@ var Mask = (function () {
             this._image.height = value;
         }*/
     Mask.prototype._draw = function (renderable) {
-        var renderObject = renderable.renderObject;
-        var passes = renderObject.passes;
+        var render = renderable.render;
+        var passes = render.passes;
         var len = passes.length;
         var pass = passes[len - 1];
         var camera = this._renderer._pCamera;
@@ -1137,7 +1137,7 @@ var Renderer2D = (function (_super) {
         var i;
         var len;
         var renderable2;
-        var renderObject;
+        var render;
         var passes;
         var pass;
         var camera = entityCollector.camera;
@@ -1151,18 +1151,18 @@ var Renderer2D = (function (_super) {
         var gl = this._pContext["_gl"];
         gl.disable(gl.STENCIL_TEST);
         while (renderable) {
-            renderObject = renderable.renderObject;
-            passes = renderObject.passes;
+            render = renderable.render;
+            passes = render.passes;
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
                 //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
-            else if (this._disableColor && renderObject._renderObjectOwner.alphaThreshold != 0) {
+            else if (this._disableColor && render._renderOwner.alphaThreshold != 0) {
                 renderable2 = renderable;
                 do {
                     renderable2 = renderable2.next;
-                } while (renderable2 && renderable2.renderObject == renderObject);
+                } while (renderable2 && renderable2.render == render);
             }
             else {
                 var newMaskConfigID = renderable.sourceEntity["maskConfigID"];
@@ -1196,7 +1196,7 @@ var Renderer2D = (function (_super) {
                         //console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
-                    } while (renderable2 && renderable2.renderObject == renderObject && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);
+                    } while (renderable2 && renderable2.render == render && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);
                     this.deactivatePass(renderable, pass);
                 }
             }
@@ -1205,16 +1205,16 @@ var Renderer2D = (function (_super) {
     };
     Renderer2D.prototype.applyRenderable = function (renderable) {
         //set local vars for faster referencing
-        var renderObject = this._pRenderablePool.getRenderObjectPool(renderable.renderableOwner).getItem(renderable.renderObjectOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
-        renderable.renderObject = renderObject;
-        renderable.renderObjectId = renderObject.renderObjectId;
-        renderable.renderOrderId = renderObject.renderOrderId;
+        var render = this._pRenderablePool.getRenderPool(renderable.renderableOwner).getItem(renderable.renderOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        renderable.render = render;
+        renderable.renderId = render.renderId;
+        renderable.renderOrderId = render.renderOrderId;
         renderable.cascaded = false;
         var entity = renderable.sourceEntity;
         renderable.zIndex = entity["hierarchicalMaskID"] === -1 ? entity.zOffset : -entity.zOffset;
         //store reference to scene transform
         renderable.renderSceneTransform = renderable.sourceEntity.getRenderSceneTransform(this._pCamera);
-        if (renderObject.requiresBlending) {
+        if (render.requiresBlending) {
             renderable.next = this._pBlendedRenderableHead;
             this._pBlendedRenderableHead = renderable;
         }

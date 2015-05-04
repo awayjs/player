@@ -283,7 +283,7 @@ declare module "awayjs-player/lib/partition/Partition2DNode" {
 
 declare module "awayjs-player/lib/renderer/Mask" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
+	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
 	import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
 	class Mask {
@@ -318,7 +318,7 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
 	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
-	import RenderableBase = require("awayjs-renderergl/lib/pool/RenderableBase");
+	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
 	class Renderer2D extends DefaultRenderer {
 	    private _mask;
 	    constructor(stage?: Stage);
