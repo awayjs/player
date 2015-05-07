@@ -156,7 +156,7 @@ class MovieClip extends DisplayObjectContainer
      */
     public update(timeDelta:number)
     {
-        this.logHierarchy();
+        //this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker : number = 1000 / this._fps;
 
