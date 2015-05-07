@@ -686,7 +686,7 @@ var MovieClip = (function (_super) {
      * should be called right before the call to away3d-render.
      */
     MovieClip.prototype.update = function (timeDelta) {
-        this.logHierarchy();
+        //this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker = 1000 / this._fps;
         // right now, just advance frame once time marker has been reached
@@ -896,7 +896,7 @@ var Partition2DNode = (function (_super) {
         this._root = root;
     }
     Partition2DNode.prototype.acceptTraverser = function (traverser) {
-        this._maskConfigID = 0;
+        this._maskConfigID = -1;
         this._index = 0;
         if (traverser.enterNode(this)) {
             this.traverseSceneGraph(this._root, traverser);
@@ -922,7 +922,7 @@ var Partition2DNode = (function (_super) {
         }
         displayObject["hierarchicalMaskID"] = maskID;
         displayObject["hierarchicalMasks"] = appliedMasks;
-        displayObject["maskConfigID"] = this._maskConfigID;
+        displayObject["maskConfigID"] = appliedMasks ? this._maskConfigID : -1;
         // moving back up the tree, mask will change again
         if (displayObject._iMasks)
             ++this._maskConfigID;
@@ -1170,6 +1170,7 @@ var Renderer2D = (function (_super) {
                     if (newMaskConfigID === -1) {
                         // disable stencil
                         //this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
+                        console.log("Clearing stencil");
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
@@ -1468,7 +1469,7 @@ var ExecuteScriptCommand = (function () {
         }
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
         var str = replacementPreface + "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}\n" + replacementPostface;
-        console.log(str);
+        //console.log(str);
         this._translatedScript = new Function(str);
     };
     return ExecuteScriptCommand;
