@@ -164,7 +164,8 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _numFrames;
 	    private _prototype;
 	    private _adapter;
-	    private _potentialChildren;
+	    private _potentialPrototypes;
+	    private _potentialInstances;
 	    constructor();
 	    numFrames: number;
 	    jumpToLabel(label: string): void;
@@ -187,10 +188,8 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	     * Add a new TimelineFrame.
 	     */
 	    addFrame(newFrame: TimelineKeyFrame): void;
-	    /**
-	     * Returns the child ID for this MovieClip
-	     */
-	    getPotentialChild(id: number): DisplayObject;
+	    getPotentialChildPrototype(id: number): DisplayObject;
+	    getPotentialChildInstance(id: number): DisplayObject;
 	    /**
 	     * Returns the child ID for this MovieClip
 	     */

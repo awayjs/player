@@ -574,8 +574,9 @@ var MovieClip = (function (_super) {
         _super.call(this);
         this._loop = true;
         this._prototype = this;
-        this._keyFrames = new Array();
-        this._potentialChildren = new Array();
+        this._keyFrames = [];
+        this._potentialPrototypes = [];
+        this._potentialInstances = [];
         this._currentFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 25;
@@ -705,25 +706,29 @@ var MovieClip = (function (_super) {
             this._numFrames = endFrame;
         this._keyFrames.push(newFrame);
     };
-    /**
-     * Returns the child ID for this MovieClip
-     */
-    MovieClip.prototype.getPotentialChild = function (id) {
-        return this._potentialChildren[id];
+    MovieClip.prototype.getPotentialChildPrototype = function (id) {
+        return this._potentialPrototypes[id];
+    };
+    MovieClip.prototype.getPotentialChildInstance = function (id) {
+        if (!this._potentialInstances[id]) {
+            this._potentialInstances[id] = this._potentialPrototypes[id].clone();
+        }
+        return this._potentialInstances[id];
     };
     /**
      * Returns the child ID for this MovieClip
      */
     MovieClip.prototype.registerPotentialChild = function (prototype) {
-        var id = this._potentialChildren.length;
-        this._potentialChildren[id] = prototype.clone();
+        var id = this._potentialPrototypes.length;
+        this._potentialPrototypes[id] = prototype;
+        this._potentialInstances[id] = null;
         return id;
     };
     MovieClip.prototype.activateChild = function (id) {
-        this.addChild(this._potentialChildren[id]);
+        this.addChild(this.getPotentialChildInstance(id));
     };
     MovieClip.prototype.deactivateChild = function (id) {
-        this.removeChild(this._potentialChildren[id]);
+        this.removeChild(this._potentialInstances[id]);
     };
     /**
      * This is called inside the TimelineFrame.execute() function.
@@ -742,8 +747,9 @@ var MovieClip = (function (_super) {
             clone.adapter = this._adapter.clone(clone);
         clone._prototype = this._prototype;
         clone._keyFrames = this._keyFrames;
-        for (var i = 0; i < this._potentialChildren.length; ++i) {
-            clone._potentialChildren[i] = this._potentialChildren[i].clone();
+        for (var i = 0; i < this._potentialPrototypes.length; ++i) {
+            clone._potentialPrototypes[i] = this._potentialPrototypes[i];
+            clone._potentialInstances[i] = null;
         }
         clone._fps = this._fps;
         clone._loop = this._loop;
@@ -1170,7 +1176,6 @@ var Renderer2D = (function (_super) {
                     if (newMaskConfigID === -1) {
                         // disable stencil
                         //this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
-                        console.log("Clearing stencil");
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
@@ -1354,7 +1359,7 @@ var AddChildAtDepthCommand = (function () {
         this._target_depth = target_depth;
     }
     AddChildAtDepthCommand.prototype.execute = function (sourceMovieClip, time) {
-        var target = sourceMovieClip.getPotentialChild(this._childID);
+        var target = sourceMovieClip.getPotentialChildInstance(this._childID);
         target["__AS2Depth"] = this._target_depth;
         sourceMovieClip.activateChild(this._childID);
         sourceMovieClip.visible = true;
@@ -1519,7 +1524,7 @@ var SetInstanceNameCommand = (function () {
         this._name = name;
     }
     SetInstanceNameCommand.prototype.execute = function (sourceMovieClip, time) {
-        var target = sourceMovieClip.getPotentialChild(this._targetID);
+        var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
         sourceMovieClip[this._name] = target;
         target.name = this._name;
     };
@@ -1538,9 +1543,9 @@ var SetMaskCommand = (function () {
         var len = this._maskIDs.length;
         var masks = new Array();
         for (var i = 0; i < len; ++i) {
-            masks[i] = sourceMovieClip.getPotentialChild(this._maskIDs[i]);
+            masks[i] = sourceMovieClip.getPotentialChildInstance(this._maskIDs[i]);
         }
-        sourceMovieClip.getPotentialChild(this._targetID)._iMasks = masks;
+        sourceMovieClip.getPotentialChildInstance(this._targetID)._iMasks = masks;
     };
     return SetMaskCommand;
 })();
@@ -1555,7 +1560,7 @@ var UpdatePropertyCommand = (function () {
         this._value = value;
     }
     UpdatePropertyCommand.prototype.execute = function (sourceMovieClip, time) {
-        var target = sourceMovieClip.getPotentialChild(this._targetID);
+        var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
         target[this._propertyName] = this._value;
     };
     return UpdatePropertyCommand;
