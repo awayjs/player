@@ -15,7 +15,7 @@ class AddChildAtDepthCommand implements FrameCommand
 
 	public execute(sourceMovieClip : MovieClip, time:number):void
 	{
-		var target = sourceMovieClip.getPotentialChild(this._childID);
+		var target = sourceMovieClip.getPotentialChildInstance(this._childID);
 		target["__AS2Depth"] = this._target_depth;
 		sourceMovieClip.activateChild(this._childID);
 		sourceMovieClip.visible=true;

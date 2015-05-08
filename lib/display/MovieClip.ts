@@ -23,14 +23,16 @@ class MovieClip extends DisplayObjectContainer
 
     private _adapter:MovieClipAdapter;
 
-    private _potentialChildren:Array<DisplayObject>;
+    private _potentialPrototypes:Array<DisplayObject>;
+    private _potentialInstances:Array<DisplayObject>;
 
     constructor()
     {
         super();
         this._prototype = this;
-        this._keyFrames = new Array<TimelineKeyFrame>();
-        this._potentialChildren = new Array<DisplayObject>();
+        this._keyFrames = [];
+        this._potentialPrototypes = [];
+        this._potentialInstances = [];
         this._currentFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 25;
@@ -180,12 +182,18 @@ class MovieClip extends DisplayObjectContainer
         this._keyFrames.push(newFrame);
     }
 
-    /**
-     * Returns the child ID for this MovieClip
-     */
-    public getPotentialChild(id:number) : DisplayObject
+    public getPotentialChildPrototype(id:number) : DisplayObject
     {
-        return this._potentialChildren[id];
+        return this._potentialPrototypes[id];
+    }
+
+    public getPotentialChildInstance(id:number) : DisplayObject
+    {
+        if (!this._potentialInstances[id]) {
+            this._potentialInstances[id] = this._potentialPrototypes[id].clone();
+        }
+
+        return this._potentialInstances[id];
     }
 
     /**
@@ -193,19 +201,20 @@ class MovieClip extends DisplayObjectContainer
      */
     public registerPotentialChild(prototype:DisplayObject) : number
     {
-        var id = this._potentialChildren.length;
-        this._potentialChildren[id] = prototype.clone();
+        var id = this._potentialPrototypes.length;
+        this._potentialPrototypes[id] = prototype;
+        this._potentialInstances[id] = null;
         return id;
     }
 
     public activateChild(id:number)
     {
-        this.addChild(this._potentialChildren[id]);
+        this.addChild(this.getPotentialChildInstance(id));
     }
 
     public deactivateChild(id:number)
     {
-        this.removeChild(this._potentialChildren[id]);
+        this.removeChild(this._potentialInstances[id]);
     }
 
     /**
@@ -232,8 +241,9 @@ class MovieClip extends DisplayObjectContainer
         clone._prototype = this._prototype;
         clone._keyFrames = this._keyFrames;
 
-        for (var i = 0; i < this._potentialChildren.length; ++i) {
-            clone._potentialChildren[i] = this._potentialChildren[i].clone();
+        for (var i = 0; i < this._potentialPrototypes.length; ++i) {
+            clone._potentialPrototypes[i] = this._potentialPrototypes[i];
+            clone._potentialInstances[i] = null;
         }
 
         clone._fps = this._fps;

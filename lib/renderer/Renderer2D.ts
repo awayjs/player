@@ -67,7 +67,6 @@ class Renderer2D extends DefaultRenderer
                     if (newMaskConfigID === -1) {
                         // disable stencil
                         //this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
-                        console.log("Clearing stencil");
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
