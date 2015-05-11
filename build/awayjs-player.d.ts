@@ -149,6 +149,7 @@ declare module "awayjs-player/lib/display/AdaptedTextField" {
 }
 
 declare module "awayjs-player/lib/display/MovieClip" {
+	import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
@@ -164,9 +165,17 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _numFrames;
 	    private _prototype;
 	    private _adapter;
+	    private _parentColorTransform;
+	    private _concenatedColorTransform;
 	    private _potentialPrototypes;
 	    private _potentialInstances;
 	    constructor();
+	    parentColorTransform: ColorTransform;
+	    /**
+	     *
+	     */
+	    colorTransform: ColorTransform;
+	    private _applyColorTransform();
 	    numFrames: number;
 	    jumpToLabel(label: string): void;
 	    currentFrameIndex: number;
