@@ -16,6 +16,7 @@ class MovieClip extends DisplayObjectContainer
     private _keyFrames:Array<TimelineKeyFrame>;
     private _time:number;// the current time inside the animation
     private _currentFrameIndex:number;// the current frame
+    private _currentKeyFrameIndex:number;// the current index of the current active frame
     private _fps:number;// we use ms internally, but have fps, so user can set time by frame
     private _isPlaying:boolean;// false if paused or stopped
     private _loop:boolean = true;
@@ -40,6 +41,7 @@ class MovieClip extends DisplayObjectContainer
         this._potentialPrototypes = [];
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
+        this._currentKeyFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 25;
         this._time = 0;
@@ -260,7 +262,7 @@ class MovieClip extends DisplayObjectContainer
      */
     public update(timeDelta:number)
     {
-        //this.logHierarchy();
+        this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
         var frameMarker : number = 1000 / this._fps;
 
@@ -278,7 +280,7 @@ class MovieClip extends DisplayObjectContainer
      */
     public addFrame(newFrame:TimelineKeyFrame)
     {
-        var endFrame = Math.ceil((newFrame.startTime + newFrame.duration) / 1000 * this._fps);
+        var endFrame = Math.ceil(newFrame.startTime + newFrame.duration);
         if (this._numFrames < endFrame)
             this._numFrames = endFrame;
         this._keyFrames.push(newFrame);
@@ -355,6 +357,7 @@ class MovieClip extends DisplayObjectContainer
         clone._iMasks = this._iMasks? this._iMasks.concat() : null;
         clone.name = this.name;
 
+
         if (this.transform.matrix)
             clone.transform.matrix = this.transform.matrix.clone();
 
@@ -374,13 +377,17 @@ class MovieClip extends DisplayObjectContainer
         for (var i = this.numChildren - 1; i >= 0; --i)
             this.removeChildAt(i);
 
+        /*
         for (var i = 0; i < this._keyFrames.length; ++i) {
             var keyFrame = this._keyFrames[i];
 
-            // deactivate any currently active keyframes first
-            if (keyFrame.isActive)
-                keyFrame.deactivate(this);
+            //  deactivate any currently active keyframes first
+            //  can not do it like this, because we can not keep track of active state for shared command-list
+            //  either we deactivate all, or we deactivate nothing, or we make system for it
+            //  if (keyFrame.isActive)
+            //      keyFrame.deactivate(this);
         }
+        */
     }
 
     private advanceFrame(skipFrames:boolean = false)
@@ -423,19 +430,27 @@ class MovieClip extends DisplayObjectContainer
     {
         // TODO: Switch to frames over time (so we can check with ==, instead of > and active)
 
-        var time = this._currentFrameIndex / this._fps * 1000;
+        var time = this._currentFrameIndex;
 
         for (var i = 0; i < this._keyFrames.length; ++i) {
             var keyFrame = this._keyFrames[i];
-
-            if (time >= keyFrame.startTime && time <= keyFrame.endTime && !keyFrame.isActive)
-                keyFrame.activate(this);
-
-            if (time >= keyFrame.endTime && keyFrame.isActive)
-                keyFrame.deactivate(this);
-
-            if (!skipFrames && keyFrame.isActive)
-                keyFrame.update(this, this._time);
+            if (time >= keyFrame.startTime && time <= keyFrame.endTime){
+                if(i == this._currentKeyFrameIndex) {
+                    // the frame is already constructed. update it (interpolation - not used yet)
+                    if (skipFrames) {
+                        keyFrame.update(this, this._time);
+                    }
+                }
+                else{
+                    // this is a new frame. activate it. (and deactivate old frame, if available)
+                    keyFrame.activate(this);
+                    if(this._currentKeyFrameIndex>=0){
+                        this._keyFrames[this._currentKeyFrameIndex].deactivate(this);
+                    }
+                    this._currentKeyFrameIndex=i;
+                }
+                i=this._keyFrames.length;
+            }
         }
     }
 

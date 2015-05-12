@@ -24,7 +24,6 @@ class TimelineKeyFrame
     private _frameCommands:Array<FrameCommand>;
     private _frameConstructCommands:Array<FrameCommand>;
     private _frameDestructCommands:Array<FrameCommand>;
-    private _isActive:boolean;
 
     constructor()
     {
@@ -32,7 +31,6 @@ class TimelineKeyFrame
         this._frameCommands = [];
         this._frameConstructCommands = [];
         this._frameDestructCommands = [];
-        this._isActive = false;
     }
 
     public addCommand(command:FrameCommand)
@@ -68,11 +66,6 @@ class TimelineKeyFrame
         return this._endTime;
     }
 
-    public get isActive():boolean
-    {
-        return this._isActive;
-    }
-
     public setFrameTime(startTime:number, duration:number)
     {
         this._startTime = startTime;
@@ -82,7 +75,6 @@ class TimelineKeyFrame
 
     public activate(sourceMovieClip:MovieClip)
     {
-        this._isActive = true;
         var len = this._frameConstructCommands.length;
 
         // rather pointless to pass time info here
@@ -92,7 +84,6 @@ class TimelineKeyFrame
 
     public deactivate(sourceMovieClip:MovieClip)
     {
-        this._isActive = false;
         var len = this._frameDestructCommands.length;
         var endTime = this._duration + this._startTime;
         // rather pointless to pass time info here
