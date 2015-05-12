@@ -26,10 +26,6 @@ class MovieClip extends DisplayObjectContainer
 
     private _adapter:MovieClipAdapter;
 
-    private _parentColorTransform:ColorTransform;
-    private _concenatedColorTransform:ColorTransform;
-
-
     private _potentialPrototypes:Array<DisplayObject>;
     private _potentialInstances:Array<DisplayObject>;
 
@@ -46,94 +42,9 @@ class MovieClip extends DisplayObjectContainer
         this._fps = 25;
         this._time = 0;
         this._numFrames = 0;
+        this.inheritColorTransform = true;
     }
 
-    public get parentColorTransform():ColorTransform
-    {
-        return this._parentColorTransform;
-    }
-
-    public set parentColorTransform(value:ColorTransform)
-    {
-        // we will never modify the parentColorTransform directly, so save to set as reference (?)
-        this._parentColorTransform = value;
-        this._applyColorTransform();
-    }
-    /**
-     *
-     */
-    public get colorTransform():ColorTransform
-    {
-        return this.transform.colorTransform;
-    }
-
-    public set colorTransform(value:ColorTransform)
-    {
-        //  the colortransform provided by displayObject inheritance is not modifed.
-        //  this is the colortransform specifc applied to this movieclip.
-        this.transform.colorTransform = value;
-        this._applyColorTransform();
-    }
-
-    private _applyColorTransform()
-    {
-        this._concenatedColorTransform=new ColorTransform();
-        if ((this._parentColorTransform)&&(this.transform.colorTransform)){
-            // if this mc has a parent-colortransform applied, we need to concanete the transforms.
-            this._concenatedColorTransform.alphaMultiplier   = this.transform.colorTransform.alphaMultiplier * this._parentColorTransform.alphaMultiplier;
-            this._concenatedColorTransform.redMultiplier     = this.transform.colorTransform.redMultiplier * this._parentColorTransform.redMultiplier;
-            this._concenatedColorTransform.blueMultiplier    = this.transform.colorTransform.blueMultiplier * this._parentColorTransform.blueMultiplier;
-            this._concenatedColorTransform.greenMultiplier   = this.transform.colorTransform.greenMultiplier * this._parentColorTransform.greenMultiplier;
-            this._concenatedColorTransform.alphaOffset       = this.transform.colorTransform.alphaOffset + this._parentColorTransform.alphaOffset;
-            this._concenatedColorTransform.redOffset         = this.transform.colorTransform.redOffset + this._parentColorTransform.redOffset;
-            this._concenatedColorTransform.blueOffset        = this.transform.colorTransform.blueOffset + this._parentColorTransform.blueOffset;
-            this._concenatedColorTransform.greenOffset       = this.transform.colorTransform.greenOffset + this._parentColorTransform.greenOffset;
-            //console.log("apply concanated transform !", this.transform.colorTransform, this._parentColorTransform, this._concenatedColorTransform);
-        }
-        else if (this.transform.colorTransform){
-            //console.log("apply transform !", this.transform.colorTransform);
-            this._concenatedColorTransform.alphaMultiplier   = this.transform.colorTransform.alphaMultiplier;
-            this._concenatedColorTransform.redMultiplier     = this.transform.colorTransform.redMultiplier;
-            this._concenatedColorTransform.blueMultiplier    = this.transform.colorTransform.blueMultiplier;
-            this._concenatedColorTransform.greenMultiplier   = this.transform.colorTransform.greenMultiplier;
-            this._concenatedColorTransform.alphaOffset       = this.transform.colorTransform.alphaOffset;
-            this._concenatedColorTransform.redOffset         = this.transform.colorTransform.redOffset;
-            this._concenatedColorTransform.blueOffset        = this.transform.colorTransform.blueOffset;
-            this._concenatedColorTransform.greenOffset       = this.transform.colorTransform.greenOffset;
-        }
-        else if (this._parentColorTransform){
-            //console.log("apply parent transform !", this._parentColorTransform);
-            this._concenatedColorTransform.alphaMultiplier   = this._parentColorTransform.alphaMultiplier;
-            this._concenatedColorTransform.redMultiplier     = this._parentColorTransform.redMultiplier;
-            this._concenatedColorTransform.blueMultiplier    = this._parentColorTransform.blueMultiplier;
-            this._concenatedColorTransform.greenMultiplier   = this._parentColorTransform.greenMultiplier;
-            this._concenatedColorTransform.alphaOffset       = this._parentColorTransform.alphaOffset;
-            this._concenatedColorTransform.redOffset         = this._parentColorTransform.redOffset;
-            this._concenatedColorTransform.blueOffset        = this._parentColorTransform.blueOffset;
-            this._concenatedColorTransform.greenOffset       = this._parentColorTransform.greenOffset;
-        }
-        // movieclip has nothing to colorize itself, we just pass the colortransform down to children.
-        var len:number = this.numChildren;
-        for (var i:number = 0; i < len; ++i) {
-            var asset:IAsset = this.getChildAt(i);
-            //console.log(asset.assetType);
-            if(asset.isAsset(Mesh)){
-                // colortransform for mesh can not be changed by framecommands.
-                // no need to set this as parent-colormatrix, we can just pass it directly
-                var child_mesh:Mesh = <Mesh>asset;
-                //console.log("apply transform on mesh", child_mesh.name, this._concenatedColorTransform);
-                child_mesh.colorTransform = this._concenatedColorTransform;
-            }
-            else if(asset.isAsset(Billboard)){
-                var child_billboard:Billboard = <Billboard>asset;
-                child_billboard.parentColorTransform = this._concenatedColorTransform;
-            }
-            else if(asset.isAsset(MovieClip)){
-                var child_movieclip:MovieClip = <MovieClip>asset;
-                child_movieclip.parentColorTransform = this._concenatedColorTransform;
-            }
-        }
-    }
     public get numFrames() : number
     {
         return this._numFrames;
@@ -208,29 +119,16 @@ class MovieClip extends DisplayObjectContainer
 
     public addChild(child:DisplayObject):DisplayObject
     {
+        child.inheritColorTransform = true;
         super.addChild(child);
-        if(this._concenatedColorTransform){
-            if(child.isAsset(Mesh)) {
-                (<Mesh>child).colorTransform = this._concenatedColorTransform;
-            }
-            else if(child.isAsset(MovieClip)) {
-                (<MovieClip>child).parentColorTransform = this._concenatedColorTransform;
-            }
-            else if(child.isAsset(Billboard)) {
-                (<Billboard>child).parentColorTransform = this._concenatedColorTransform;
-            }
-        }
         this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_ADDED, child));
-
         return child;
     }
 
     public removeChild(child:DisplayObject):DisplayObject
     {
         super.removeChild(child);
-
         this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_REMOVED, child));
-
         return child;
     }
 
@@ -453,6 +351,8 @@ class MovieClip extends DisplayObjectContainer
             }
         }
     }
+
+
 
 // DEBUG CODE:
     logHierarchy(depth: number = 0):void

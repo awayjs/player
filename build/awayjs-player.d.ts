@@ -54,6 +54,34 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
+	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+	class AS2SoundAdapter {
+	    private _pan;
+	    private _volume;
+	    private _transform;
+	    private _audio;
+	    constructor(target: AS2MovieClipAdapter);
+	    attachSound(id: string): void;
+	    getBytesLoaded(): number;
+	    getBytesTotal(): number;
+	    getPan(): number;
+	    setPan(value: number): void;
+	    getTransform(): Object;
+	    setTransform(value: Object): void;
+	    getVolume(): number;
+	    setVolume(value: number): void;
+	    loadSound(url: string, isStreaming: boolean): void;
+	    start(offsetInSeconds: number, loops?: number): void;
+	    stop(linkageID?: string): void;
+	    position: number;
+	    duration: number;
+	    id3: Object;
+	}
+	export = AS2SoundAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
@@ -149,7 +177,6 @@ declare module "awayjs-player/lib/display/AdaptedTextField" {
 }
 
 declare module "awayjs-player/lib/display/MovieClip" {
-	import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
@@ -166,17 +193,9 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _numFrames;
 	    private _prototype;
 	    private _adapter;
-	    private _parentColorTransform;
-	    private _concenatedColorTransform;
 	    private _potentialPrototypes;
 	    private _potentialInstances;
 	    constructor();
-	    parentColorTransform: ColorTransform;
-	    /**
-	     *
-	     */
-	    colorTransform: ColorTransform;
-	    private _applyColorTransform();
 	    numFrames: number;
 	    jumpToLabel(label: string): void;
 	    currentFrameIndex: number;
