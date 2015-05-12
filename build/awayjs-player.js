@@ -580,6 +580,7 @@ var MovieClip = (function (_super) {
         this._potentialPrototypes = [];
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
+        this._currentKeyFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 25;
         this._time = 0;
@@ -799,7 +800,7 @@ var MovieClip = (function (_super) {
      * Add a new TimelineFrame.
      */
     MovieClip.prototype.addFrame = function (newFrame) {
-        var endFrame = Math.ceil((newFrame.startTime + newFrame.duration) / 1000 * this._fps);
+        var endFrame = Math.ceil(newFrame.startTime + newFrame.duration);
         if (this._numFrames < endFrame)
             this._numFrames = endFrame;
         this._keyFrames.push(newFrame);
@@ -868,12 +869,17 @@ var MovieClip = (function (_super) {
         this._currentFrameIndex = 0;
         for (var i = this.numChildren - 1; i >= 0; --i)
             this.removeChildAt(i);
+        /*
         for (var i = 0; i < this._keyFrames.length; ++i) {
             var keyFrame = this._keyFrames[i];
-            // deactivate any currently active keyframes first
-            if (keyFrame.isActive)
-                keyFrame.deactivate(this);
+
+            //  deactivate any currently active keyframes first
+            //  can not do it like this, because we can not keep track of active state for shared command-list
+            //  either we deactivate all, or we deactivate nothing, or we make system for it
+            //  if (keyFrame.isActive)
+            //      keyFrame.deactivate(this);
         }
+        */
     };
     MovieClip.prototype.advanceFrame = function (skipFrames) {
         if (skipFrames === void 0) { skipFrames = false; }
@@ -902,15 +908,26 @@ var MovieClip = (function (_super) {
     };
     MovieClip.prototype.updateKeyFrames = function (skipFrames) {
         // TODO: Switch to frames over time (so we can check with ==, instead of > and active)
-        var time = this._currentFrameIndex / this._fps * 1000;
+        var time = this._currentFrameIndex;
         for (var i = 0; i < this._keyFrames.length; ++i) {
             var keyFrame = this._keyFrames[i];
-            if (time >= keyFrame.startTime && time <= keyFrame.endTime && !keyFrame.isActive)
-                keyFrame.activate(this);
-            if (time >= keyFrame.endTime && keyFrame.isActive)
-                keyFrame.deactivate(this);
-            if (!skipFrames && keyFrame.isActive)
-                keyFrame.update(this, this._time);
+            if (time >= keyFrame.startTime && time <= keyFrame.endTime) {
+                if (i == this._currentKeyFrameIndex) {
+                    // the frame is already constructed. update it (interpolation - not used yet)
+                    if (skipFrames) {
+                        keyFrame.update(this, this._time);
+                    }
+                }
+                else {
+                    // this is a new frame. activate it. (and deactivate old frame, if available)
+                    keyFrame.activate(this);
+                    if (this._currentKeyFrameIndex >= 0) {
+                        this._keyFrames[this._currentKeyFrameIndex].deactivate(this);
+                    }
+                    this._currentKeyFrameIndex = i;
+                }
+                i = this._keyFrames.length;
+            }
         }
     };
     // DEBUG CODE:
@@ -1381,7 +1398,6 @@ var TimelineKeyFrame = (function () {
         this._frameCommands = [];
         this._frameConstructCommands = [];
         this._frameDestructCommands = [];
-        this._isActive = false;
     }
     TimelineKeyFrame.prototype.addCommand = function (command) {
         // make the timeline available for the commands
@@ -1416,26 +1432,17 @@ var TimelineKeyFrame = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TimelineKeyFrame.prototype, "isActive", {
-        get: function () {
-            return this._isActive;
-        },
-        enumerable: true,
-        configurable: true
-    });
     TimelineKeyFrame.prototype.setFrameTime = function (startTime, duration) {
         this._startTime = startTime;
         this._duration = duration;
         this._endTime = startTime + duration;
     };
     TimelineKeyFrame.prototype.activate = function (sourceMovieClip) {
-        this._isActive = true;
         var len = this._frameConstructCommands.length;
         for (var i = 0; i < len; i++)
             this._frameConstructCommands[i].execute(sourceMovieClip, this._startTime);
     };
     TimelineKeyFrame.prototype.deactivate = function (sourceMovieClip) {
-        this._isActive = false;
         var len = this._frameDestructCommands.length;
         var endTime = this._duration + this._startTime;
         for (var i = 0; i < len; i++)

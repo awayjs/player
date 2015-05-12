@@ -1,3 +1,9 @@
+declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
+	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+	export = AS2SymbolAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -266,12 +272,6 @@ declare module "awayjs-player/lib/partition/Partition2D" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
-	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-	export = AS2SymbolAdapter;
-	
-}
-
 declare module "awayjs-player/lib/partition/Partition2DNode" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
@@ -287,6 +287,25 @@ declare module "awayjs-player/lib/partition/Partition2DNode" {
 	    iAddNode(node: NodeBase): void;
 	}
 	export = Partition2DNode;
+	
+}
+
+declare module "awayjs-player/lib/renderer/Mask" {
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
+	import Stage = require("awayjs-stagegl/lib/base/Stage");
+	import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
+	class Mask {
+	    private _stage;
+	    private _renderer;
+	    private _registeredMasks;
+	    constructor(stage: Stage, renderer: Renderer2D);
+	    registerMask(obj: RenderableBase): void;
+	    renderMasks(masks: DisplayObject[]): void;
+	    reset(): void;
+	    private _draw(renderable);
+	}
+	export = Mask;
 	
 }
 
@@ -337,25 +356,6 @@ declare module "awayjs-player/lib/timeline/InterpolationObject" {
 	    getState(time: number, speed: number): any;
 	}
 	export = InterpolationObject;
-	
-}
-
-declare module "awayjs-player/lib/renderer/Mask" {
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
-	import Stage = require("awayjs-stagegl/lib/base/Stage");
-	import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
-	class Mask {
-	    private _stage;
-	    private _renderer;
-	    private _registeredMasks;
-	    constructor(stage: Stage, renderer: Renderer2D);
-	    registerMask(obj: RenderableBase): void;
-	    renderMasks(masks: DisplayObject[]): void;
-	    reset(): void;
-	    private _draw(renderable);
-	}
-	export = Mask;
 	
 }
 
@@ -422,6 +422,36 @@ declare module "awayjs-player/lib/timeline/commands/ApplyAS2DepthsCommand" {
 	
 }
 
+declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
+	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	class ExecuteScriptCommand implements FrameCommand {
+	    private _script;
+	    private _translatedScript;
+	    constructor(script: Function);
+	    constructor(script: string);
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	    private regexIndexOf(str, regex, startpos);
+	    translateScript(classReplacements: any): void;
+	}
+	export = ExecuteScriptCommand;
+	
+}
+
+declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	/**
+	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
+	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
+	 * across MovieClip instances.
+	 */
+	interface FrameCommand {
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	}
+	export = FrameCommand;
+	
+}
+
 declare module "awayjs-player/lib/timeline/commands/RemoveChildCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -446,22 +476,6 @@ declare module "awayjs-player/lib/timeline/commands/RemoveChildrenAtDepthCommand
 	
 }
 
-declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class ExecuteScriptCommand implements FrameCommand {
-	    private _script;
-	    private _translatedScript;
-	    constructor(script: Function);
-	    constructor(script: string);
-	    execute(sourceMovieClip: MovieClip, time: number): void;
-	    private regexIndexOf(str, regex, startpos);
-	    translateScript(classReplacements: any): void;
-	}
-	export = ExecuteScriptCommand;
-	
-}
-
 declare module "awayjs-player/lib/timeline/commands/SetInstanceNameCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -475,17 +489,16 @@ declare module "awayjs-player/lib/timeline/commands/SetInstanceNameCommand" {
 	
 }
 
-declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
+declare module "awayjs-player/lib/timeline/commands/SetMaskCommand" {
+	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	/**
-	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
-	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
-	 * across MovieClip instances.
-	 */
-	interface FrameCommand {
+	class SetMaskCommand implements FrameCommand {
+	    private _targetID;
+	    private _maskIDs;
+	    constructor(targetID: number, maskIDs: Array<number>);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
-	export = FrameCommand;
+	export = SetMaskCommand;
 	
 }
 
@@ -500,19 +513,6 @@ declare module "awayjs-player/lib/timeline/commands/UpdatePropertyCommand" {
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = UpdatePropertyCommand;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/SetMaskCommand" {
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class SetMaskCommand implements FrameCommand {
-	    private _targetID;
-	    private _maskIDs;
-	    constructor(targetID: number, maskIDs: Array<number>);
-	    execute(sourceMovieClip: MovieClip, time: number): void;
-	}
-	export = SetMaskCommand;
 	
 }
 
