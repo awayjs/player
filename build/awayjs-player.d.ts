@@ -29,12 +29,12 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    globalToLocal(pt: any): void;
 	    gotoAndPlay(frame: any): void;
 	    gotoAndStop(frame: any): void;
+	    play(): void;
+	    stop(): void;
 	    localToGlobal(pt: any): void;
 	    nextFrame(): void;
-	    play(): void;
 	    prevFrame(): void;
 	    setMask(mc: DisplayObject): void;
-	    stop(): void;
 	    swapDepths(target: DisplayObject): void;
 	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
 	    onEnterFrame: Function;
@@ -183,7 +183,11 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 	class MovieClip extends DisplayObjectContainer {
 	    static assetType: string;
+	    private static INACTIVE;
+	    private static CONSTRUCTED;
+	    private static POST_CONSTRUCTED;
 	    private _keyFrames;
+	    private _keyFrameActive;
 	    private _time;
 	    private _currentFrameIndex;
 	    private _currentKeyFrameIndex;
@@ -192,6 +196,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _loop;
 	    private _numFrames;
 	    private _prototype;
+	    private _enterFrame;
 	    private _adapter;
 	    private _potentialPrototypes;
 	    private _potentialInstances;
@@ -235,7 +240,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    stop(): void;
 	    clone(): DisplayObject;
 	    private resetPlayHead();
-	    private advanceFrame(skipFrames?);
+	    private advanceFrame(skipChildren?);
 	    private updateKeyFrames(skipFrames);
 	    logHierarchy(depth?: number): void;
 	    printHierarchyName(depth: number, target: DisplayObject): void;
@@ -383,8 +388,8 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	class TimelineKeyFrame {
-	    private _startTime;
-	    private _endTime;
+	    private _firstFrame;
+	    private _lastFrame;
 	    private _duration;
 	    private _frameCommands;
 	    private _frameConstructCommands;
@@ -395,14 +400,14 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	    addConstructCommand(command: FrameCommand): void;
 	    addPostConstructCommand(command: FrameCommand): void;
 	    addDestructCommand(command: FrameCommand): void;
-	    startTime: number;
+	    firstFrame: number;
 	    duration: number;
-	    endTime: number;
+	    lastFrame: number;
 	    setFrameTime(startTime: number, duration: number): void;
 	    construct(sourceMovieClip: MovieClip): void;
 	    postConstruct(sourceMovieClip: MovieClip): void;
 	    deconstruct(sourceMovieClip: MovieClip): void;
-	    update(sourceMovieClip: MovieClip, time: number): void;
+	    update(sourceMovieClip: MovieClip, frame: number): void;
 	}
 	export = TimelineKeyFrame;
 	
@@ -453,7 +458,7 @@ declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	    private _translatedScript;
 	    constructor(script: Function);
 	    constructor(script: string);
-	    execute(sourceMovieClip: MovieClip, time: number): void;
+	    execute(sourceMovieClip: MovieClip, frame: number): void;
 	    private regexIndexOf(str, regex, startpos);
 	    translateScript(classReplacements: any): void;
 	}
@@ -469,7 +474,7 @@ declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
 	 * across MovieClip instances.
 	 */
 	interface FrameCommand {
-	    execute(sourceMovieClip: MovieClip, time: number): void;
+	    execute(sourceMovieClip: MovieClip, frame: number): void;
 	}
 	export = FrameCommand;
 	

@@ -166,6 +166,16 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         this._gotoFrame(frame);
     }
 
+    play() : void
+    {
+        (<MovieClip>this.adaptee).play();
+    }
+
+    stop() : void
+    {
+        (<MovieClip>this.adaptee).stop();
+    }
+
 	//hitTest() : boolean { return false; }
 
 	//lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number) : void {}
@@ -192,11 +202,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         ++(<MovieClip>this.adaptee).currentFrameIndex;
     }
 
-	play() : void
-    {
-        (<MovieClip>this.adaptee).play();
-    }
-
 	prevFrame() : void
     {
         --(<MovieClip>this.adaptee).currentFrameIndex;
@@ -210,11 +215,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     }
 
 	//startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
-
-	stop() : void
-    {
-        (<MovieClip>this.adaptee).stop();
-    }
 
 	//stopDrag() : void {}
 
@@ -301,7 +301,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         if (typeof frame === "string")
             mc.jumpToLabel(<string>frame);
         else
-            mc.currentFrameIndex = <number>frame;
+            mc.currentFrameIndex = (<number>frame) - 1;
     }
 
     private _updateDepths(target:MovieClip)

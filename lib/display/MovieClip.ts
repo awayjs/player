@@ -1,3 +1,4 @@
+import Event = require("awayjs-core/lib/events/Event");
 import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 import IAsset = require("awayjs-core/lib/library/IAsset");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -13,7 +14,12 @@ class MovieClip extends DisplayObjectContainer
 {
 	public static assetType:string = "[asset MovieClip]";
 
+    private static INACTIVE:number = 0;
+    private static CONSTRUCTED:number = 1;
+    private static POST_CONSTRUCTED:number = 1;
+
     private _keyFrames:Array<TimelineKeyFrame>;
+    private _keyFrameActive:Array<number>;
     private _time:number;// the current time inside the animation
     private _currentFrameIndex:number;// the current frame
     private _currentKeyFrameIndex:number;// the current index of the current active frame
@@ -23,6 +29,7 @@ class MovieClip extends DisplayObjectContainer
     private _numFrames:number;
     // not sure if needed
     private _prototype:MovieClip;
+    private _enterFrame:MovieClipEvent;
 
     private _adapter:MovieClipAdapter;
 
@@ -34,6 +41,7 @@ class MovieClip extends DisplayObjectContainer
         super();
         this._prototype = this;
         this._keyFrames = [];
+        this._keyFrameActive = [];
         this._potentialPrototypes = [];
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
@@ -42,6 +50,7 @@ class MovieClip extends DisplayObjectContainer
         this._fps = 25;
         this._time = 0;
         this._numFrames = 0;
+        this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
         this.inheritColorTransform = true;
     }
 
@@ -85,7 +94,7 @@ class MovieClip extends DisplayObjectContainer
         this._isPlaying = true;
 
         while (this._currentFrameIndex != value) {
-            // skip frames
+            // do not advance children, do not call post-constructs (scripts etc, only constructs are relevant)
             this.advanceFrame(true);
         }
 
@@ -171,6 +180,7 @@ class MovieClip extends DisplayObjectContainer
         if (this._time > frameMarker) {
             this._time = 0;
             this.advanceFrame();
+            this.dispatchEvent(this._enterFrame);
             this.executePostConstructCommands();
         }
     }
@@ -180,10 +190,11 @@ class MovieClip extends DisplayObjectContainer
      */
     public addFrame(newFrame:TimelineKeyFrame)
     {
-        var endFrame = Math.ceil(newFrame.startTime + newFrame.duration);
+        var endFrame = newFrame.lastFrame;
         if (this._numFrames < endFrame)
             this._numFrames = endFrame;
         this._keyFrames.push(newFrame);
+        this._keyFrameActive.push(MovieClip.INACTIVE);
     }
 
     public getPotentialChildPrototype(id:number) : DisplayObject
@@ -234,18 +245,23 @@ class MovieClip extends DisplayObjectContainer
      */
     public stop()
     {
-        this._isPlaying = false;// no need to call any other stuff
+        this._isPlaying = false;
     }
 
     public clone() : DisplayObject
     {
         var clone:MovieClip = new MovieClip();
+        var i;
 
         if (this._adapter) clone.adapter = this._adapter.clone(clone);
         clone._prototype = this._prototype;
         clone._keyFrames = this._keyFrames;
+        clone._keyFrameActive = [];
+        for (i = 0; i < this._keyFrames.length; ++i) {
+            clone._keyFrameActive[i] = MovieClip.INACTIVE;
+        }
 
-        for (var i = 0; i < this._potentialPrototypes.length; ++i) {
+        for (i = 0; i < this._potentialPrototypes.length; ++i) {
             clone._potentialPrototypes[i] = this._potentialPrototypes[i];
             clone._potentialInstances[i] = null;
         }
@@ -290,9 +306,10 @@ class MovieClip extends DisplayObjectContainer
         */
     }
 
-    private advanceFrame(skipFrames:boolean = false)
+    private advanceFrame(skipChildren:boolean = false)
     {
         var i;
+        var oldFrameIndex = this._currentFrameIndex;
         var advance = this._isPlaying;
         if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
             advance = false;
@@ -307,50 +324,38 @@ class MovieClip extends DisplayObjectContainer
                 this.resetPlayHead();
         }
 
-        this.updateKeyFrames(skipFrames);
+        if (oldFrameIndex != this._currentFrameIndex)
+            this.updateKeyFrames(skipChildren);
 
-        // advance children, last child first
-        if (!skipFrames) {
-            for (i = this.numChildren - 1; i >= 0; --i) {
+        if (!skipChildren) {
+            var len = this.numChildren;
+            for (i = 0; i <  len; ++i) {
                 var child = this.getChildAt(i);
                 if (child instanceof MovieClip)
-                    (<MovieClip>child).advanceFrame(skipFrames);
+                    (<MovieClip>child).advanceFrame();
             }
-
-            // TODO: Not sure what deferred children are. Check w/ Claus.
-            /*for (i = 0; i < this.childrenDeferred.length; i++) {
-             if (this.childrenDeferred[i].displayObject instanceof MovieClip) {
-             (<MovieClip>this.childrenDeferred[i].displayObject).advanceFrame(a);
-             }
-             }*/
         }
     }
 
     private updateKeyFrames(skipFrames:boolean)
     {
-        // TODO: Switch to frames over time (so we can check with ==, instead of > and active)
-
-        var time = this._currentFrameIndex;
+        var frameIndex = this._currentFrameIndex;
 
         for (var i = 0; i < this._keyFrames.length; ++i) {
             var keyFrame = this._keyFrames[i];
-            if (time >= keyFrame.startTime && time <= keyFrame.endTime){
-                if(i == this._currentKeyFrameIndex) {
-                    // the frame is already constructed. update it (interpolation - not used yet)
-                    if (!skipFrames) {
-                        keyFrame.update(this, this._time);
-                    }
-                }
-                else{
-                    // this is a new frame. activate it. (and deactivate old frame, if available)
-                    keyFrame.construct(this);
-                    if(this._currentKeyFrameIndex>=0){
-                        this._keyFrames[this._currentKeyFrameIndex].deconstruct(this);
-                    }
-                    this._currentKeyFrameIndex=i;
-                }
-                i=this._keyFrames.length;
+            var isActive = this._keyFrameActive[i];
+            if (frameIndex == keyFrame.firstFrame && isActive === MovieClip.INACTIVE) {
+                keyFrame.construct(this);
+                this._keyFrameActive[i] = isActive = MovieClip.CONSTRUCTED;
             }
+
+            if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive) {
+                keyFrame.deconstruct(this);
+                this._keyFrameActive[i] = isActive = MovieClip.INACTIVE;
+            }
+
+            if (!skipFrames && isActive)
+                keyFrame.update(this, this._currentFrameIndex);
         }
     }
 
@@ -387,14 +392,16 @@ class MovieClip extends DisplayObjectContainer
         var i;
         var time = this._currentFrameIndex;
 
-        for (i = 0; i < this._keyFrames.length; ++i) {
-            var keyFrame = this._keyFrames[i];
-            if (time >= keyFrame.startTime && time <= keyFrame.endTime) {
-                keyFrame.postConstruct(this);
+        var len = this._keyFrames.length;
+        for (i = 0; i < len; ++i) {
+            if (this._keyFrameActive[i] === MovieClip.CONSTRUCTED) {
+                this._keyFrames[i].postConstruct(this);
+                this._keyFrameActive[i] = MovieClip.POST_CONSTRUCTED;
             }
         }
 
-        for (i = this.numChildren - 1; i >= 0; --i) {
+        len = this.numChildren;
+        for (i = 0; i < len; ++i) {
             var child = this.getChildAt(i);
             if (child instanceof MovieClip)
                 (<MovieClip>child).executePostConstructCommands();

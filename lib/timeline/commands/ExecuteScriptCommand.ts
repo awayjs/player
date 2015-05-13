@@ -20,10 +20,11 @@ class ExecuteScriptCommand implements FrameCommand
             this._translatedScript = <Function>script;
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip, frame:number):void
     {
-        if (!this._translatedScript)
+        if (!this._translatedScript) {
             this.translateScript(sourceMovieClip.adapter.classReplacements);
+        }
 
         var caller = sourceMovieClip.adapter? sourceMovieClip.adapter : sourceMovieClip;
 
@@ -62,6 +63,7 @@ class ExecuteScriptCommand implements FrameCommand
             // make sure a definition exists, even if it's undefined
             replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
             replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
+            replacementPreface += "function int(value) { return Math.floor(value); }\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
 

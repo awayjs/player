@@ -18,8 +18,8 @@ import FrameCommand                 = require("awayjs-player/lib/timeline/comman
 
 class TimelineKeyFrame
 {
-    private _startTime:number;
-    private _endTime:number;
+    private _firstFrame:number;
+    private _lastFrame:number;
     private _duration:number;
     private _frameCommands:Array<FrameCommand>;
     private _frameConstructCommands:Array<FrameCommand>;
@@ -59,9 +59,9 @@ class TimelineKeyFrame
         this._frameDestructCommands.push(command);
     }
 
-    public get startTime():number
+    public get firstFrame():number
     {
-        return this._startTime;
+        return this._firstFrame;
     }
 
     public get duration():number
@@ -69,16 +69,16 @@ class TimelineKeyFrame
         return this._duration;
     }
 
-    public get endTime():number
+    public get lastFrame():number
     {
-        return this._endTime;
+        return this._lastFrame;
     }
 
     public setFrameTime(startTime:number, duration:number)
     {
-        this._startTime = startTime;
+        this._firstFrame = startTime;
         this._duration = duration;
-        this._endTime = startTime + duration;
+        this._lastFrame = startTime + duration;
     }
 
     public construct(sourceMovieClip:MovieClip)
@@ -87,7 +87,7 @@ class TimelineKeyFrame
 
         // rather pointless to pass time info here
         for (var i = 0; i < len; i++)
-            this._frameConstructCommands[i].execute(sourceMovieClip, this._startTime);
+            this._frameConstructCommands[i].execute(sourceMovieClip, this._firstFrame);
     }
 
     // needs to be called after children have been constructed
@@ -97,24 +97,23 @@ class TimelineKeyFrame
 
         // rather pointless to pass time info here
         for (var i = 0; i < len; i++)
-            this._framePostConstructCommands[i].execute(sourceMovieClip, this._startTime);
+            this._framePostConstructCommands[i].execute(sourceMovieClip, this._firstFrame);
     }
 
     public deconstruct(sourceMovieClip:MovieClip)
     {
         var len = this._frameDestructCommands.length;
-        var endTime = this._duration + this._startTime;
         // rather pointless to pass time info here
         for (var i = 0; i < len; i++)
-            this._frameDestructCommands[i].execute(sourceMovieClip, endTime);
+            this._frameDestructCommands[i].execute(sourceMovieClip, this._lastFrame + 1);
     }
 
-    public update(sourceMovieClip:MovieClip, time:number)
+    public update(sourceMovieClip:MovieClip, frame:number)
     {
         var len = this._frameCommands.length;
 
         for (var i = 0; i < len; i++)
-            this._frameCommands[i].execute(sourceMovieClip, time);
+            this._frameCommands[i].execute(sourceMovieClip, frame);
     }
 }
 
