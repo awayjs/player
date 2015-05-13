@@ -1504,7 +1504,13 @@ var ExecuteScriptCommand = (function () {
         if (!this._translatedScript)
             this.translateScript(sourceMovieClip.adapter.classReplacements);
         var caller = sourceMovieClip.adapter ? sourceMovieClip.adapter : sourceMovieClip;
-        this._translatedScript.call(caller);
+        try {
+            this._translatedScript.call(caller);
+        }
+        catch (err) {
+            console.log("Script error in " + sourceMovieClip.name + ":\n" + this._translatedScript);
+            throw err;
+        }
     };
     ExecuteScriptCommand.prototype.regexIndexOf = function (str, regex, startpos) {
         var indexOf = str.substring(startpos || 0).search(regex);
@@ -1515,8 +1521,6 @@ var ExecuteScriptCommand = (function () {
         var replaced = this._script.replace(/(\\n|\r)/g, "");
         var replacementPreface = "";
         var replacementPostface = "";
-        // where "this" is a single word
-        replaced = replaced.replace(/\bthis\./, "___scoped_this___.");
         for (var srcName in classReplacements) {
             var dstName = classReplacements[srcName];
             // where class name is a single word
@@ -1528,41 +1532,47 @@ var ExecuteScriptCommand = (function () {
             replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
-        var functions = [];
-        var index = -1;
-        var functionRegEx = /\bfunction\s+[A-Za-z_][A-Za-z0-9_]*/g;
-        do {
+        //var functions : string[] = [];
+        //var index = -1;
+        //var functionRegEx = /\bfunction\s+[A-Za-z_][A-Za-z0-9_]*/g;
+        /*do {
             // find a function definition, and pray we can replace global scope
-            index = this.regexIndexOf(replaced, functionRegEx, index >= 0 ? index : 0);
+            index = this.regexIndexOf(replaced, functionRegEx, index >= 0? index : 0);
             if (index >= 0) {
                 functions.push(replaced.substring(index + 9, replaced.indexOf("(", index)));
                 var insertIndex = replaced.indexOf("{", index) + 1;
+
                 replaced = replaced.slice(0, insertIndex) + "\nwith (___scoped_this___) {\n" + replaced.slice(insertIndex);
+
                 insertIndex += 27;
+
                 // insert a closing bracket before the closing bracket of the function (and not one that belongs to another index
                 var closingFound = 0;
-                var openingFound = 1; // count the opening bracket for the function
+                var openingFound = 1;   // count the opening bracket for the function
                 var len = replaced.length;
+
                 while (insertIndex < len) {
                     var char = replaced.charAt(insertIndex);
                     if (char === "{")
                         ++openingFound;
                     else if (char === "}")
                         ++closingFound;
+
                     // matching closing found
-                    if (closingFound === openingFound)
-                        break;
+                    if (closingFound === openingFound) break;
                     ++insertIndex;
                 }
+
                 replaced = replaced.slice(0, insertIndex) + "\n}\n" + replaced.slice(insertIndex);
                 index = insertIndex + 3;
             }
         } while (index !== -1);
+
         for (var i = 0; i < functions.length; ++i) {
             replacementPostface += "___scoped_this___." + functions[i] + " = " + functions[i] + ";\n";
-        }
+        }*/
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
-        var str = replacementPreface + "var ___scoped_this___ = this;" + "with(___scoped_this___) { \n" + replaced + "}\n" + replacementPostface;
+        var str = replacementPreface + replaced + replacementPostface;
         //console.log(str);
         this._translatedScript = new Function(str);
     };

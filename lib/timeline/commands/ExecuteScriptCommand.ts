@@ -26,7 +26,15 @@ class ExecuteScriptCommand implements FrameCommand
             this.translateScript(sourceMovieClip.adapter.classReplacements);
 
         var caller = sourceMovieClip.adapter? sourceMovieClip.adapter : sourceMovieClip;
-        this._translatedScript.call(caller);
+
+        try {
+            this._translatedScript.call(caller);
+        }
+        catch(err)
+        {
+            console.log("Script error in " + sourceMovieClip.name + ":\n" + this._translatedScript);
+            throw err;
+        }
     }
 
     private regexIndexOf(str : string, regex : RegExp, startpos : number) {
@@ -42,7 +50,7 @@ class ExecuteScriptCommand implements FrameCommand
         var replacementPostface = "";
 
         // where "this" is a single word
-        replaced = replaced.replace(/\bthis\./, "___scoped_this___.");
+        //replaced = replaced.replace(/\bthis\./, "___scoped_this___.");
 
         for (var srcName in classReplacements) {
             var dstName = classReplacements[srcName];
@@ -57,10 +65,10 @@ class ExecuteScriptCommand implements FrameCommand
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
 
-        var functions : string[] = [];
-        var index = -1;
-        var functionRegEx = /\bfunction\s+[A-Za-z_][A-Za-z0-9_]*/g;
-        do {
+        //var functions : string[] = [];
+        //var index = -1;
+        //var functionRegEx = /\bfunction\s+[A-Za-z_][A-Za-z0-9_]*/g;
+        /*do {
             // find a function definition, and pray we can replace global scope
             index = this.regexIndexOf(replaced, functionRegEx, index >= 0? index : 0);
             if (index >= 0) {
@@ -95,14 +103,14 @@ class ExecuteScriptCommand implements FrameCommand
 
         for (var i = 0; i < functions.length; ++i) {
             replacementPostface += "___scoped_this___." + functions[i] + " = " + functions[i] + ";\n";
-        }
+        }*/
 
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
         var str =   replacementPreface +
-                    "var ___scoped_this___ = this;" +
-                    "with(___scoped_this___) { \n" +
+                    //"var ___scoped_this___ = this;" +
+                    //"with(___scoped_this___) { \n" +
                         replaced +
-                    "}\n" +
+                    //"}\n" +
                     replacementPostface;
 
         //console.log(str);
