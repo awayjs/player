@@ -254,15 +254,10 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
     }
 
-    public get _parent() : AS2MovieClipAdapter
-    {
-        return <AS2MovieClipAdapter>((<MovieClip>this.adaptee.parent).adapter);
-    }
-
     public _pRegisterChild(child : DisplayObject)
     {
         if (child.name)
-            this[child.name] = child;
+            this[child.name] = child["adapter"] ? child["adapter"] : child;
     }
 
     public _pUnregisterChild(child : DisplayObject)

@@ -19,8 +19,14 @@ class UpdatePropertyCommand implements FrameCommand
 
     public execute(sourceMovieClip : MovieClip, time:number):void
     {
-        var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
-        target[this._propertyName] = this._value;
+        try {
+            var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
+            target[this._propertyName] = this._value;
+        }
+        catch(err) {
+            console.log("Failed to set " + this._propertyName + " on " + sourceMovieClip.name);
+            throw err;
+        }
     }
 }
 export = UpdatePropertyCommand;

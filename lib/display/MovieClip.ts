@@ -84,9 +84,10 @@ class MovieClip extends DisplayObjectContainer
         var isPlaying = this._isPlaying;
         this._isPlaying = true;
 
-        while (this._currentFrameIndex != value)
+        while (this._currentFrameIndex != value) {
             // skip frames
             this.advanceFrame(true);
+        }
 
         this._isPlaying = isPlaying;
     }
@@ -170,6 +171,7 @@ class MovieClip extends DisplayObjectContainer
         if (this._time > frameMarker) {
             this._time = 0;
             this.advanceFrame();
+            this.executePostConstructCommands();
         }
     }
 
@@ -335,15 +337,15 @@ class MovieClip extends DisplayObjectContainer
             if (time >= keyFrame.startTime && time <= keyFrame.endTime){
                 if(i == this._currentKeyFrameIndex) {
                     // the frame is already constructed. update it (interpolation - not used yet)
-                    if (skipFrames) {
+                    if (!skipFrames) {
                         keyFrame.update(this, this._time);
                     }
                 }
                 else{
                     // this is a new frame. activate it. (and deactivate old frame, if available)
-                    keyFrame.activate(this);
+                    keyFrame.construct(this);
                     if(this._currentKeyFrameIndex>=0){
-                        this._keyFrames[this._currentKeyFrameIndex].deactivate(this);
+                        this._keyFrames[this._currentKeyFrameIndex].deconstruct(this);
                     }
                     this._currentKeyFrameIndex=i;
                 }
@@ -378,6 +380,25 @@ class MovieClip extends DisplayObjectContainer
 
         str += " " + target.name;
         console.log(str);
+    }
+
+    executePostConstructCommands():void
+    {
+        var i;
+        var time = this._currentFrameIndex;
+
+        for (i = 0; i < this._keyFrames.length; ++i) {
+            var keyFrame = this._keyFrames[i];
+            if (time >= keyFrame.startTime && time <= keyFrame.endTime) {
+                keyFrame.postConstruct(this);
+            }
+        }
+
+        for (i = this.numChildren - 1; i >= 0; --i) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip)
+                (<MovieClip>child).executePostConstructCommands();
+        }
     }
 }
 export = MovieClip;

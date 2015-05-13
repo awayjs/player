@@ -224,16 +224,9 @@ var AS2MovieClipAdapter = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AS2MovieClipAdapter.prototype, "_parent", {
-        get: function () {
-            return (this.adaptee.parent.adapter);
-        },
-        enumerable: true,
-        configurable: true
-    });
     AS2MovieClipAdapter.prototype._pRegisterChild = function (child) {
         if (child.name)
-            this[child.name] = child;
+            this[child.name] = child["adapter"] ? child["adapter"] : child;
     };
     AS2MovieClipAdapter.prototype._pUnregisterChild = function (child) {
         for (var key in this) {
@@ -538,15 +531,12 @@ var AS2SymbolAdapter = (function () {
     });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_root", {
         get: function () {
-            if (!AS2SymbolAdapter.ROOT) {
+            if (!this.__root) {
+                var p = this._parent;
                 // parents are always MovieClips
-                var clip = this.adaptee;
-                while (clip.parent && clip.parent.adapter) {
-                    clip = clip.parent;
-                }
-                AS2SymbolAdapter.ROOT = clip.adapter;
+                this.__root = p ? p._root : this;
             }
-            return AS2SymbolAdapter.ROOT;
+            return this.__root;
         },
         enumerable: true,
         configurable: true
@@ -557,6 +547,14 @@ var AS2SymbolAdapter = (function () {
     Object.defineProperty(AS2SymbolAdapter.prototype, "classReplacements", {
         get: function () {
             return AS2SymbolAdapter.CLASS_REPLACEMENTS;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_parent", {
+        get: function () {
+            var parent = this.adaptee.parent;
+            return parent ? (parent.adapter) : null;
         },
         enumerable: true,
         configurable: true
@@ -698,9 +696,10 @@ var MovieClip = (function (_super) {
             this._time = 0;
             var isPlaying = this._isPlaying;
             this._isPlaying = true;
-            while (this._currentFrameIndex != value)
+            while (this._currentFrameIndex != value) {
                 // skip frames
                 this.advanceFrame(true);
+            }
             this._isPlaying = isPlaying;
         },
         enumerable: true,
@@ -778,6 +777,7 @@ var MovieClip = (function (_super) {
         if (this._time > frameMarker) {
             this._time = 0;
             this.advanceFrame();
+            this.executePostConstructCommands();
         }
     };
     /**
@@ -898,15 +898,15 @@ var MovieClip = (function (_super) {
             if (time >= keyFrame.startTime && time <= keyFrame.endTime) {
                 if (i == this._currentKeyFrameIndex) {
                     // the frame is already constructed. update it (interpolation - not used yet)
-                    if (skipFrames) {
+                    if (!skipFrames) {
                         keyFrame.update(this, this._time);
                     }
                 }
                 else {
                     // this is a new frame. activate it. (and deactivate old frame, if available)
-                    keyFrame.activate(this);
+                    keyFrame.construct(this);
                     if (this._currentKeyFrameIndex >= 0) {
-                        this._keyFrames[this._currentKeyFrameIndex].deactivate(this);
+                        this._keyFrames[this._currentKeyFrameIndex].deconstruct(this);
                     }
                     this._currentKeyFrameIndex = i;
                 }
@@ -933,6 +933,21 @@ var MovieClip = (function (_super) {
             str += "--";
         str += " " + target.name;
         console.log(str);
+    };
+    MovieClip.prototype.executePostConstructCommands = function () {
+        var i;
+        var time = this._currentFrameIndex;
+        for (i = 0; i < this._keyFrames.length; ++i) {
+            var keyFrame = this._keyFrames[i];
+            if (time >= keyFrame.startTime && time <= keyFrame.endTime) {
+                keyFrame.postConstruct(this);
+            }
+        }
+        for (i = this.numChildren - 1; i >= 0; --i) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip)
+                child.executePostConstructCommands();
+        }
     };
     MovieClip.assetType = "[asset MovieClip]";
     return MovieClip;
@@ -1381,6 +1396,7 @@ var TimelineKeyFrame = (function () {
         this._duration = 1; //use millisecs for duration ? or frames ?
         this._frameCommands = [];
         this._frameConstructCommands = [];
+        this._framePostConstructCommands = [];
         this._frameDestructCommands = [];
     }
     TimelineKeyFrame.prototype.addCommand = function (command) {
@@ -1390,6 +1406,10 @@ var TimelineKeyFrame = (function () {
     TimelineKeyFrame.prototype.addConstructCommand = function (command) {
         // make the timeline available for the commands
         this._frameConstructCommands.push(command);
+    };
+    TimelineKeyFrame.prototype.addPostConstructCommand = function (command) {
+        // make the timeline available for the commands
+        this._framePostConstructCommands.push(command);
     };
     TimelineKeyFrame.prototype.addDestructCommand = function (command) {
         // make the timeline available for the commands
@@ -1421,12 +1441,18 @@ var TimelineKeyFrame = (function () {
         this._duration = duration;
         this._endTime = startTime + duration;
     };
-    TimelineKeyFrame.prototype.activate = function (sourceMovieClip) {
+    TimelineKeyFrame.prototype.construct = function (sourceMovieClip) {
         var len = this._frameConstructCommands.length;
         for (var i = 0; i < len; i++)
             this._frameConstructCommands[i].execute(sourceMovieClip, this._startTime);
     };
-    TimelineKeyFrame.prototype.deactivate = function (sourceMovieClip) {
+    // needs to be called after children have been constructed
+    TimelineKeyFrame.prototype.postConstruct = function (sourceMovieClip) {
+        var len = this._framePostConstructCommands.length;
+        for (var i = 0; i < len; i++)
+            this._framePostConstructCommands[i].execute(sourceMovieClip, this._startTime);
+    };
+    TimelineKeyFrame.prototype.deconstruct = function (sourceMovieClip) {
         var len = this._frameDestructCommands.length;
         var endTime = this._duration + this._startTime;
         for (var i = 0; i < len; i++)
@@ -1443,13 +1469,13 @@ module.exports = TimelineKeyFrame;
 
 },{}],"awayjs-player/lib/timeline/commands/AddChildAtDepthCommand":[function(require,module,exports){
 var AddChildAtDepthCommand = (function () {
-    function AddChildAtDepthCommand(childID, target_depth) {
+    function AddChildAtDepthCommand(childID, targetDepth) {
         this._childID = childID;
-        this._target_depth = target_depth;
+        this._targetDepth = targetDepth;
     }
     AddChildAtDepthCommand.prototype.execute = function (sourceMovieClip, time) {
         var target = sourceMovieClip.getPotentialChildInstance(this._childID);
-        target["__AS2Depth"] = this._target_depth;
+        target["__AS2Depth"] = this._targetDepth;
         sourceMovieClip.activateChild(this._childID);
         sourceMovieClip.visible = true;
     };
@@ -1659,8 +1685,14 @@ var UpdatePropertyCommand = (function () {
         this._value = value;
     }
     UpdatePropertyCommand.prototype.execute = function (sourceMovieClip, time) {
-        var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
-        target[this._propertyName] = this._value;
+        try {
+            var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
+            target[this._propertyName] = this._value;
+        }
+        catch (err) {
+            console.log("Failed to set " + this._propertyName + " on " + sourceMovieClip.name);
+            throw err;
+        }
     };
     return UpdatePropertyCommand;
 })();

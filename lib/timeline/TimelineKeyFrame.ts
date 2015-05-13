@@ -23,6 +23,7 @@ class TimelineKeyFrame
     private _duration:number;
     private _frameCommands:Array<FrameCommand>;
     private _frameConstructCommands:Array<FrameCommand>;
+    private _framePostConstructCommands:Array<FrameCommand>;
     private _frameDestructCommands:Array<FrameCommand>;
 
     constructor()
@@ -30,6 +31,7 @@ class TimelineKeyFrame
         this._duration = 1;//use millisecs for duration ? or frames ?
         this._frameCommands = [];
         this._frameConstructCommands = [];
+        this._framePostConstructCommands = [];
         this._frameDestructCommands = [];
     }
 
@@ -43,6 +45,12 @@ class TimelineKeyFrame
     {
         // make the timeline available for the commands
         this._frameConstructCommands.push(command);
+    }
+
+    public addPostConstructCommand(command:FrameCommand)
+    {
+        // make the timeline available for the commands
+        this._framePostConstructCommands.push(command);
     }
 
     public addDestructCommand(command:FrameCommand)
@@ -73,7 +81,7 @@ class TimelineKeyFrame
         this._endTime = startTime + duration;
     }
 
-    public activate(sourceMovieClip:MovieClip)
+    public construct(sourceMovieClip:MovieClip)
     {
         var len = this._frameConstructCommands.length;
 
@@ -82,7 +90,17 @@ class TimelineKeyFrame
             this._frameConstructCommands[i].execute(sourceMovieClip, this._startTime);
     }
 
-    public deactivate(sourceMovieClip:MovieClip)
+    // needs to be called after children have been constructed
+    public postConstruct(sourceMovieClip:MovieClip)
+    {
+        var len = this._framePostConstructCommands.length;
+
+        // rather pointless to pass time info here
+        for (var i = 0; i < len; i++)
+            this._framePostConstructCommands[i].execute(sourceMovieClip, this._startTime);
+    }
+
+    public deconstruct(sourceMovieClip:MovieClip)
     {
         var len = this._frameDestructCommands.length;
         var endTime = this._duration + this._startTime;

@@ -43,13 +43,13 @@ class AS2SymbolAdapter
     public onRollOver : Function;
     public onSetFocus : Function;*/
 
+    private __root : AS2SymbolAdapter;
+
     private _adaptee : DisplayObjectContainer;
 
     private __quality : string = "high";
 
 
-    // assume root never changes
-    private static ROOT : AS2MovieClipAdapter;
     private static REFERENCE_TIME : number = -1;
     private static CLASS_REPLACEMENTS : Object;
 
@@ -190,29 +190,26 @@ class AS2SymbolAdapter
         return null;
     }
 
-    get _level0() : AS2MovieClipAdapter
+    get _level0() : AS2SymbolAdapter
     {
         return this._root;
     }
 
     // temporary:
-    get _level10301() : AS2MovieClipAdapter
+    get _level10301() : AS2SymbolAdapter
     {
         return this._root;
     }
 
-    get _root() : AS2MovieClipAdapter
+    get _root() : AS2SymbolAdapter
     {
-        if (!AS2SymbolAdapter.ROOT) {
+        if (!this.__root) {
+            var p = this._parent;
             // parents are always MovieClips
-            var clip = this.adaptee;
-            while (clip.parent && (<MovieClip>clip.parent).adapter) {
-                clip = clip.parent;
-            }
-            AS2SymbolAdapter.ROOT = <AS2MovieClipAdapter>(<MovieClip>clip).adapter;
+            this.__root = p? p._root : this;
         }
 
-        return AS2SymbolAdapter.ROOT;
+        return this.__root;
     }
 
     random(range:number)
@@ -223,6 +220,12 @@ class AS2SymbolAdapter
     get classReplacements():Object
     {
         return AS2SymbolAdapter.CLASS_REPLACEMENTS;
+    }
+
+    public get _parent() : AS2MovieClipAdapter
+    {
+        var parent = <MovieClip>this.adaptee.parent;
+        return parent? <AS2MovieClipAdapter>(parent.adapter) : null;
     }
 }
 

@@ -39,7 +39,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
 	    onEnterFrame: Function;
 	    onRelease: Function;
-	    _parent: AS2MovieClipAdapter;
 	    _pRegisterChild(child: DisplayObject): void;
 	    _pUnregisterChild(child: DisplayObject): void;
 	    _pOnChildAdded(event: MovieClipEvent): void;
@@ -86,9 +85,9 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SymbolAdapter {
+	    private __root;
 	    private _adaptee;
 	    private __quality;
-	    private static ROOT;
 	    private static REFERENCE_TIME;
 	    private static CLASS_REPLACEMENTS;
 	    constructor(adaptee: DisplayObjectContainer);
@@ -109,11 +108,12 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _alpha: number;
 	    _url: string;
 	    _global: AS2MovieClipAdapter;
-	    _level0: AS2MovieClipAdapter;
-	    _level10301: AS2MovieClipAdapter;
-	    _root: AS2MovieClipAdapter;
+	    _level0: AS2SymbolAdapter;
+	    _level10301: AS2SymbolAdapter;
+	    _root: AS2SymbolAdapter;
 	    random(range: number): number;
 	    classReplacements: Object;
+	    _parent: AS2MovieClipAdapter;
 	}
 	export = AS2SymbolAdapter;
 	
@@ -239,6 +239,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private updateKeyFrames(skipFrames);
 	    logHierarchy(depth?: number): void;
 	    printHierarchyName(depth: number, target: DisplayObject): void;
+	    executePostConstructCommands(): void;
 	}
 	export = MovieClip;
 	
@@ -387,17 +388,20 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	    private _duration;
 	    private _frameCommands;
 	    private _frameConstructCommands;
+	    private _framePostConstructCommands;
 	    private _frameDestructCommands;
 	    constructor();
 	    addCommand(command: FrameCommand): void;
 	    addConstructCommand(command: FrameCommand): void;
+	    addPostConstructCommand(command: FrameCommand): void;
 	    addDestructCommand(command: FrameCommand): void;
 	    startTime: number;
 	    duration: number;
 	    endTime: number;
 	    setFrameTime(startTime: number, duration: number): void;
-	    activate(sourceMovieClip: MovieClip): void;
-	    deactivate(sourceMovieClip: MovieClip): void;
+	    construct(sourceMovieClip: MovieClip): void;
+	    postConstruct(sourceMovieClip: MovieClip): void;
+	    deconstruct(sourceMovieClip: MovieClip): void;
 	    update(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = TimelineKeyFrame;
@@ -409,8 +413,8 @@ declare module "awayjs-player/lib/timeline/commands/AddChildAtDepthCommand" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	class AddChildAtDepthCommand implements FrameCommand {
 	    private _childID;
-	    private _target_depth;
-	    constructor(childID: number, target_depth: number);
+	    private _targetDepth;
+	    constructor(childID: number, targetDepth: number);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = AddChildAtDepthCommand;
