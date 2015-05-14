@@ -673,17 +673,17 @@ var MovieClip = (function (_super) {
     });
     MovieClip.prototype.jumpToLabel = function (label) {
         var index = -1;
-        /*var len = this._keyFrames.length;
-
+        var len = this._keyFrames.length;
         for (var i = 0; i < len; ++i) {
-            if (this._keyFrames[i].label) {
-                index = Math.round(this._keyFrames[i].startTime * this._fps);
+            if (this._keyFrames[i].label === label) {
+                index = this._keyFrames[i].firstFrame;
                 break;
             }
-        }*/
-        console.log("Implement labels");
-        if (index !== -1)
+        }
+        if (index !== -1) {
+            //console.log("Jumping to label " + label + "(frame " + index + ")");
             this.currentFrameIndex = index;
+        }
     };
     Object.defineProperty(MovieClip.prototype, "currentFrameIndex", {
         get: function () {
@@ -1410,6 +1410,16 @@ var TimelineKeyFrame = (function () {
         this._framePostConstructCommands = [];
         this._frameDestructCommands = [];
     }
+    Object.defineProperty(TimelineKeyFrame.prototype, "label", {
+        get: function () {
+            return this._label;
+        },
+        set: function (value) {
+            this._label = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     TimelineKeyFrame.prototype.addCommand = function (command) {
         // make the timeline available for the commands
         this._frameCommands.push(command);
@@ -1545,7 +1555,7 @@ var ExecuteScriptCommand = (function () {
             this._translatedScript.call(caller);
         }
         catch (err) {
-            console.log("Script error in " + sourceMovieClip.name + ":\n" + this._translatedScript);
+            console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
             throw err;
         }
     };

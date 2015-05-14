@@ -390,11 +390,13 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	    private _firstFrame;
 	    private _lastFrame;
 	    private _duration;
+	    private _label;
 	    private _frameCommands;
 	    private _frameConstructCommands;
 	    private _framePostConstructCommands;
 	    private _frameDestructCommands;
 	    constructor();
+	    label: string;
 	    addCommand(command: FrameCommand): void;
 	    addConstructCommand(command: FrameCommand): void;
 	    addPostConstructCommand(command: FrameCommand): void;
