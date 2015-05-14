@@ -1570,7 +1570,6 @@ var ExecuteScriptCommand = (function () {
         }
         catch (err) {
             console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
-            throw err;
         }
     };
     ExecuteScriptCommand.prototype.regexIndexOf = function (str, regex, startpos) {
