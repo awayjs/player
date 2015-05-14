@@ -784,11 +784,11 @@ var MovieClip = (function (_super) {
     MovieClip.prototype.update = function (timeDelta) {
         //this.logHierarchy();
         // TODO: Implement proper elastic racetrack logic
-        var frameMarker = 1000 / this._fps;
-        // right now, just advance frame once time marker has been reached
-        this._time += timeDelta;
+        var frameMarker = Math.floor(1000 / this._fps);
+        // right now, just advance frame once time marker has been reached (only allow for one frame advance per-update)
+        this._time += Math.min(timeDelta, frameMarker);
         if (this._time > frameMarker) {
-            this._time = 0;
+            this._time -= frameMarker; //evens out RAF fluctuations.
             this.advanceFrame();
             this.dispatchEvent(this._enterFrame);
             this.executePostConstructCommands();
