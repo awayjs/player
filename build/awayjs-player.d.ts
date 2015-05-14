@@ -196,6 +196,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _numFrames;
 	    private _prototype;
 	    private _enterFrame;
+	    private _skipAdvance;
 	    private _adapter;
 	    private _potentialPrototypes;
 	    private _potentialInstances;
