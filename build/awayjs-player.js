@@ -656,6 +656,7 @@ var MovieClip = (function (_super) {
         this._potentialPrototypes = [];
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
+        this._jumpIndex = -1;
         this._currentKeyFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 30;
@@ -687,7 +688,7 @@ var MovieClip = (function (_super) {
     };
     Object.defineProperty(MovieClip.prototype, "currentFrameIndex", {
         get: function () {
-            return this._currentFrameIndex;
+            return this._jumpIndex >= 0 ? this._jumpIndex : this._currentFrameIndex;
         },
         set: function (value) {
             value = Math.floor(value);
@@ -695,15 +696,7 @@ var MovieClip = (function (_super) {
                 value = 0;
             else if (value >= this._numFrames)
                 value = this._numFrames - 1;
-            this._time = 0;
-            var isPlaying = this._isPlaying;
-            this._isPlaying = true;
-            while (this._currentFrameIndex != value) {
-                // do not advance children, do not call post-constructs (scripts etc, only constructs are relevant)
-                this.advanceFrame(true);
-            }
-            this._skipAdvance = true;
-            this._isPlaying = isPlaying;
+            this._jumpIndex = value;
         },
         enumerable: true,
         configurable: true
@@ -790,9 +783,20 @@ var MovieClip = (function (_super) {
         if (this._time > frameMarker) {
             this._time = 0;
             this.advanceFrame();
+            this.advanceChildren();
             this.dispatchEvent(this._enterFrame);
             this.executePostConstructCommands();
         }
+    };
+    MovieClip.prototype._jumpToIndex = function () {
+        var isPlaying = this._isPlaying;
+        this._isPlaying = true;
+        while (this._currentFrameIndex != this._jumpIndex) {
+            // do not advance children, do not call post-constructs (scripts etc, only constructs are relevant)
+            this.advanceFrame(true);
+        }
+        this._isPlaying = isPlaying;
+        this._jumpIndex = -1;
     };
     /**
      * Add a new TimelineFrame.
@@ -889,31 +893,37 @@ var MovieClip = (function (_super) {
     };
     MovieClip.prototype.advanceFrame = function (skipChildren) {
         if (skipChildren === void 0) { skipChildren = false; }
-        var i;
-        var oldFrameIndex = this._currentFrameIndex;
-        var advance = this._isPlaying && !this._skipAdvance;
-        if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
-            advance = false;
+        if (!skipChildren && this._jumpIndex !== -1) {
+            this._jumpToIndex();
         }
-        if (advance && this._currentFrameIndex <= 0 && this._numFrames == 1) {
-            this._currentFrameIndex = 0;
-            advance = false;
+        else {
+            var oldFrameIndex = this._currentFrameIndex;
+            var i;
+            var advance = this._isPlaying;
+            if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
+                advance = false;
+            }
+            if (advance && this._currentFrameIndex <= 0 && this._numFrames == 1) {
+                this._currentFrameIndex = 0;
+                advance = false;
+            }
+            if (advance) {
+                if (++this._currentFrameIndex == this._numFrames)
+                    this.resetPlayHead();
+            }
+            if (oldFrameIndex != this._currentFrameIndex)
+                this.updateKeyFrames(skipChildren);
         }
-        if (advance) {
-            if (++this._currentFrameIndex == this._numFrames)
-                this.resetPlayHead();
-        }
-        if (oldFrameIndex != this._currentFrameIndex || this._skipAdvance)
-            this.updateKeyFrames(skipChildren);
-        if (!skipChildren) {
-            var len = this.numChildren;
-            for (i = 0; i < len; ++i) {
-                var child = this.getChildAt(i);
-                if (child instanceof MovieClip)
-                    child.advanceFrame();
+    };
+    MovieClip.prototype.advanceChildren = function () {
+        var len = this.numChildren;
+        for (var i = 0; i < len; ++i) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip) {
+                child.advanceFrame();
+                child.advanceChildren();
             }
         }
-        this._skipAdvance = false;
     };
     MovieClip.prototype.updateKeyFrames = function (skipFrames) {
         var frameIndex = this._currentFrameIndex;
