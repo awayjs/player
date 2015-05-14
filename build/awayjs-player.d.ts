@@ -189,7 +189,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _keyFrameActive;
 	    private _time;
 	    private _currentFrameIndex;
-	    private _jumpIndex;
 	    private _currentKeyFrameIndex;
 	    private _fps;
 	    private _isPlaying;
@@ -197,6 +196,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _numFrames;
 	    private _prototype;
 	    private _enterFrame;
+	    private _skipAdvance;
 	    private _adapter;
 	    private _potentialPrototypes;
 	    private _potentialInstances;
@@ -218,7 +218,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	     * should be called right before the call to away3d-render.
 	     */
 	    update(timeDelta: number): void;
-	    private _jumpToIndex();
 	    /**
 	     * Add a new TimelineFrame.
 	     */
@@ -242,7 +241,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    clone(): DisplayObject;
 	    private resetPlayHead();
 	    private advanceFrame(skipChildren?);
-	    private advanceChildren();
 	    private updateKeyFrames(skipFrames);
 	    logHierarchy(depth?: number): void;
 	    printHierarchyName(depth: number, target: DisplayObject): void;
