@@ -702,6 +702,7 @@ var MovieClip = (function (_super) {
                 // do not advance children, do not call post-constructs (scripts etc, only constructs are relevant)
                 this.advanceFrame(true);
             }
+            this._skipAdvance = true;
             this._isPlaying = isPlaying;
         },
         enumerable: true,
@@ -750,6 +751,16 @@ var MovieClip = (function (_super) {
         },
         set: function (newFps) {
             this._fps = newFps;
+            var len = this._potentialPrototypes.length;
+            for (var i = 0; i < len; ++i) {
+                if (typeof this._potentialPrototypes[i] === "MovieClip")
+                    this._potentialPrototypes[i].fps = this._fps;
+            }
+            var len = this._potentialInstances.length;
+            for (var i = 0; i < len; ++i) {
+                if (this._potentialInstances[i] && typeof this._potentialInstances[i] === "MovieClip")
+                    this._potentialInstances[i].fps = this._fps;
+            }
         },
         enumerable: true,
         configurable: true
@@ -808,6 +819,8 @@ var MovieClip = (function (_super) {
     MovieClip.prototype.registerPotentialChild = function (prototype) {
         var id = this._potentialPrototypes.length;
         this._potentialPrototypes[id] = prototype;
+        if (typeof this._potentialPrototypes[id] === "MovieClip")
+            this._potentialPrototypes[id].fps = this._fps;
         this._potentialInstances[id] = null;
         return id;
     };
@@ -878,7 +891,7 @@ var MovieClip = (function (_super) {
         if (skipChildren === void 0) { skipChildren = false; }
         var i;
         var oldFrameIndex = this._currentFrameIndex;
-        var advance = this._isPlaying;
+        var advance = this._isPlaying && !this._skipAdvance;
         if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
             advance = false;
         }
@@ -890,7 +903,7 @@ var MovieClip = (function (_super) {
             if (++this._currentFrameIndex == this._numFrames)
                 this.resetPlayHead();
         }
-        if (oldFrameIndex != this._currentFrameIndex)
+        if (oldFrameIndex != this._currentFrameIndex || this._skipAdvance)
             this.updateKeyFrames(skipChildren);
         if (!skipChildren) {
             var len = this.numChildren;
@@ -900,6 +913,7 @@ var MovieClip = (function (_super) {
                     child.advanceFrame();
             }
         }
+        this._skipAdvance = false;
     };
     MovieClip.prototype.updateKeyFrames = function (skipFrames) {
         var frameIndex = this._currentFrameIndex;

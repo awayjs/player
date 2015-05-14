@@ -30,6 +30,7 @@ class MovieClip extends DisplayObjectContainer
     // not sure if needed
     private _prototype:MovieClip;
     private _enterFrame:MovieClipEvent;
+    private _skipAdvance : boolean;
 
     private _adapter:MovieClipAdapter;
 
@@ -100,6 +101,8 @@ class MovieClip extends DisplayObjectContainer
             this.advanceFrame(true);
         }
 
+        this._skipAdvance = true;
+
         this._isPlaying = isPlaying;
     }
 
@@ -152,6 +155,16 @@ class MovieClip extends DisplayObjectContainer
     public set fps(newFps:number)
     {
         this._fps = newFps;
+        var len = this._potentialPrototypes.length;
+        for (var i = 0; i < len; ++i) {
+            if (typeof this._potentialPrototypes[i] === "MovieClip")
+                (<MovieClip>this._potentialPrototypes[i]).fps = this._fps;
+        }
+        var len = this._potentialInstances.length;
+        for (var i = 0; i < len; ++i) {
+            if (this._potentialInstances[i] &&  typeof this._potentialInstances[i] === "MovieClip")
+                (<MovieClip>this._potentialInstances[i]).fps = this._fps;
+        }
     }
 
     public get assetType():string
@@ -220,6 +233,8 @@ class MovieClip extends DisplayObjectContainer
     {
         var id = this._potentialPrototypes.length;
         this._potentialPrototypes[id] = prototype;
+        if (typeof this._potentialPrototypes[id] === "MovieClip")
+            (<MovieClip>this._potentialPrototypes[id]).fps = this._fps;
         this._potentialInstances[id] = null;
         return id;
     }
@@ -312,7 +327,7 @@ class MovieClip extends DisplayObjectContainer
     {
         var i;
         var oldFrameIndex = this._currentFrameIndex;
-        var advance = this._isPlaying;
+        var advance = this._isPlaying && !this._skipAdvance;
         if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
             advance = false;
         }
@@ -326,7 +341,7 @@ class MovieClip extends DisplayObjectContainer
                 this.resetPlayHead();
         }
 
-        if (oldFrameIndex != this._currentFrameIndex)
+        if (oldFrameIndex != this._currentFrameIndex || this._skipAdvance)
             this.updateKeyFrames(skipChildren);
 
         if (!skipChildren) {
@@ -337,6 +352,8 @@ class MovieClip extends DisplayObjectContainer
                     (<MovieClip>child).advanceFrame();
             }
         }
+
+        this._skipAdvance = false;
     }
 
     private updateKeyFrames(skipFrames:boolean)
