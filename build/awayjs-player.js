@@ -695,8 +695,6 @@ var MovieClip = (function (_super) {
                 value = 0;
             else if (value >= this._numFrames)
                 value = this._numFrames - 1;
-            if (this.name === "Intro")
-                console.log(this.name, value);
             this._time = 0;
             var isPlaying = this._isPlaying;
             this._isPlaying = true;
