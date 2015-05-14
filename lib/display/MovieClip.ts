@@ -12,7 +12,7 @@ import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame")
 
 class MovieClip extends DisplayObjectContainer
 {
-	public static assetType:string = "[asset MovieClip]";
+    public static assetType:string = "[asset MovieClip]";
 
     private static INACTIVE:number = 0;
     private static CONSTRUCTED:number = 1;
@@ -22,7 +22,6 @@ class MovieClip extends DisplayObjectContainer
     private _keyFrameActive:Array<number>;
     private _time:number;// the current time inside the animation
     private _currentFrameIndex:number;// the current frame
-    private _jumpIndex:number;// the current frame
     private _currentKeyFrameIndex:number;// the current index of the current active frame
     private _fps:number;// we use ms internally, but have fps, so user can set time by frame
     private _isPlaying:boolean;// false if paused or stopped
@@ -31,6 +30,7 @@ class MovieClip extends DisplayObjectContainer
     // not sure if needed
     private _prototype:MovieClip;
     private _enterFrame:MovieClipEvent;
+    private _skipAdvance : boolean;
 
     private _adapter:MovieClipAdapter;
 
@@ -46,7 +46,6 @@ class MovieClip extends DisplayObjectContainer
         this._potentialPrototypes = [];
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
-        this._jumpIndex = -1;
         this._currentKeyFrameIndex = -1;
         this._isPlaying = true; // auto-play
         this._fps = 30;
@@ -81,19 +80,30 @@ class MovieClip extends DisplayObjectContainer
 
     public get currentFrameIndex() : number
     {
-        return this._jumpIndex >= 0? this._jumpIndex : this._currentFrameIndex;
+        return this._currentFrameIndex;
     }
 
     public set currentFrameIndex(value : number)
     {
         value = Math.floor(value);
-
         if (value < 0)
             value = 0;
         else if (value >= this._numFrames)
             value = this._numFrames - 1;
 
-        this._jumpIndex = value;
+        this._time = 0;
+
+        var isPlaying = this._isPlaying;
+        this._isPlaying = true;
+
+        while (this._currentFrameIndex != value) {
+            // do not advance children, do not call post-constructs (scripts etc, only constructs are relevant)
+            this.advanceFrame(true);
+        }
+
+        this._skipAdvance = true;
+
+        this._isPlaying = isPlaying;
     }
 
     // adapter is used to provide MovieClip to scripts taken from different platforms
@@ -185,24 +195,9 @@ class MovieClip extends DisplayObjectContainer
         if (this._time > frameMarker) {
             this._time = 0;
             this.advanceFrame();
-            this.advanceChildren();
             this.dispatchEvent(this._enterFrame);
             this.executePostConstructCommands();
         }
-    }
-
-    private _jumpToIndex()
-    {
-        var isPlaying = this._isPlaying;
-        this._isPlaying = true;
-
-        while (this._currentFrameIndex != this._jumpIndex) {
-            // do not advance children, do not call post-constructs (scripts etc, only constructs are relevant)
-            this.advanceFrame(true);
-        }
-
-        this._isPlaying = isPlaying;
-        this._jumpIndex = -1;
     }
 
     /**
@@ -316,56 +311,49 @@ class MovieClip extends DisplayObjectContainer
             this.removeChildAt(i);
 
         /*
-        for (var i = 0; i < this._keyFrames.length; ++i) {
-            var keyFrame = this._keyFrames[i];
+         for (var i = 0; i < this._keyFrames.length; ++i) {
+         var keyFrame = this._keyFrames[i];
 
-            //  deactivate any currently active keyframes first
-            //  can not do it like this, because we can not keep track of active state for shared command-list
-            //  either we deactivate all, or we deactivate nothing, or we make system for it
-            //  if (keyFrame.isActive)
-            //      keyFrame.deactivate(this);
-        }
-        */
+         //  deactivate any currently active keyframes first
+         //  can not do it like this, because we can not keep track of active state for shared command-list
+         //  either we deactivate all, or we deactivate nothing, or we make system for it
+         //  if (keyFrame.isActive)
+         //      keyFrame.deactivate(this);
+         }
+         */
     }
 
     private advanceFrame(skipChildren:boolean = false)
     {
-        if (!skipChildren && this._jumpIndex !== -1) {
-            this._jumpToIndex();
+        var i;
+        var oldFrameIndex = this._currentFrameIndex;
+        var advance = this._isPlaying && !this._skipAdvance;
+        if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
+            advance = false;
         }
-        else {
-            var oldFrameIndex = this._currentFrameIndex;
-            var i;
-            var advance = this._isPlaying;
-            if (advance && this._currentFrameIndex == this._numFrames - 1 && !this._loop) {
-                advance = false;
-            }
-            if (advance && this._currentFrameIndex <= 0 && this._numFrames == 1) {
-                this._currentFrameIndex = 0;
-                advance = false;
-            }
-
-
-            if (advance) {
-                if (++this._currentFrameIndex == this._numFrames)
-                    this.resetPlayHead();
-            }
-
-            if (oldFrameIndex != this._currentFrameIndex)
-                this.updateKeyFrames(skipChildren);
+        if (advance && this._currentFrameIndex <= 0 && this._numFrames == 1) {
+            this._currentFrameIndex = 0;
+            advance = false;
         }
-    }
 
-    private advanceChildren()
-    {
-        var len = this.numChildren;
-        for (var i = 0; i <  len; ++i) {
-            var child = this.getChildAt(i);
-            if (child instanceof MovieClip) {
-                (<MovieClip>child).advanceFrame();
-                (<MovieClip>child).advanceChildren();
+        if (advance) {
+            if (++this._currentFrameIndex == this._numFrames)
+                this.resetPlayHead();
+        }
+
+        if (oldFrameIndex != this._currentFrameIndex || this._skipAdvance)
+            this.updateKeyFrames(skipChildren);
+
+        if (!skipChildren) {
+            var len = this.numChildren;
+            for (i = 0; i <  len; ++i) {
+                var child = this.getChildAt(i);
+                if (child instanceof MovieClip)
+                    (<MovieClip>child).advanceFrame();
             }
         }
+
+        this._skipAdvance = false;
     }
 
     private updateKeyFrames(skipFrames:boolean)

@@ -920,8 +920,8 @@ var MovieClip = (function (_super) {
         for (var i = 0; i < len; ++i) {
             var child = this.getChildAt(i);
             if (child instanceof MovieClip) {
-                child.advanceFrame();
                 child.advanceChildren();
+                child.advanceFrame();
             }
         }
     };
