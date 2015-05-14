@@ -16,7 +16,7 @@ class MovieClip extends DisplayObjectContainer
 
     private static INACTIVE:number = 0;
     private static CONSTRUCTED:number = 1;
-    private static POST_CONSTRUCTED:number = 1;
+    private static POST_CONSTRUCTED:number = 2;
 
     private _keyFrames:Array<TimelineKeyFrame>;
     private _keyFrameActive:Array<number>;
@@ -88,9 +88,6 @@ class MovieClip extends DisplayObjectContainer
             value = 0;
         else if (value >= this._numFrames)
             value = this._numFrames - 1;
-
-        if (this.name === "Intro")
-            console.log(this.name, value);
 
         this._time = 0;
 
@@ -350,12 +347,14 @@ class MovieClip extends DisplayObjectContainer
             var isActive = this._keyFrameActive[i];
             if (frameIndex == keyFrame.firstFrame && isActive === MovieClip.INACTIVE) {
                 keyFrame.construct(this);
-                this._keyFrameActive[i] = isActive = MovieClip.CONSTRUCTED;
+                this._keyFrameActive[i] = MovieClip.CONSTRUCTED;
+                isActive = MovieClip.CONSTRUCTED;
             }
 
-            if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive) {
+            if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive !== MovieClip.INACTIVE) {
                 keyFrame.deconstruct(this);
-                this._keyFrameActive[i] = isActive = MovieClip.INACTIVE;
+                this._keyFrameActive[i] = MovieClip.INACTIVE;
+                isActive = MovieClip.INACTIVE;
             }
 
             if (!skipFrames && isActive)

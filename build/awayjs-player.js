@@ -910,11 +910,13 @@ var MovieClip = (function (_super) {
             var isActive = this._keyFrameActive[i];
             if (frameIndex == keyFrame.firstFrame && isActive === MovieClip.INACTIVE) {
                 keyFrame.construct(this);
-                this._keyFrameActive[i] = isActive = MovieClip.CONSTRUCTED;
+                this._keyFrameActive[i] = MovieClip.CONSTRUCTED;
+                isActive = MovieClip.CONSTRUCTED;
             }
-            if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive) {
+            if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive !== MovieClip.INACTIVE) {
                 keyFrame.deconstruct(this);
-                this._keyFrameActive[i] = isActive = MovieClip.INACTIVE;
+                this._keyFrameActive[i] = MovieClip.INACTIVE;
+                isActive = MovieClip.INACTIVE;
             }
             if (!skipFrames && isActive)
                 keyFrame.update(this, this._currentFrameIndex);
@@ -960,7 +962,7 @@ var MovieClip = (function (_super) {
     MovieClip.assetType = "[asset MovieClip]";
     MovieClip.INACTIVE = 0;
     MovieClip.CONSTRUCTED = 1;
-    MovieClip.POST_CONSTRUCTED = 1;
+    MovieClip.POST_CONSTRUCTED = 2;
     return MovieClip;
 })(DisplayObjectContainer);
 module.exports = MovieClip;
