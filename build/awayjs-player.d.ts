@@ -12,7 +12,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
-	    private currentFrameIndex;
 	    private _nameChangeCallback;
 	    private _onEnterFrame;
 	    private _onRelease;
