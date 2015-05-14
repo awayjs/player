@@ -21,6 +21,7 @@ class TimelineKeyFrame
     private _firstFrame:number;
     private _lastFrame:number;
     private _duration:number;
+    private _label:string;
     private _frameCommands:Array<FrameCommand>;
     private _frameConstructCommands:Array<FrameCommand>;
     private _framePostConstructCommands:Array<FrameCommand>;
@@ -33,6 +34,16 @@ class TimelineKeyFrame
         this._frameConstructCommands = [];
         this._framePostConstructCommands = [];
         this._frameDestructCommands = [];
+    }
+
+    public get label()
+    {
+        return this._label;
+    }
+
+    public set label(value:string)
+    {
+        this._label = value;
     }
 
     public addCommand(command:FrameCommand)
