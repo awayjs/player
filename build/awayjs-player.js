@@ -53,7 +53,6 @@ var AS2MovieClipAdapter = (function (_super) {
     function AS2MovieClipAdapter(adaptee) {
         // create an empty MovieClip if none is passed
         _super.call(this, adaptee || new MovieClip());
-        this.currentFrameIndex = -1;
         var self = this;
         adaptee.addEventListener(MovieClipEvent.CHILD_ADDED, function (event) {
             self._pOnChildAdded.call(self, event);
@@ -72,7 +71,7 @@ var AS2MovieClipAdapter = (function (_super) {
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "_currentframe", {
         get: function () {
-            return this.adaptee.currentFrameIndex - 1;
+            return this.adaptee.currentFrameIndex + 1;
         },
         enumerable: true,
         configurable: true
@@ -374,13 +373,13 @@ var AS2SoundAdapter = (function () {
 module.exports = AS2SoundAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
-// also contains global AS2 functions
+// also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
     function AS2SymbolAdapter(adaptee) {
         this.__quality = "high";
         this._adaptee = adaptee;
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
-            AS2SymbolAdapter.REFERENCE_TIME = new Date().getMilliseconds();
+            AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
         if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
             AS2SymbolAdapter.CLASS_REPLACEMENTS = {};
             AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "awayjs-player/lib/adapters/AS2ColorAdapter";
@@ -488,7 +487,7 @@ var AS2SymbolAdapter = (function () {
     };
     // may need proper high-def timer mechanism
     AS2SymbolAdapter.prototype.getTimer = function () {
-        return new Date().getMilliseconds() - AS2SymbolAdapter.REFERENCE_TIME;
+        return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
         get: function () {
@@ -659,7 +658,7 @@ var MovieClip = (function (_super) {
         this._currentFrameIndex = -1;
         this._currentKeyFrameIndex = -1;
         this._isPlaying = true; // auto-play
-        this._fps = 25;
+        this._fps = 30;
         this._time = 0;
         this._numFrames = 0;
         this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
@@ -691,10 +690,13 @@ var MovieClip = (function (_super) {
             return this._currentFrameIndex;
         },
         set: function (value) {
+            value = Math.floor(value);
             if (value < 0)
                 value = 0;
             else if (value >= this._numFrames)
                 value = this._numFrames - 1;
+            if (this.name === "Intro")
+                console.log(this.name, value);
             this._time = 0;
             var isPlaying = this._isPlaying;
             this._isPlaying = true;
@@ -1565,7 +1567,7 @@ var ExecuteScriptCommand = (function () {
             // make sure a definition exists, even if it's undefined
             replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
             replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
-            replacementPreface += "function int(value) { return Math.floor(value); }\n";
+            replacementPreface += "function int(value) { return value | 0; }\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
         //var functions : string[] = [];

@@ -22,7 +22,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	// transform: Transform		// contains matrix + color matrix
 
 
-	private currentFrameIndex: number;
     private _nameChangeCallback : Function;
 
 	// translate to scripts:
@@ -34,7 +33,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         // create an empty MovieClip if none is passed
 		super(adaptee || new MovieClip());
 
-		this.currentFrameIndex = -1;
         var self = this;
         adaptee.addEventListener(MovieClipEvent.CHILD_ADDED,
             function(event:MovieClipEvent) { self._pOnChildAdded.call(self, event); }
@@ -52,7 +50,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
     get _currentframe() : number
     {
-        return (<MovieClip>this.adaptee).currentFrameIndex - 1;
+        return (<MovieClip>this.adaptee).currentFrameIndex + 1;
     }
 
 	get _totalFrames() : number

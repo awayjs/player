@@ -47,7 +47,7 @@ class MovieClip extends DisplayObjectContainer
         this._currentFrameIndex = -1;
         this._currentKeyFrameIndex = -1;
         this._isPlaying = true; // auto-play
-        this._fps = 25;
+        this._fps = 30;
         this._time = 0;
         this._numFrames = 0;
         this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
@@ -83,10 +83,14 @@ class MovieClip extends DisplayObjectContainer
 
     public set currentFrameIndex(value : number)
     {
+        value = Math.floor(value);
         if (value < 0)
             value = 0;
         else if (value >= this._numFrames)
             value = this._numFrames - 1;
+
+        if (this.name === "Intro")
+            console.log(this.name, value);
 
         this._time = 0;
 

@@ -5,7 +5,7 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
-// also contains global AS2 functions
+// also contains global AS2 gunctions
 class AS2SymbolAdapter
 {
     // blendMode
@@ -58,7 +58,7 @@ class AS2SymbolAdapter
         this._adaptee = adaptee;
 
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
-            AS2SymbolAdapter.REFERENCE_TIME = new Date().getMilliseconds();
+            AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
 
         if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
             AS2SymbolAdapter.CLASS_REPLACEMENTS = {};
@@ -167,7 +167,7 @@ class AS2SymbolAdapter
     // may need proper high-def timer mechanism
     getTimer() : Number
     {
-        return new Date().getMilliseconds() - AS2SymbolAdapter.REFERENCE_TIME;
+        return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
     }
 
     get _alpha() : number

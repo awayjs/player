@@ -63,7 +63,7 @@ class ExecuteScriptCommand implements FrameCommand
             // make sure a definition exists, even if it's undefined
             replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
             replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
-            replacementPreface += "function int(value) { return Math.floor(value); }\n";
+            replacementPreface += "function int(value) { return value | 0; }\n";
             replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
         }
 
