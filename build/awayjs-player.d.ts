@@ -118,15 +118,6 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
-	class AS2SystemAdapter {
-	    static security: Object;
-	    static capabilities: Object;
-	}
-	export = AS2SystemAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
 	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
@@ -137,6 +128,15 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
 	}
 	export = AS2TextFieldAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
+	class AS2SystemAdapter {
+	    static security: Object;
+	    static capabilities: Object;
+	}
+	export = AS2SystemAdapter;
 	
 }
 
@@ -172,6 +172,32 @@ declare module "awayjs-player/lib/display/AdaptedTextField" {
 	    clone(): DisplayObject;
 	}
 	export = AdaptedTextField;
+	
+}
+
+declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
+	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
+	    createMovieClip(): MovieClip;
+	    createTextField(): AdaptedTextField;
+	}
+	export = AS2SceneGraphFactory;
+	
+}
+
+declare module "awayjs-player/lib/events/MovieClipEvent" {
+	import Event = require("awayjs-core/lib/events/Event");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	class MovieClipEvent extends Event {
+	    static NAME_CHANGED: string;
+	    static CHILD_ADDED: string;
+	    static CHILD_REMOVED: string;
+	    displayObject: DisplayObject;
+	    constructor(type: string, displayObject: DisplayObject);
+	}
+	export = MovieClipEvent;
 	
 }
 
@@ -253,32 +279,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	
 }
 
-declare module "awayjs-player/lib/events/MovieClipEvent" {
-	import Event = require("awayjs-core/lib/events/Event");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	class MovieClipEvent extends Event {
-	    static NAME_CHANGED: string;
-	    static CHILD_ADDED: string;
-	    static CHILD_REMOVED: string;
-	    displayObject: DisplayObject;
-	    constructor(type: string, displayObject: DisplayObject);
-	}
-	export = MovieClipEvent;
-	
-}
-
-declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
-	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
-	    createMovieClip(): MovieClip;
-	    createTextField(): AdaptedTextField;
-	}
-	export = AS2SceneGraphFactory;
-	
-}
-
 declare module "awayjs-player/lib/factories/TimelineSceneGraphFactory" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import TextField = require("awayjs-display/lib/entities/TextField");
@@ -300,24 +300,6 @@ declare module "awayjs-player/lib/partition/Partition2D" {
 	
 }
 
-declare module "awayjs-player/lib/partition/Partition2DNode" {
-	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import NodeBase = require("awayjs-display/lib/partition/NodeBase");
-	class Partition2DNode extends NodeBase {
-	    private _root;
-	    private _maskConfigID;
-	    private _index;
-	    constructor(root: DisplayObject);
-	    acceptTraverser(traverser: CollectorBase): void;
-	    traverseSceneGraph(displayObject: any, traverser: CollectorBase, maskID?: number, appliedMasks?: DisplayObject[]): void;
-	    private traverseChildren(container, traverser, maskID, appliedMasks);
-	    iAddNode(node: NodeBase): void;
-	}
-	export = Partition2DNode;
-	
-}
-
 declare module "awayjs-player/lib/renderer/Mask" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
@@ -334,6 +316,24 @@ declare module "awayjs-player/lib/renderer/Mask" {
 	    private _draw(renderable);
 	}
 	export = Mask;
+	
+}
+
+declare module "awayjs-player/lib/partition/Partition2DNode" {
+	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
+	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	import NodeBase = require("awayjs-display/lib/partition/NodeBase");
+	class Partition2DNode extends NodeBase {
+	    private _root;
+	    private _maskConfigID;
+	    private _index;
+	    constructor(root: DisplayObject);
+	    acceptTraverser(traverser: CollectorBase): void;
+	    traverseSceneGraph(displayObject: any, traverser: CollectorBase, maskID?: number, appliedMasks?: DisplayObject[]): void;
+	    private traverseChildren(container, traverser, maskID, appliedMasks);
+	    iAddNode(node: NodeBase): void;
+	}
+	export = Partition2DNode;
 	
 }
 
@@ -471,20 +471,6 @@ declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	
 }
 
-declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	/**
-	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
-	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
-	 * across MovieClip instances.
-	 */
-	interface FrameCommand {
-	    execute(sourceMovieClip: MovieClip, frame: number): void;
-	}
-	export = FrameCommand;
-	
-}
-
 declare module "awayjs-player/lib/timeline/commands/RemoveChildCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -506,6 +492,20 @@ declare module "awayjs-player/lib/timeline/commands/RemoveChildrenAtDepthCommand
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = RemoveChildrenAtDepthCommand;
+	
+}
+
+declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	/**
+	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
+	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
+	 * across MovieClip instances.
+	 */
+	interface FrameCommand {
+	    execute(sourceMovieClip: MovieClip, frame: number): void;
+	}
+	export = FrameCommand;
 	
 }
 
