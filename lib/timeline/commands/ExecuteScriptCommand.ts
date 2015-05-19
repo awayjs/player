@@ -34,6 +34,8 @@ class ExecuteScriptCommand implements FrameCommand
         catch(err)
         {
             console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
+            console.log(err.message);
+            sourceMovieClip.logHierarchy();
             //throw err;
         }
     }

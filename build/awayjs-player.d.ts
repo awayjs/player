@@ -201,12 +201,14 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _potentialPrototypes;
 	    private _potentialInstances;
 	    constructor();
+	    loop: boolean;
 	    numFrames: number;
 	    jumpToLabel(label: string): void;
 	    currentFrameIndex: number;
 	    adapter: MovieClipAdapter;
 	    name: string;
 	    addChild(child: DisplayObject): DisplayObject;
+	    _iInit(): void;
 	    removeChild(child: DisplayObject): DisplayObject;
 	    fps: number;
 	    assetType: string;
@@ -241,7 +243,8 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    clone(): DisplayObject;
 	    private resetPlayHead();
 	    private advanceFrame(skipChildren?);
-	    private updateKeyFrames(skipFrames);
+	    private advanceChildren();
+	    updateKeyFrames(skipFrames: boolean): void;
 	    logHierarchy(depth?: number): void;
 	    printHierarchyName(depth: number, target: DisplayObject): void;
 	    executePostConstructCommands(): void;

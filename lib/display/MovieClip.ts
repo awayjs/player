@@ -55,6 +55,16 @@ class MovieClip extends DisplayObjectContainer
         this.inheritColorTransform = true;
     }
 
+    public get loop()
+    {
+        return this._loop;
+    }
+
+    public set loop(value:boolean)
+    {
+        this._loop = value;
+    }
+
     public get numFrames() : number
     {
         return this._numFrames;
@@ -134,10 +144,26 @@ class MovieClip extends DisplayObjectContainer
 
     public addChild(child:DisplayObject):DisplayObject
     {
+        //if (child.name) console.log("adding child " + child.name + " at frame " + this._currentFrameIndex);
         child.inheritColorTransform = true;
         super.addChild(child);
+
+        if (child.hasOwnProperty("_currentFrameIndex")) {
+            (<MovieClip>child)._iInit();
+        }
+
         this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_ADDED, child));
+
         return child;
+    }
+
+    public _iInit()
+    {
+        // first frame initialisation
+        if (this._currentFrameIndex === -1) {
+            this.advanceFrame(true);
+            this._skipAdvance = true;
+        }
     }
 
     public removeChild(child:DisplayObject):DisplayObject
@@ -155,16 +181,6 @@ class MovieClip extends DisplayObjectContainer
     public set fps(newFps:number)
     {
         this._fps = newFps;
-        var len = this._potentialPrototypes.length;
-        for (var i = 0; i < len; ++i) {
-            if (typeof this._potentialPrototypes[i] === "MovieClip")
-                (<MovieClip>this._potentialPrototypes[i]).fps = this._fps;
-        }
-        var len = this._potentialInstances.length;
-        for (var i = 0; i < len; ++i) {
-            if (this._potentialInstances[i] &&  typeof this._potentialInstances[i] === "MovieClip")
-                (<MovieClip>this._potentialInstances[i]).fps = this._fps;
-        }
     }
 
     public get assetType():string
@@ -233,8 +249,6 @@ class MovieClip extends DisplayObjectContainer
     {
         var id = this._potentialPrototypes.length;
         this._potentialPrototypes[id] = prototype;
-        if (typeof this._potentialPrototypes[id] === "MovieClip")
-            (<MovieClip>this._potentialPrototypes[id]).fps = this._fps;
         this._potentialInstances[id] = null;
         return id;
     }
@@ -344,19 +358,23 @@ class MovieClip extends DisplayObjectContainer
         if (oldFrameIndex != this._currentFrameIndex || this._skipAdvance)
             this.updateKeyFrames(skipChildren);
 
-        if (!skipChildren) {
-            var len = this.numChildren;
-            for (i = 0; i <  len; ++i) {
-                var child = this.getChildAt(i);
-                if (child instanceof MovieClip)
-                    (<MovieClip>child).advanceFrame();
-            }
-        }
+        if (!skipChildren)
+            this.advanceChildren();
 
         this._skipAdvance = false;
     }
 
-    private updateKeyFrames(skipFrames:boolean)
+    private advanceChildren()
+    {
+        var len = this.numChildren;
+        for (var i = 0; i <  len; ++i) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip)
+                (<MovieClip>child).advanceFrame();
+        }
+    }
+
+    public updateKeyFrames(skipFrames:boolean)
     {
         var frameIndex = this._currentFrameIndex;
 

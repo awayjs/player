@@ -664,6 +664,16 @@ var MovieClip = (function (_super) {
         this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
         this.inheritColorTransform = true;
     }
+    Object.defineProperty(MovieClip.prototype, "loop", {
+        get: function () {
+            return this._loop;
+        },
+        set: function (value) {
+            this._loop = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MovieClip.prototype, "numFrames", {
         get: function () {
             return this._numFrames;
@@ -735,10 +745,21 @@ var MovieClip = (function (_super) {
         configurable: true
     });
     MovieClip.prototype.addChild = function (child) {
+        //if (child.name) console.log("adding child " + child.name + " at frame " + this._currentFrameIndex);
         child.inheritColorTransform = true;
         _super.prototype.addChild.call(this, child);
+        if (child.hasOwnProperty("_currentFrameIndex")) {
+            child._iInit();
+        }
         this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_ADDED, child));
         return child;
+    };
+    MovieClip.prototype._iInit = function () {
+        // first frame initialisation
+        if (this._currentFrameIndex === -1) {
+            this.advanceFrame(true);
+            this._skipAdvance = true;
+        }
     };
     MovieClip.prototype.removeChild = function (child) {
         _super.prototype.removeChild.call(this, child);
@@ -751,16 +772,6 @@ var MovieClip = (function (_super) {
         },
         set: function (newFps) {
             this._fps = newFps;
-            var len = this._potentialPrototypes.length;
-            for (var i = 0; i < len; ++i) {
-                if (typeof this._potentialPrototypes[i] === "MovieClip")
-                    this._potentialPrototypes[i].fps = this._fps;
-            }
-            var len = this._potentialInstances.length;
-            for (var i = 0; i < len; ++i) {
-                if (this._potentialInstances[i] && typeof this._potentialInstances[i] === "MovieClip")
-                    this._potentialInstances[i].fps = this._fps;
-            }
         },
         enumerable: true,
         configurable: true
@@ -819,8 +830,6 @@ var MovieClip = (function (_super) {
     MovieClip.prototype.registerPotentialChild = function (prototype) {
         var id = this._potentialPrototypes.length;
         this._potentialPrototypes[id] = prototype;
-        if (typeof this._potentialPrototypes[id] === "MovieClip")
-            this._potentialPrototypes[id].fps = this._fps;
         this._potentialInstances[id] = null;
         return id;
     };
@@ -905,15 +914,17 @@ var MovieClip = (function (_super) {
         }
         if (oldFrameIndex != this._currentFrameIndex || this._skipAdvance)
             this.updateKeyFrames(skipChildren);
-        if (!skipChildren) {
-            var len = this.numChildren;
-            for (i = 0; i < len; ++i) {
-                var child = this.getChildAt(i);
-                if (child instanceof MovieClip)
-                    child.advanceFrame();
-            }
-        }
+        if (!skipChildren)
+            this.advanceChildren();
         this._skipAdvance = false;
+    };
+    MovieClip.prototype.advanceChildren = function () {
+        var len = this.numChildren;
+        for (var i = 0; i < len; ++i) {
+            var child = this.getChildAt(i);
+            if (child instanceof MovieClip)
+                child.advanceFrame();
+        }
     };
     MovieClip.prototype.updateKeyFrames = function (skipFrames) {
         var frameIndex = this._currentFrameIndex;
@@ -1570,6 +1581,8 @@ var ExecuteScriptCommand = (function () {
         }
         catch (err) {
             console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
+            console.log(err.message);
+            sourceMovieClip.logHierarchy();
         }
     };
     ExecuteScriptCommand.prototype.regexIndexOf = function (str, regex, startpos) {
