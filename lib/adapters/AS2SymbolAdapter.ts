@@ -195,6 +195,16 @@ class AS2SymbolAdapter
         return this._root;
     }
 
+    clearInterval(handle:number)
+    {
+        clearInterval(handle);
+    }
+
+    setInterval(handler:any, timeout:number)
+    {
+        setInterval(handler, timeout)
+    }
+
     // temporary:
     get _level10301() : AS2SymbolAdapter
     {
