@@ -520,6 +520,12 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    AS2SymbolAdapter.prototype.clearInterval = function (handle) {
+        clearInterval(handle);
+    };
+    AS2SymbolAdapter.prototype.setInterval = function (handler, timeout) {
+        setInterval(handler, timeout);
+    };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_level10301", {
         // temporary:
         get: function () {
@@ -1582,7 +1588,6 @@ var ExecuteScriptCommand = (function () {
         catch (err) {
             console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
             console.log(err.message);
-            sourceMovieClip.logHierarchy();
         }
     };
     ExecuteScriptCommand.prototype.regexIndexOf = function (str, regex, startpos) {
