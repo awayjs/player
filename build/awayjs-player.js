@@ -63,8 +63,6 @@ var AS2MCSoundProps = (function (_super) {
         set: function (value) {
             if (this._volume != value) {
                 this._volume = value;
-                if (this._audio)
-                    this._audio.volume = value;
                 this.dispatchEvent(this._changeEvent);
             }
         },
