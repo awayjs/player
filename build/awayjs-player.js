@@ -36,7 +36,96 @@ var AS2ColorAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-},{"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2MCSoundProps":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Event = require("awayjs-core/lib/events/Event");
+var EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+var AS2MCSoundProps = (function (_super) {
+    __extends(AS2MCSoundProps, _super);
+    function AS2MCSoundProps() {
+        var _this = this;
+        _super.call(this);
+        this._volume = 1;
+        this._pan = 1;
+        this._changeEvent = new Event(Event.CHANGE);
+        this._loops = 0;
+        this._onEndedDelegate = function (event) { return _this.onEnded(event); };
+    }
+    Object.defineProperty(AS2MCSoundProps.prototype, "volume", {
+        get: function () {
+            return this._volume;
+        },
+        set: function (value) {
+            if (this._volume != value) {
+                this._volume = value;
+                if (this._audio)
+                    this._audio.volume = value;
+                this.dispatchEvent(this._changeEvent);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MCSoundProps.prototype, "pan", {
+        get: function () {
+            return this._pan;
+        },
+        set: function (value) {
+            if (this._pan != value) {
+                this._pan = value;
+                this.dispatchEvent(this._changeEvent);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MCSoundProps.prototype, "loops", {
+        get: function () {
+            return this._loops;
+        },
+        set: function (value) {
+            this._loops = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MCSoundProps.prototype, "audio", {
+        get: function () {
+            return this._audio;
+        },
+        set: function (value) {
+            if (this._audio) {
+                this._audio.removeEventListener('ended', this._onEndedDelegate);
+                this._audio.pause();
+            }
+            this._audio = value;
+            this._loops = 0;
+            if (value)
+                value.loop = false;
+            this._audio.addEventListener('ended', this._onEndedDelegate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AS2MCSoundProps.prototype.onEnded = function (event) {
+        if (--this._loops > 0) {
+            this._audio.currentTime = 0;
+            this._audio.play();
+        }
+        else {
+            this._loops = 0;
+        }
+    };
+    return AS2MCSoundProps;
+})(EventDispatcher);
+module.exports = AS2MCSoundProps;
+
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/events/EventDispatcher":undefined}],"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -44,6 +133,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
 var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
@@ -51,8 +141,10 @@ var Point = require("awayjs-core/lib/geom/Point");
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
     function AS2MovieClipAdapter(adaptee) {
+        adaptee = adaptee || new MovieClip();
         // create an empty MovieClip if none is passed
-        _super.call(this, adaptee || new MovieClip());
+        _super.call(this, adaptee);
+        this.__pSoundProps = new AS2MCSoundProps();
         var self = this;
         adaptee.addEventListener(MovieClipEvent.CHILD_ADDED, function (event) {
             self._pOnChildAdded.call(self, event);
@@ -90,14 +182,21 @@ var AS2MovieClipAdapter = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    //attachAudio(id: Object) : void {	}
+    //attachAudio(id: AS2SoundAdapter) : void {	}
     //attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
     //attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
     //beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
     //beginFill(rgb: Number, alpha: number = 1.0) : void {}
     //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
     //clear() : void {}
-    //createEmptyMovieClip(name: string, depth: number) : MovieClip { return null; }
+    AS2MovieClipAdapter.prototype.createEmptyMovieClip = function (name, depth) {
+        var adapter = new AS2MovieClipAdapter(null);
+        adapter.adaptee.name = name;
+        adapter.adaptee["__AS2Depth"] = depth;
+        this.adaptee.addChild(adapter.adaptee);
+        this._updateDepths(this.adaptee);
+        return adapter;
+    };
     //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
     //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
     AS2MovieClipAdapter.prototype.duplicateMovieClip = function (name, depth, initObject) {
@@ -293,70 +392,102 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SoundAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SoundAdapter":[function(require,module,exports){
+var Event = require("awayjs-core/lib/events/Event");
+var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
+var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 // also contains global AS2 functions
 var AS2SoundAdapter = (function () {
     // TODO: Any real Sound stuff should be externalized for AwayJS use. For now use internally since it's only 2D.
     function AS2SoundAdapter(target) {
-        this._pan = 0;
-        this._volume = 0;
+        var _this = this;
         // not sure how to handle target yet
-        this._audio = new Audio();
+        this._target = target;
+        this._soundProps = target ? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
+        AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
+        this._onGlobalChangeDelegate = function (event) { return _this.onGlobalChange(event); };
     }
+    Object.defineProperty(AS2SoundAdapter.prototype, "looping", {
+        get: function () {
+            return this._soundProps.loops;
+        },
+        set: function (value) {
+            this._soundProps.loops = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     AS2SoundAdapter.prototype.attachSound = function (id) {
-        // not sure how to handle this one yet
+        // TODO: This will be AudioAsset or something
+        var asset = AssetLibrary.getAsset(id);
+        var source = asset.htmlAudioElement;
+        this._soundProps.audio = source.cloneNode();
+        this.updateVolume();
     };
-    AS2SoundAdapter.prototype.getBytesLoaded = function () {
+    /*getBytesLoaded() : number
+    {
         return 1;
-    };
-    AS2SoundAdapter.prototype.getBytesTotal = function () {
+    }
+
+    getBytesTotal() : number
+    {
         return 1;
-    };
+    }*/
     AS2SoundAdapter.prototype.getPan = function () {
-        return this._pan;
+        return this._soundProps.pan;
     };
     AS2SoundAdapter.prototype.setPan = function (value) {
-        this._pan = value;
+        this._soundProps.pan = value;
+        // panning not supported at this point
     };
-    AS2SoundAdapter.prototype.getTransform = function () {
+    /*getTransform() : Object
+    {
         return this._transform;
-    };
-    AS2SoundAdapter.prototype.setTransform = function (value) {
+    }
+
+    setTransform(value:Object)
+    {
         this._transform = value;
-    };
+    }*/
     AS2SoundAdapter.prototype.getVolume = function () {
-        return this._volume;
+        return this._soundProps.volume * 100;
     };
     AS2SoundAdapter.prototype.setVolume = function (value) {
-        this._volume = value;
+        this._soundProps.volume = value / 100;
+        this.updateVolume();
     };
-    AS2SoundAdapter.prototype.loadSound = function (url, isStreaming) {
-        this._audio.src = url;
-        // how to handle isStreaming? Manually?
-    };
+    /*loadSound(url:string, isStreaming:boolean)
+    {
+        this.disposeAudio();
+        // how to handle isStreaming == false? Manually?
+        this._soundProps.audio = new Audio();
+        this._soundProps.audio.src = url;
+        this.initAudio();
+    }*/
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
+        if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
-        this._audio.currentTime = offsetInSeconds;
-        this._audio.play();
-        this._audio.loop = loops ? true : false;
+        this._soundProps.audio.currentTime = offsetInSeconds;
+        this._soundProps.loops = loops;
+        this._soundProps.audio.play();
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
-        this._audio.pause();
+        this._soundProps.audio.pause();
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
-            return this._audio.currentTime;
+            return this._soundProps.audio.currentTime;
         },
         set: function (value) {
-            this._audio.currentTime = value;
+            this._soundProps.audio.currentTime = value;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AS2SoundAdapter.prototype, "duration", {
         get: function () {
-            return this._audio.duration;
+            return this._soundProps.audio.duration;
         },
         enumerable: true,
         configurable: true
@@ -368,11 +499,18 @@ var AS2SoundAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    AS2SoundAdapter.prototype.onGlobalChange = function (event) {
+        this.updateVolume();
+    };
+    AS2SoundAdapter.prototype.updateVolume = function () {
+        this._soundProps.audio.volume = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+    };
+    AS2SoundAdapter._globalSoundProps = new AS2MCSoundProps();
     return AS2SoundAdapter;
 })();
 module.exports = AS2SoundAdapter;
 
-},{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
     function AS2SymbolAdapter(adaptee) {
@@ -488,6 +626,9 @@ var AS2SymbolAdapter = (function () {
     // may need proper high-def timer mechanism
     AS2SymbolAdapter.prototype.getTimer = function () {
         return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
+    };
+    AS2SymbolAdapter.prototype.int = function (value) {
+        return value | 0;
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
         get: function () {
@@ -1588,6 +1729,7 @@ var ExecuteScriptCommand = (function () {
         catch (err) {
             console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
             console.log(err.message);
+            throw err;
         }
     };
     ExecuteScriptCommand.prototype.regexIndexOf = function (str, regex, startpos) {

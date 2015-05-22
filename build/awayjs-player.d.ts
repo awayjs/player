@@ -4,14 +4,36 @@ declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
+	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+	class AS2MCSoundProps extends EventDispatcher {
+	    private _volume;
+	    private _pan;
+	    private _changeEvent;
+	    private _loops;
+	    private _audio;
+	    private _onEndedDelegate;
+	    constructor();
+	    volume: number;
+	    pan: number;
+	    loops: number;
+	    audio: HTMLAudioElement;
+	    private onEnded(event);
+	}
+	export = AS2MCSoundProps;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+	import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
+	    __pSoundProps: AS2MCSoundProps;
 	    private _nameChangeCallback;
 	    private _onEnterFrame;
 	    private _onRelease;
@@ -20,6 +42,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    _currentframe: number;
 	    _totalFrames: number;
 	    enabled: boolean;
+	    createEmptyMovieClip(name: string, depth: number): AS2MovieClipAdapter;
 	    duplicateMovieClip(name: string, depth: number, initObject: Object): MovieClip;
 	    getBytesLoaded(): number;
 	    getBytesTotal(): number;
@@ -55,26 +78,24 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SoundAdapter {
-	    private _pan;
-	    private _volume;
-	    private _transform;
-	    private _audio;
+	    private _target;
+	    private _soundProps;
+	    private static _globalSoundProps;
+	    private _onGlobalChangeDelegate;
 	    constructor(target: AS2MovieClipAdapter);
+	    looping: number;
 	    attachSound(id: string): void;
-	    getBytesLoaded(): number;
-	    getBytesTotal(): number;
 	    getPan(): number;
 	    setPan(value: number): void;
-	    getTransform(): Object;
-	    setTransform(value: Object): void;
 	    getVolume(): number;
 	    setVolume(value: number): void;
-	    loadSound(url: string, isStreaming: boolean): void;
-	    start(offsetInSeconds: number, loops?: number): void;
+	    start(offsetInSeconds?: number, loops?: number): void;
 	    stop(linkageID?: string): void;
 	    position: number;
 	    duration: number;
 	    id3: Object;
+	    private onGlobalChange(event);
+	    private updateVolume();
 	}
 	export = AS2SoundAdapter;
 	
@@ -104,6 +125,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    quality: string;
 	    trace(): void;
 	    getTimer(): Number;
+	    int(value: any): number;
 	    _alpha: number;
 	    _url: string;
 	    _global: AS2MovieClipAdapter;

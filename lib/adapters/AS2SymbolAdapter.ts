@@ -170,6 +170,11 @@ class AS2SymbolAdapter
         return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
     }
 
+    int(value:any) : number
+    {
+        return value | 0;
+    }
+
     get _alpha() : number
     {
         return this.adaptee.transform.colorTransform.alphaMultiplier;

@@ -3,6 +3,8 @@ import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+import AS2SoundAdapter = require("awayjs-player/lib/adapters/AS2SoundAdapter");
+import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
@@ -21,6 +23,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	// tabChildren: Boolean
 	// transform: Transform		// contains matrix + color matrix
 
+    public __pSoundProps : AS2MCSoundProps;
 
     private _nameChangeCallback : Function;
 
@@ -30,8 +33,11 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	constructor(adaptee : DisplayObjectContainer)
 	{
+        adaptee = adaptee || new MovieClip();
         // create an empty MovieClip if none is passed
-		super(adaptee || new MovieClip());
+        super(adaptee);
+
+        this.__pSoundProps = new AS2MCSoundProps();
 
         var self = this;
         adaptee.addEventListener(MovieClipEvent.CHILD_ADDED,
@@ -63,7 +69,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         return (<MovieClip>this.adaptee).mouseEnabled;
     }
 
-	//attachAudio(id: Object) : void {	}
+	//attachAudio(id: AS2SoundAdapter) : void {	}
 
 	//attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
 
@@ -77,7 +83,15 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	//clear() : void {}
 
-	//createEmptyMovieClip(name: string, depth: number) : MovieClip { return null; }
+	createEmptyMovieClip(name: string, depth: number) : AS2MovieClipAdapter
+    {
+        var adapter = new AS2MovieClipAdapter(null);
+        adapter.adaptee.name = name;
+        adapter.adaptee["__AS2Depth"] = depth;
+        this.adaptee.addChild(adapter.adaptee);
+        this._updateDepths(<MovieClip>this.adaptee);
+        return adapter;
+    }
 
 	//createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
 
