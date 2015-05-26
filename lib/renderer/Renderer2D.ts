@@ -32,14 +32,14 @@ class Renderer2D extends DefaultRenderer
         var passes:Array<IPass>;
         var pass:IPass;
         var camera:Camera = entityCollector.camera;
-        var maskConfigID:number = -1;
+        var maskConfigID:number = 0;
 
         /*// TypeScript does not allow calling super.setters -_-
         //this._mask.width = this._pRttBufferManager.textureWidth;
         //this._mask.height = this._pRttBufferManager.textureHeight;*/
         this._mask.reset();
         this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
-        //console.log("------");
+        console.log("------");
         var gl = this._pContext["_gl"];
         gl.disable(gl.STENCIL_TEST);
 
@@ -49,7 +49,7 @@ class Renderer2D extends DefaultRenderer
 
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
-                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
+                console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
             // otherwise this would result in depth rendered anyway because fragment shader kil is ignored
@@ -64,16 +64,16 @@ class Renderer2D extends DefaultRenderer
                 var newMaskConfigID = renderable.sourceEntity["maskConfigID"];
 
                 if (maskConfigID !== newMaskConfigID) {
-                    if (newMaskConfigID === -1) {
+                    if (newMaskConfigID === 0) {
                         // disable stencil
                         //this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-                        //console.log("Let's not use stencil!");
+                        console.log("Let's not use stencil!");
                     }
                     else {
-                        //console.log("Rendering masks with configID " + newMaskConfigID);
+                        console.log("Rendering masks with configID " + newMaskConfigID);
                         //this._pContext.setStencilReferenceValue(newMaskConfigID);
                         gl.enable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, newMaskConfigID, 0xff);
@@ -96,7 +96,7 @@ class Renderer2D extends DefaultRenderer
                     this.activatePass(renderable, pass, camera);
 
                     do {
-                        //console.log("Rendering normal DO " + renderable2);
+                        console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
                     } while (renderable2 && renderable2.render == render && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);

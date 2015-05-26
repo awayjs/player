@@ -328,7 +328,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         var db = <number>(b["__AS2Depth"]);
         if (da === undefined) da = 0;
         if (db === undefined) db = 0;
-        return db - da;
+        return da - db;
     }
 
     private _replaceEventListener(eventType:string, currentListener:Function, newListener:Function)

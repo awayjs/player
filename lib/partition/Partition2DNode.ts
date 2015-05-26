@@ -20,7 +20,7 @@ class Partition2DNode extends NodeBase
 
     public acceptTraverser(traverser:CollectorBase)
     {
-        this._maskConfigID = -1;
+        this._maskConfigID = 0;
         this._index = 0;
         if (traverser.enterNode(this)) {
             this.traverseSceneGraph(this._root, traverser);
@@ -49,7 +49,7 @@ class Partition2DNode extends NodeBase
 
         displayObject["hierarchicalMaskID"] = maskID;
         displayObject["hierarchicalMasks"] = appliedMasks;
-        displayObject["maskConfigID"] = appliedMasks? this._maskConfigID : -1;
+        displayObject["maskConfigID"] = appliedMasks? this._maskConfigID : 0;
 
         // moving back up the tree, mask will change again
         if (displayObject._iMasks)

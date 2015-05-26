@@ -371,7 +371,7 @@ var AS2MovieClipAdapter = (function (_super) {
             da = 0;
         if (db === undefined)
             db = 0;
-        return db - da;
+        return da - db;
     };
     AS2MovieClipAdapter.prototype._replaceEventListener = function (eventType, currentListener, newListener) {
         var mc = this.adaptee;
@@ -1107,7 +1107,7 @@ var MovieClip = (function (_super) {
         var str = "";
         for (var i = 0; i < depth; ++i)
             str += "--";
-        str += " " + target.name;
+        str += " " + target.name + " = " + target._iMaskID;
         console.log(str);
     };
     MovieClip.prototype.executePostConstructCommands = function () {
@@ -1197,7 +1197,7 @@ var Partition2DNode = (function (_super) {
         this._root = root;
     }
     Partition2DNode.prototype.acceptTraverser = function (traverser) {
-        this._maskConfigID = -1;
+        this._maskConfigID = 0;
         this._index = 0;
         if (traverser.enterNode(this)) {
             this.traverseSceneGraph(this._root, traverser);
@@ -1223,7 +1223,7 @@ var Partition2DNode = (function (_super) {
         }
         displayObject["hierarchicalMaskID"] = maskID;
         displayObject["hierarchicalMasks"] = appliedMasks;
-        displayObject["maskConfigID"] = appliedMasks ? this._maskConfigID : -1;
+        displayObject["maskConfigID"] = appliedMasks ? this._maskConfigID : 0;
         // moving back up the tree, mask will change again
         if (displayObject._iMasks)
             ++this._maskConfigID;
@@ -1304,7 +1304,7 @@ var Mask = (function () {
                     var obj = this._registeredMasks[j];
                     //console.log("testing for " + mask["hierarchicalMaskID"] + ", " + mask.name);
                     if (obj.sourceEntity["hierarchicalMaskID"] === mask["hierarchicalMaskID"]) {
-                        //console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
+                        console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
                         this._draw(obj);
                     }
                 }
@@ -1442,13 +1442,13 @@ var Renderer2D = (function (_super) {
         var passes;
         var pass;
         var camera = entityCollector.camera;
-        var maskConfigID = -1;
+        var maskConfigID = 0;
         /*// TypeScript does not allow calling super.setters -_-
         //this._mask.width = this._pRttBufferManager.textureWidth;
         //this._mask.height = this._pRttBufferManager.textureHeight;*/
         this._mask.reset();
         this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
-        //console.log("------");
+        console.log("------");
         var gl = this._pContext["_gl"];
         gl.disable(gl.STENCIL_TEST);
         while (renderable) {
@@ -1456,7 +1456,7 @@ var Renderer2D = (function (_super) {
             passes = render.passes;
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
-                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
+                console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
             else if (this._disableColor && render._renderOwner.alphaThreshold != 0) {
@@ -1468,15 +1468,16 @@ var Renderer2D = (function (_super) {
             else {
                 var newMaskConfigID = renderable.sourceEntity["maskConfigID"];
                 if (maskConfigID !== newMaskConfigID) {
-                    if (newMaskConfigID === -1) {
+                    if (newMaskConfigID === 0) {
                         // disable stencil
                         //this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+                        console.log("Let's not use stencil!");
                     }
                     else {
-                        //console.log("Rendering masks with configID " + newMaskConfigID);
+                        console.log("Rendering masks with configID " + newMaskConfigID);
                         //this._pContext.setStencilReferenceValue(newMaskConfigID);
                         gl.enable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, newMaskConfigID, 0xff);
@@ -1494,7 +1495,7 @@ var Renderer2D = (function (_super) {
                     pass = passes[i];
                     this.activatePass(renderable, pass, camera);
                     do {
-                        //console.log("Rendering normal DO " + renderable2);
+                        console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
                     } while (renderable2 && renderable2.render == render && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);

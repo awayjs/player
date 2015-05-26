@@ -422,7 +422,7 @@ class MovieClip extends DisplayObjectContainer
         for (var i = 0; i < depth; ++i)
             str += "--";
 
-        str += " " + target.name;
+        str += " " + target.name + " = " + target._iMaskID;
         console.log(str);
     }
 
