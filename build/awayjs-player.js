@@ -1524,10 +1524,7 @@ var Renderer2D = (function (_super) {
             renderable.next = this._pOpaqueRenderableHead;
             this._pOpaqueRenderableHead = renderable;
         }
-        this._pNumTriangles += renderable.numTriangles;
-        //handle any overflow for renderables with data that exceeds GPU limitations
-        if (renderable.overflow)
-            this.applyRenderable(renderable.overflow);
+        this._pNumElements += renderable.subGeometryVO.numElements;
     };
     return Renderer2D;
 })(DefaultRenderer);
