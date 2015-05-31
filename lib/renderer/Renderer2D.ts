@@ -134,11 +134,7 @@ class Renderer2D extends DefaultRenderer
             this._pOpaqueRenderableHead = renderable;
         }
 
-        this._pNumTriangles += renderable.numTriangles;
-
-        //handle any overflow for renderables with data that exceeds GPU limitations
-        if (renderable.overflow)
-            this.applyRenderable(renderable.overflow);
+        this._pNumElements += renderable.subGeometryVO.numElements;
     }
 
     /*public dispose()
