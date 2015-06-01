@@ -1448,7 +1448,7 @@ var Renderer2D = (function (_super) {
         //this._mask.height = this._pRttBufferManager.textureHeight;*/
         this._mask.reset();
         this._pContext.setStencilActions("frontAndBack", "always", "keep", "keep", "keep");
-        console.log("------");
+        //console.log("------");
         var gl = this._pContext["_gl"];
         gl.disable(gl.STENCIL_TEST);
         while (renderable) {
