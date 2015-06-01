@@ -1,17 +1,3 @@
-import Matrix3D                        = require("awayjs-core/lib/geom/Matrix3D");
-import Matrix                        = require("awayjs-core/lib/geom/Matrix");
-import SubGeometryBase                = require("awayjs-core/lib/data/SubGeometryBase");
-import SubGeometry                    = require("awayjs-core/lib/data/TriangleSubGeometry");
-import Geometry                        = require("awayjs-core/lib/data/Geometry");
-import GeometryEvent                = require("awayjs-core/lib/events/GeometryEvent");
-
-import IAnimator                    = require("awayjs-display/lib/animators/IAnimator");
-import ISubMesh                        = require("awayjs-display/lib/base/ISubMesh");
-import ISubMeshClass                = require("awayjs-display/lib/base/ISubMeshClass");
-import MaterialBase                    = require("awayjs-display/lib/materials/MaterialBase");
-import EntityNode                    = require("awayjs-display/lib/partition/EntityNode");
-import DisplayObjectContainer        = require("awayjs-display/lib/containers/DisplayObjectContainer");
-import Mesh                            = require("awayjs-display/lib/entities/Mesh");
 import MovieClip                    = require("awayjs-player/lib/display/MovieClip");
 import FrameCommand                 = require("awayjs-player/lib/timeline/commands/FrameCommand");
 
