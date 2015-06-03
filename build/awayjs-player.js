@@ -390,7 +390,23 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SoundAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+var AS2SharedObjectAdapter = (function () {
+    function AS2SharedObjectAdapter() {
+    }
+    // should become a static
+    AS2SharedObjectAdapter.getLocal = function (name, localPath, secure) {
+        return new AS2SharedObjectAdapter();
+    };
+    // needs to stay as it is
+    AS2SharedObjectAdapter.prototype.flush = function () {
+        // save all local data to wherever it needs to go
+    };
+    return AS2SharedObjectAdapter;
+})();
+module.exports = AS2SharedObjectAdapter;
+
+},{}],"awayjs-player/lib/adapters/AS2SoundAdapter":[function(require,module,exports){
 var Event = require("awayjs-core/lib/events/Event");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
@@ -519,6 +535,7 @@ var AS2StageAdapter = (function () {
 module.exports = AS2StageAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
+var AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 var AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
@@ -535,8 +552,17 @@ var AS2SymbolAdapter = (function () {
         }
     }
     Object.defineProperty(AS2SymbolAdapter.prototype, "Stage", {
+        // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
+        // And then change properties to statics
         get: function () {
-            return AS2SymbolAdapter._stage;
+            return AS2StageAdapter;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "SharedObject", {
+        get: function () {
+            return AS2SharedObjectAdapter;
         },
         enumerable: true,
         configurable: true
@@ -721,14 +747,12 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
-    // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
-    AS2SymbolAdapter._stage = new AS2StageAdapter();
     AS2SymbolAdapter.REFERENCE_TIME = -1;
     return AS2SymbolAdapter;
 })();
 module.exports = AS2SymbolAdapter;
 
-},{"awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 // also contains global AS2 functions
 var AS2SystemAdapter = (function () {
     function AS2SystemAdapter() {
@@ -1810,8 +1834,14 @@ var ExecuteScriptCommand = (function () {
         }*/
         // make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
         var str = replacementPreface + replaced + replacementPostface;
-        //console.log(str);
-        this._translatedScript = new Function(str);
+        try {
+            this._translatedScript = new Function(str);
+        }
+        catch (err) {
+            console.log("Syntax error in script:\n", str);
+            console.log(err.message);
+            throw err;
+        }
     };
     return ExecuteScriptCommand;
 })();

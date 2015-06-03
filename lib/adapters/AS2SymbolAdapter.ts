@@ -2,6 +2,7 @@ import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 
+import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -10,8 +11,9 @@ import MovieClip = require("awayjs-player/lib/display/MovieClip");
 class AS2SymbolAdapter
 {
     // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
-    private static _stage : AS2StageAdapter = new AS2StageAdapter();
-    public get Stage() { return AS2SymbolAdapter._stage; }
+    // And then change properties to statics
+    public get Stage() { return AS2StageAdapter; }
+    public get SharedObject() { return AS2SharedObjectAdapter; }
 
     // blendMode
     // cacheAsBitmap

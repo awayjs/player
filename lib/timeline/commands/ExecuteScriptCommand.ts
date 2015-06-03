@@ -35,7 +35,7 @@ class ExecuteScriptCommand implements FrameCommand
         {
             console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
             console.log(err.message);
-            throw err;
+                    throw err;
         }
     }
 
@@ -118,7 +118,15 @@ class ExecuteScriptCommand implements FrameCommand
 
         //console.log(str);
 
-        this._translatedScript = new Function(str);
+        try {
+            this._translatedScript = new Function(str);
+        }
+        catch(err)
+        {
+            console.log("Syntax error in script:\n", str);
+            console.log(err.message);
+            throw err;
+        }
     }
 }
 export = ExecuteScriptCommand;
