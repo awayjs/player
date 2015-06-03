@@ -41,7 +41,12 @@ class AS2SoundAdapter
     {
         // TODO: This will be AudioAsset or something
         var asset = <WaveAudio>AssetLibrary.getAsset(id);
-        var source : HTMLAudioElement = <HTMLAudioElement>asset.htmlAudioElement;
+        var source : HTMLAudioElement;
+        if(asset)
+            source = <HTMLAudioElement>asset.htmlAudioElement;
+        else{
+            source = new Audio();
+        }
         this._soundProps.audio = <HTMLAudioElement>source.cloneNode();
         this.updateVolume();
     }
@@ -99,29 +104,38 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
-        this._soundProps.audio.currentTime = offsetInSeconds;
-        this._soundProps.loops = loops;
-        this._soundProps.audio.play();
+        if(this._soundProps.audio) {
+            this._soundProps.audio.currentTime = offsetInSeconds;
+            this._soundProps.loops = loops;
+            this._soundProps.audio.play();
+        }
     }
 
     stop(linkageID:string = null)
     {
-        this._soundProps.audio.pause();
+        if(this._soundProps.audio)
+            this._soundProps.audio.pause();
     }
 
     get position() : number
     {
-        return this._soundProps.audio.currentTime;
+        if(this._soundProps.audio)
+            return this._soundProps.audio.currentTime;
+        return 0;
     }
 
     set position(value : number)
     {
-        this._soundProps.audio.currentTime = value;
+        if(this._soundProps.audio)
+            this._soundProps.audio.currentTime = value;
     }
 
     get duration() : number
     {
-        return this._soundProps.audio.duration;
+
+        if(this._soundProps.audio)
+            return this._soundProps.audio.duration;
+        return 0;
     }
 
     get id3() : Object
@@ -136,7 +150,8 @@ class AS2SoundAdapter
 
     private updateVolume()
     {
-        this._soundProps.audio.volume = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+        if(this._soundProps.audio)
+            this._soundProps.audio.volume = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
     }
 }
 export = AS2SoundAdapter;
