@@ -101,10 +101,21 @@ declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
+	class AS2StageAdapter {
+	    static showMenu: boolean;
+	}
+	export = AS2StageAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+	import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 	class AS2SymbolAdapter {
+	    private static _stage;
+	    Stage: AS2StageAdapter;
 	    private __root;
 	    private _adaptee;
 	    private __quality;
