@@ -75,6 +75,15 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SoundAdapter {
@@ -111,11 +120,12 @@ declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 	class AS2SymbolAdapter {
-	    private static _stage;
-	    Stage: AS2StageAdapter;
+	    Stage: typeof AS2StageAdapter;
+	    SharedObject: typeof AS2SharedObjectAdapter;
 	    private __root;
 	    private _adaptee;
 	    private __quality;
