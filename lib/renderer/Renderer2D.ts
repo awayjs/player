@@ -96,7 +96,7 @@ class Renderer2D extends DefaultRenderer
                     this.activatePass(renderable, pass, camera);
 
                     do {
-                        console.log("Rendering normal DO " + renderable2);
+                        //console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
                     } while (renderable2 && renderable2.render == render && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);

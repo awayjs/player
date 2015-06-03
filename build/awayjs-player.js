@@ -508,7 +508,18 @@ var AS2SoundAdapter = (function () {
 })();
 module.exports = AS2SoundAdapter;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
+var AS2StageAdapter = (function () {
+    function AS2StageAdapter() {
+    }
+    // this does nothing really, just to catch usage in scripts
+    AS2StageAdapter.showMenu = true;
+    return AS2StageAdapter;
+})();
+module.exports = AS2StageAdapter;
+
+},{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
+var AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
     function AS2SymbolAdapter(adaptee) {
@@ -523,6 +534,13 @@ var AS2SymbolAdapter = (function () {
             AS2SymbolAdapter.CLASS_REPLACEMENTS["Sound"] = "awayjs-player/lib/adapters/AS2SoundAdapter";
         }
     }
+    Object.defineProperty(AS2SymbolAdapter.prototype, "Stage", {
+        get: function () {
+            return AS2SymbolAdapter._stage;
+        },
+        enumerable: true,
+        configurable: true
+    });
     AS2SymbolAdapter.prototype.getVersion = function () {
         return 0;
     };
@@ -703,12 +721,14 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
+    AS2SymbolAdapter._stage = new AS2StageAdapter();
     AS2SymbolAdapter.REFERENCE_TIME = -1;
     return AS2SymbolAdapter;
 })();
 module.exports = AS2SymbolAdapter;
 
-},{}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 // also contains global AS2 functions
 var AS2SystemAdapter = (function () {
     function AS2SystemAdapter() {
@@ -1495,7 +1515,7 @@ var Renderer2D = (function (_super) {
                     pass = passes[i];
                     this.activatePass(renderable, pass, camera);
                     do {
-                        console.log("Rendering normal DO " + renderable2);
+                        //console.log("Rendering normal DO " + renderable2);
                         renderable2._iRender(pass, camera, this._pRttViewProjectionMatrix);
                         renderable2 = renderable2.next;
                     } while (renderable2 && renderable2.render == render && renderable2.sourceEntity["maskConfigID"] === maskConfigID && renderable2.sourceEntity["hierarchicalMaskID"] === -1);

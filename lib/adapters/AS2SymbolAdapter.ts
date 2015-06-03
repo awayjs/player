@@ -3,11 +3,16 @@ import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
 // also contains global AS2 gunctions
 class AS2SymbolAdapter
 {
+    // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
+    private static _stage : AS2StageAdapter = new AS2StageAdapter();
+    public get Stage() { return AS2SymbolAdapter._stage; }
+
     // blendMode
     // cacheAsBitmap
     // filters
