@@ -832,6 +832,16 @@ var AS2TextFieldAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AS2TextFieldAdapter.prototype, "text", {
+        get: function () {
+            return this._adaptee.text;
+        },
+        set: function (value) {
+            this._adaptee.text = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return AS2TextFieldAdapter;
 })();
 module.exports = AS2TextFieldAdapter;
@@ -1942,6 +1952,7 @@ module.exports = RemoveChildrenAtDepthCommand;
 
 },{}],"awayjs-player/lib/timeline/commands/SetButtonCommand":[function(require,module,exports){
 var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
+var SceneEvent = require("awayjs-display/lib/events/SceneEvent");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
 var SetButtonCommand = (function () {
     function SetButtonCommand(targetID) {
@@ -1952,25 +1963,37 @@ var SetButtonCommand = (function () {
         if (target instanceof MovieClip) {
             var mc = target;
             mc.stop();
-            mc.addEventListener(MouseEvent.MOUSE_OVER, function () {
+            this._onMouseOver = function () {
                 target.currentFrameIndex = 1;
-            });
-            mc.addEventListener(MouseEvent.MOUSE_OUT, function () {
+            };
+            this._onMouseOut = function () {
                 target.currentFrameIndex = 0;
-            });
-            mc.addEventListener(MouseEvent.MOUSE_DOWN, function () {
+            };
+            this._onMouseDown = function () {
                 target.currentFrameIndex = 2;
-            });
-            mc.addEventListener(MouseEvent.MOUSE_UP, function () {
+            };
+            this._onMouseUp = function () {
                 target.currentFrameIndex = target.currentFrameIndex == 0 ? 0 : 1;
-            });
+            };
+            this._onRemovedFromScene = function () {
+                mc.removeEventListener(MouseEvent.MOUSE_OVER, this._onMouseOver);
+                mc.removeEventListener(MouseEvent.MOUSE_OUT, this._onMouseOut);
+                mc.removeEventListener(MouseEvent.MOUSE_DOWN, this._onMouseDown);
+                mc.removeEventListener(MouseEvent.MOUSE_UP, this._onMouseUp);
+                mc.removeEventListener(SceneEvent.REMOVED_FROM_SCENE, this._onRemovedFromScene);
+            };
+            mc.addEventListener(MouseEvent.MOUSE_OVER, this._onMouseOver);
+            mc.addEventListener(MouseEvent.MOUSE_OUT, this._onMouseOut);
+            mc.addEventListener(MouseEvent.MOUSE_DOWN, this._onMouseDown);
+            mc.addEventListener(MouseEvent.MOUSE_UP, this._onMouseUp);
+            mc.addEventListener(SceneEvent.REMOVED_FROM_SCENE, this._onRemovedFromScene);
         }
     };
     return SetButtonCommand;
 })();
 module.exports = SetButtonCommand;
 
-},{"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/timeline/commands/SetInstanceNameCommand":[function(require,module,exports){
+},{"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-display/lib/events/SceneEvent":undefined,"awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/timeline/commands/SetInstanceNameCommand":[function(require,module,exports){
 // can't use SetPropertyCommand since we NEED the setter to be called properly
 var SetInstanceNameCommand = (function () {
     // target can be MovieClip, its ColorTransform, and so on

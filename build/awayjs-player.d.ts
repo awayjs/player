@@ -195,6 +195,7 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	    adaptee: AdaptedTextField;
 	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
 	    embedFonts: boolean;
+	    text: string;
 	}
 	export = AS2TextFieldAdapter;
 	
@@ -571,6 +572,11 @@ declare module "awayjs-player/lib/timeline/commands/SetButtonCommand" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	class SetButtonCommand implements FrameCommand {
 	    private _targetID;
+	    private _onMouseOver;
+	    private _onMouseOut;
+	    private _onMouseDown;
+	    private _onMouseUp;
+	    private _onRemovedFromScene;
 	    constructor(targetID: number);
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
