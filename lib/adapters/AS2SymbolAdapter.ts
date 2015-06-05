@@ -4,6 +4,7 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 
 import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
@@ -12,6 +13,7 @@ class AS2SymbolAdapter
 {
     // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
     // And then change properties to statics
+    public get Mouse() { return AS2MouseAdapter; }
     public get Stage() { return AS2StageAdapter; }
     public get SharedObject() { return AS2SharedObjectAdapter; }
 

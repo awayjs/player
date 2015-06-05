@@ -77,6 +77,8 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
 	class AS2SharedObjectAdapter {
+	    data: Object;
+	    constructor();
 	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
 	    flush(): void;
 	}

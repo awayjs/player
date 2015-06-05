@@ -393,6 +393,7 @@ module.exports = AS2MovieClipAdapter;
 },{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter() {
+        this.data = {};
     }
     // should become a static
     AS2SharedObjectAdapter.getLocal = function (name, localPath, secure) {

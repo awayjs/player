@@ -49,7 +49,7 @@ class Renderer2D extends DefaultRenderer
 
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
-                console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
+                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
             // otherwise this would result in depth rendered anyway because fragment shader kil is ignored
@@ -70,10 +70,10 @@ class Renderer2D extends DefaultRenderer
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-                        console.log("Let's not use stencil!");
+                        //console.log("Let's not use stencil!");
                     }
                     else {
-                        console.log("Rendering masks with configID " + newMaskConfigID);
+                        //console.log("Rendering masks with configID " + newMaskConfigID);
                         //this._pContext.setStencilReferenceValue(newMaskConfigID);
                         gl.enable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, newMaskConfigID, 0xff);
