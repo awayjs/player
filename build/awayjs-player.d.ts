@@ -186,13 +186,12 @@ declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
 }
 
 declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
+	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
 	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-	class AS2TextFieldAdapter implements TextFieldAdapter {
-	    private _adaptee;
+	class AS2TextFieldAdapter extends AS2SymbolAdapter implements TextFieldAdapter {
 	    private _embedFonts;
 	    constructor(adaptee: AdaptedTextField);
-	    adaptee: AdaptedTextField;
 	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
 	    embedFonts: boolean;
 	    text: string;
@@ -214,8 +213,9 @@ declare module "awayjs-player/lib/adapters/MovieClipAdapter" {
 
 declare module "awayjs-player/lib/adapters/TextFieldAdapter" {
 	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	interface TextFieldAdapter {
-	    adaptee: AdaptedTextField;
+	    adaptee: DisplayObjectContainer;
 	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
 	}
 	export = TextFieldAdapter;

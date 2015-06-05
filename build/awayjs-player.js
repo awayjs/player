@@ -147,7 +147,6 @@ var __extends = this.__extends || function (d, b) {
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
-var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 var Point = require("awayjs-core/lib/geom/Point");
@@ -338,8 +337,6 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype._pRegisterChild = function (child) {
         if (child.name)
             this[child.name] = child["adapter"] ? child["adapter"] : child;
-        if (child instanceof AdaptedTextField)
-            console.log("registering " + child.name);
     };
     AS2MovieClipAdapter.prototype._pUnregisterChild = function (child) {
         for (var key in this) {
@@ -348,8 +345,6 @@ var AS2MovieClipAdapter = (function (_super) {
                 return;
             }
         }
-        if (child instanceof AdaptedTextField)
-            console.log("Unregistering " + child.name);
     };
     AS2MovieClipAdapter.prototype._pOnChildAdded = function (event) {
         var child = event.displayObject;
@@ -409,7 +404,7 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter() {
         this.data = {};
@@ -806,19 +801,20 @@ var AS2SystemAdapter = (function () {
 module.exports = AS2SystemAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2TextFieldAdapter":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-var AS2TextFieldAdapter = (function () {
+var AS2TextFieldAdapter = (function (_super) {
+    __extends(AS2TextFieldAdapter, _super);
     function AS2TextFieldAdapter(adaptee) {
         // create an empty text field if none is passed
-        this._adaptee = adaptee || new AdaptedTextField();
+        _super.call(this, adaptee || new AdaptedTextField());
     }
-    Object.defineProperty(AS2TextFieldAdapter.prototype, "adaptee", {
-        get: function () {
-            return this._adaptee;
-        },
-        enumerable: true,
-        configurable: true
-    });
     AS2TextFieldAdapter.prototype.clone = function (newAdaptee) {
         return new AS2TextFieldAdapter(newAdaptee);
     };
@@ -834,19 +830,19 @@ var AS2TextFieldAdapter = (function () {
     });
     Object.defineProperty(AS2TextFieldAdapter.prototype, "text", {
         get: function () {
-            return this._adaptee.text;
+            return this.adaptee.text;
         },
         set: function (value) {
-            this._adaptee.text = value;
+            this.adaptee.text = value;
         },
         enumerable: true,
         configurable: true
     });
     return AS2TextFieldAdapter;
-})();
+})(AS2SymbolAdapter);
 module.exports = AS2TextFieldAdapter;
 
-},{"awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField"}],"awayjs-player/lib/adapters/MovieClipAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField"}],"awayjs-player/lib/adapters/MovieClipAdapter":[function(require,module,exports){
 
 },{}],"awayjs-player/lib/adapters/TextFieldAdapter":[function(require,module,exports){
 
