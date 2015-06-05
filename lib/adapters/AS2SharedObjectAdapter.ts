@@ -1,5 +1,12 @@
 class AS2SharedObjectAdapter
 {
+    public data : Object;
+
+    constructor()
+    {
+        this.data = {};
+    }
+
     // should become a static
     public static getLocal(name:string, localPath:string, secure:boolean) : AS2SharedObjectAdapter
     {
