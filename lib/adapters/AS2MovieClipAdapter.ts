@@ -271,9 +271,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     {
         if (child.name)
             this[child.name] = child["adapter"] ? child["adapter"] : child;
-
-        if (child instanceof AdaptedTextField)
-            console.log("registering " + child.name);
     }
 
     public _pUnregisterChild(child : DisplayObject)
@@ -284,9 +281,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
                 return;
             }
         }
-
-        if (child instanceof AdaptedTextField)
-            console.log("Unregistering " + child.name);
     }
 
     public _pOnChildAdded(event:MovieClipEvent)
