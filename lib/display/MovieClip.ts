@@ -9,6 +9,7 @@ import Billboard = require("awayjs-display/lib/entities/Billboard");
 import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
+import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 
 class MovieClip extends DisplayObjectContainer
 {
@@ -261,14 +262,6 @@ class MovieClip extends DisplayObjectContainer
     public deactivateChild(id:number)
     {
         this.removeChild(this._potentialInstances[id]);
-    }
-
-    /**
-     * This is called inside the TimelineFrame.execute() function.
-     */
-    private executeFrameScript(frameScript:string)
-    {
-
     }
 
     /**

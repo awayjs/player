@@ -24,6 +24,15 @@ declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
+	class AS2MouseAdapter {
+	    private static _globalListeners;
+	    static addListener(listener: Object): void;
+	}
+	export = AS2MouseAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -124,8 +133,10 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+	import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 	import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 	class AS2SymbolAdapter {
+	    Mouse: typeof AS2MouseAdapter;
 	    Stage: typeof AS2StageAdapter;
 	    SharedObject: typeof AS2SharedObjectAdapter;
 	    private __root;
@@ -179,9 +190,11 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 	class AS2TextFieldAdapter implements TextFieldAdapter {
 	    private _adaptee;
+	    private _embedFonts;
 	    constructor(adaptee: AdaptedTextField);
 	    adaptee: AdaptedTextField;
 	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
+	    embedFonts: boolean;
 	}
 	export = AS2TextFieldAdapter;
 	
@@ -217,6 +230,7 @@ declare module "awayjs-player/lib/display/AdaptedTextField" {
 	    constructor();
 	    adapter: TextFieldAdapter;
 	    clone(): DisplayObject;
+	    name: string;
 	}
 	export = AdaptedTextField;
 	
@@ -279,10 +293,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    registerPotentialChild(prototype: DisplayObject): number;
 	    activateChild(id: number): void;
 	    deactivateChild(id: number): void;
-	    /**
-	     * This is called inside the TimelineFrame.execute() function.
-	     */
-	    private executeFrameScript(frameScript);
 	    /**
 	     * Stop playback of animation and hold current position
 	     */
@@ -553,6 +563,18 @@ declare module "awayjs-player/lib/timeline/commands/RemoveChildrenAtDepthCommand
 	    execute(sourceMovieClip: MovieClip, time: number): void;
 	}
 	export = RemoveChildrenAtDepthCommand;
+	
+}
+
+declare module "awayjs-player/lib/timeline/commands/SetButtonCommand" {
+	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	class SetButtonCommand implements FrameCommand {
+	    private _targetID;
+	    constructor(targetID: number);
+	    execute(sourceMovieClip: MovieClip, time: number): void;
+	}
+	export = SetButtonCommand;
 	
 }
 

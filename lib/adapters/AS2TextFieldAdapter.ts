@@ -4,6 +4,7 @@ import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 class AS2TextFieldAdapter implements TextFieldAdapter
 {
     private _adaptee:AdaptedTextField;
+    private _embedFonts : boolean;
 
     constructor(adaptee : AdaptedTextField)
     {
@@ -19,6 +20,26 @@ class AS2TextFieldAdapter implements TextFieldAdapter
     clone(newAdaptee:AdaptedTextField):TextFieldAdapter
     {
         return new AS2TextFieldAdapter(newAdaptee);
+    }
+
+    get embedFonts() : boolean
+    {
+        return this._embedFonts;
+    }
+
+    set embedFonts(value:boolean)
+    {
+        this._embedFonts = value;
+    }
+
+    get text():boolean
+    {
+        return this._adaptee.text;
+    }
+
+    set text(value:string)
+    {
+        this._adaptee.text = value;
     }
 }
 export = AS2TextFieldAdapter;

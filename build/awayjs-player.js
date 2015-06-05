@@ -123,7 +123,21 @@ var AS2MCSoundProps = (function (_super) {
 })(EventDispatcher);
 module.exports = AS2MCSoundProps;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/events/EventDispatcher":undefined}],"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/events/EventDispatcher":undefined}],"awayjs-player/lib/adapters/AS2MouseAdapter":[function(require,module,exports){
+var AS2MouseAdapter = (function () {
+    function AS2MouseAdapter() {
+    }
+    // this does nothing really, just to catch usage in scripts
+    AS2MouseAdapter.addListener = function (listener) {
+        AS2MouseAdapter._globalListeners.push(listener);
+        // TODO: Init actual mouse events here, relative to root MovieClip (I suppose?)
+    };
+    AS2MouseAdapter._globalListeners = [];
+    return AS2MouseAdapter;
+})();
+module.exports = AS2MouseAdapter;
+
+},{}],"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -133,6 +147,7 @@ var __extends = this.__extends || function (d, b) {
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
+var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 var Point = require("awayjs-core/lib/geom/Point");
@@ -323,6 +338,8 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype._pRegisterChild = function (child) {
         if (child.name)
             this[child.name] = child["adapter"] ? child["adapter"] : child;
+        if (child instanceof AdaptedTextField)
+            console.log("registering " + child.name);
     };
     AS2MovieClipAdapter.prototype._pUnregisterChild = function (child) {
         for (var key in this) {
@@ -331,6 +348,8 @@ var AS2MovieClipAdapter = (function (_super) {
                 return;
             }
         }
+        if (child instanceof AdaptedTextField)
+            console.log("Unregistering " + child.name);
     };
     AS2MovieClipAdapter.prototype._pOnChildAdded = function (event) {
         var child = event.displayObject;
@@ -390,7 +409,7 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter() {
         this.data = {};
@@ -551,6 +570,7 @@ module.exports = AS2StageAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
+var AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 var AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
@@ -566,9 +586,16 @@ var AS2SymbolAdapter = (function () {
             AS2SymbolAdapter.CLASS_REPLACEMENTS["Sound"] = "awayjs-player/lib/adapters/AS2SoundAdapter";
         }
     }
-    Object.defineProperty(AS2SymbolAdapter.prototype, "Stage", {
+    Object.defineProperty(AS2SymbolAdapter.prototype, "Mouse", {
         // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
         // And then change properties to statics
+        get: function () {
+            return AS2MouseAdapter;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "Stage", {
         get: function () {
             return AS2StageAdapter;
         },
@@ -767,7 +794,7 @@ var AS2SymbolAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-},{"awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 // also contains global AS2 functions
 var AS2SystemAdapter = (function () {
     function AS2SystemAdapter() {
@@ -795,6 +822,16 @@ var AS2TextFieldAdapter = (function () {
     AS2TextFieldAdapter.prototype.clone = function (newAdaptee) {
         return new AS2TextFieldAdapter(newAdaptee);
     };
+    Object.defineProperty(AS2TextFieldAdapter.prototype, "embedFonts", {
+        get: function () {
+            return this._embedFonts;
+        },
+        set: function (value) {
+            this._embedFonts = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return AS2TextFieldAdapter;
 })();
 module.exports = AS2TextFieldAdapter;
@@ -811,14 +848,13 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var TextField = require("awayjs-display/lib/entities/TextField");
+var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 var AdaptedTextField = (function (_super) {
     __extends(AdaptedTextField, _super);
     function AdaptedTextField() {
         _super.call(this);
     }
     Object.defineProperty(AdaptedTextField.prototype, "adapter", {
-        // adapter is used to provide MovieClip to scripts taken from different platforms
-        // TODO: Perhaps adapters should be created dynamically whenever needed, rather than storing them
         get: function () {
             return this._adapter;
         },
@@ -832,14 +868,28 @@ var AdaptedTextField = (function (_super) {
     AdaptedTextField.prototype.clone = function () {
         var clone = new AdaptedTextField();
         this._iCopyToTextField(clone);
-        clone.adapter = this.adapter.clone(clone);
+        if (this._adapter)
+            clone.adapter = this._adapter.clone(clone);
         return clone;
     };
+    Object.defineProperty(AdaptedTextField.prototype, "name", {
+        get: function () {
+            return this._pName;
+        },
+        set: function (value) {
+            if (this._pName !== value) {
+                this._pName = value;
+                this.dispatchEvent(new MovieClipEvent(MovieClipEvent.NAME_CHANGED, this));
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     return AdaptedTextField;
 })(TextField);
 module.exports = AdaptedTextField;
 
-},{"awayjs-display/lib/entities/TextField":undefined}],"awayjs-player/lib/display/MovieClip":[function(require,module,exports){
+},{"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/display/MovieClip":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1042,11 +1092,6 @@ var MovieClip = (function (_super) {
     };
     MovieClip.prototype.deactivateChild = function (id) {
         this.removeChild(this._potentialInstances[id]);
-    };
-    /**
-     * This is called inside the TimelineFrame.execute() function.
-     */
-    MovieClip.prototype.executeFrameScript = function (frameScript) {
     };
     /**
      * Stop playback of animation and hold current position
@@ -1363,7 +1408,7 @@ var Mask = (function () {
                     var obj = this._registeredMasks[j];
                     //console.log("testing for " + mask["hierarchicalMaskID"] + ", " + mask.name);
                     if (obj.sourceEntity["hierarchicalMaskID"] === mask["hierarchicalMaskID"]) {
-                        console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
+                        //console.log("Rendering hierarchicalMaskID " + mask["hierarchicalMaskID"]);
                         this._draw(obj);
                     }
                 }
@@ -1515,7 +1560,7 @@ var Renderer2D = (function (_super) {
             passes = render.passes;
             if (renderable.sourceEntity["hierarchicalMaskID"] !== -1) {
                 renderable2 = renderable.next;
-                console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
+                //console.log("Registering mask: " + renderable.sourceEntity["hierarchicalMaskID"], renderable.sourceEntity.name);
                 this._mask.registerMask(renderable);
             }
             else if (this._disableColor && render._renderOwner.alphaThreshold != 0) {
@@ -1533,10 +1578,9 @@ var Renderer2D = (function (_super) {
                         gl.disable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, 0, 0xff);
                         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-                        console.log("Let's not use stencil!");
                     }
                     else {
-                        console.log("Rendering masks with configID " + newMaskConfigID);
+                        //console.log("Rendering masks with configID " + newMaskConfigID);
                         //this._pContext.setStencilReferenceValue(newMaskConfigID);
                         gl.enable(gl.STENCIL_TEST);
                         gl.stencilFunc(gl.ALWAYS, newMaskConfigID, 0xff);
@@ -1896,7 +1940,37 @@ var RemoveChildrenAtDepthCommand = (function () {
 })();
 module.exports = RemoveChildrenAtDepthCommand;
 
-},{}],"awayjs-player/lib/timeline/commands/SetInstanceNameCommand":[function(require,module,exports){
+},{}],"awayjs-player/lib/timeline/commands/SetButtonCommand":[function(require,module,exports){
+var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
+var MovieClip = require("awayjs-player/lib/display/MovieClip");
+var SetButtonCommand = (function () {
+    function SetButtonCommand(targetID) {
+        this._targetID = targetID;
+    }
+    SetButtonCommand.prototype.execute = function (sourceMovieClip, time) {
+        var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
+        if (target instanceof MovieClip) {
+            var mc = target;
+            mc.stop();
+            mc.addEventListener(MouseEvent.MOUSE_OVER, function () {
+                target.currentFrameIndex = 1;
+            });
+            mc.addEventListener(MouseEvent.MOUSE_OUT, function () {
+                target.currentFrameIndex = 0;
+            });
+            mc.addEventListener(MouseEvent.MOUSE_DOWN, function () {
+                target.currentFrameIndex = 2;
+            });
+            mc.addEventListener(MouseEvent.MOUSE_UP, function () {
+                target.currentFrameIndex = target.currentFrameIndex == 0 ? 0 : 1;
+            });
+        }
+    };
+    return SetButtonCommand;
+})();
+module.exports = SetButtonCommand;
+
+},{"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/timeline/commands/SetInstanceNameCommand":[function(require,module,exports){
 // can't use SetPropertyCommand since we NEED the setter to be called properly
 var SetInstanceNameCommand = (function () {
     // target can be MovieClip, its ColorTransform, and so on

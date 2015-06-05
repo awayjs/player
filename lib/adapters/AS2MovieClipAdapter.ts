@@ -7,6 +7,7 @@ import AS2SoundAdapter = require("awayjs-player/lib/adapters/AS2SoundAdapter");
 import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
+import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 import Point = require("awayjs-core/lib/geom/Point");
@@ -270,6 +271,9 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     {
         if (child.name)
             this[child.name] = child["adapter"] ? child["adapter"] : child;
+
+        if (child instanceof AdaptedTextField)
+            console.log("registering " + child.name);
     }
 
     public _pUnregisterChild(child : DisplayObject)
@@ -280,6 +284,9 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
                 return;
             }
         }
+
+        if (child instanceof AdaptedTextField)
+            console.log("Unregistering " + child.name);
     }
 
     public _pOnChildAdded(event:MovieClipEvent)
