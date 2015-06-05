@@ -32,7 +32,7 @@ class AS2TextFieldAdapter implements TextFieldAdapter
         this._embedFonts = value;
     }
 
-    get text():boolean
+    get text():string
     {
         return this._adaptee.text;
     }
