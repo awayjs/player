@@ -60,7 +60,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         return (<MovieClip>this.adaptee).currentFrameIndex + 1;
     }
 
-	get _totalFrames() : number
+	get _totalframes() : number
 	{
         return (<MovieClip>this.adaptee).numFrames;
 	}
@@ -169,12 +169,18 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	gotoAndPlay(frame: any) : void
     {
+        if (frame == null)
+            throw new Error();
+
         this.play();
         this._gotoFrame(frame);
     }
 
 	gotoAndStop(frame: any) : void
     {
+        if (frame == null)
+            throw new Error();
+
         this.stop();
         this._gotoFrame(frame);
     }
