@@ -401,7 +401,10 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.stop = function () {
         this.adaptee.stop();
     };
-    //hitTest() : boolean { return false; }
+    AS2MovieClipAdapter.prototype.hitTest = function (x, y, shapeFlag) {
+        if (shapeFlag === void 0) { shapeFlag = false; }
+        return this.adaptee.hitTestPoint(x, y, shapeFlag);
+    };
     //lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number) : void {}
     //lineStyle(thickness: number, rgb: number, alpha: number, pixelHinting: boolean, noScale: string, capsStyle: string, jointStyle: string, miterLimit: number) : void {}
     //lineTo(x: number, y: number) : void {}

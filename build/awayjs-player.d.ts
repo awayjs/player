@@ -163,6 +163,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    gotoAndStop(frame: any): void;
 	    play(): void;
 	    stop(): void;
+	    hitTest(x: number, y: number, shapeFlag?: boolean): boolean;
 	    localToGlobal(pt: any): void;
 	    nextFrame(): void;
 	    prevFrame(): void;
