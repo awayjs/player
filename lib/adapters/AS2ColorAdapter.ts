@@ -14,7 +14,7 @@ class AS2ColorAdapter
 
     constructor(target:AS2SymbolAdapter)
     {
-        this._target = target.adaptee.transform.colorTransform;
+        this._target = target.adaptee.transform.colorTransform || (target.adaptee.transform.colorTransform = new ColorTransform());
         this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
     }
 
@@ -54,4 +54,4 @@ class AS2ColorAdapter
     }
 }
 
-export = AS2SymbolAdapter;
+export = AS2ColorAdapter;
