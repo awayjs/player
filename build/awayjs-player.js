@@ -845,7 +845,7 @@ var AS2SymbolAdapter = (function () {
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
         get: function () {
-            return this.adaptee.transform.colorTransform.alphaMultiplier;
+            return this.adaptee.transform.colorTransform ? this.adaptee.transform.colorTransform.alphaMultiplier : 1;
         },
         set: function (value) {
             if (!this.adaptee.transform.colorTransform)
