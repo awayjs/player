@@ -20,7 +20,7 @@ class AS2SoundAdapter
     {
         // not sure how to handle target yet
         this._target = target;
-        this._soundProps = target? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
+        this._soundProps = (target != null && target.__pSoundProps)? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
 
         AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
 
