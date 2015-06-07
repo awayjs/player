@@ -170,7 +170,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	gotoAndPlay(frame: any) : void
     {
         if (frame == null)
-            throw new Error();
+            return;
 
         this.play();
         this._gotoFrame(frame);
@@ -179,7 +179,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	gotoAndStop(frame: any) : void
     {
         if (frame == null)
-            throw new Error();
+            return;
 
         this.stop();
         this._gotoFrame(frame);
