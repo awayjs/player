@@ -195,7 +195,10 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         (<MovieClip>this.adaptee).stop();
     }
 
-	//hitTest() : boolean { return false; }
+	hitTest(x: number, y: number, shapeFlag: boolean = false) : boolean
+    {
+        return this.adaptee.hitTestPoint(x, y, shapeFlag);
+    }
 
 	//lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number) : void {}
 
