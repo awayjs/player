@@ -1,9 +1,11 @@
+import ColorTransform			= require("awayjs-core/lib/geom/ColorTransform");
 import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 
 import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
 import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -13,6 +15,7 @@ class AS2SymbolAdapter
 {
     // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
     // And then change properties to statics
+    public get Key() { return AS2KeyAdapter; }
     public get Mouse() { return AS2MouseAdapter; }
     public get Stage() { return AS2StageAdapter; }
     public get SharedObject() { return AS2SharedObjectAdapter; }
@@ -191,6 +194,9 @@ class AS2SymbolAdapter
 
     set _alpha(value: number)
     {
+        if (!this.adaptee.transform.colorTransform)
+            this.adaptee.transform.colorTransform = new ColorTransform();
+
         this.adaptee.transform.colorTransform.alphaMultiplier = value;
     }
 
