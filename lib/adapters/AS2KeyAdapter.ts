@@ -139,7 +139,8 @@ class AS2KeyAdapter
 
         var len:number = AS2KeyAdapter._listeners.length;
         for (var i:number = 0; i < len; i++)
-            AS2KeyAdapter._listeners[i].onKeyDown();
+            if (AS2KeyAdapter._listeners[i].onKeyDown)
+                AS2KeyAdapter._listeners[i].onKeyDown();
     }
 
     private static _onKeyUp(event:KeyboardEvent)
@@ -148,7 +149,8 @@ class AS2KeyAdapter
 
         var len:number = AS2KeyAdapter._listeners.length;
         for (var i:number = 0; i < len; i++)
-            AS2KeyAdapter._listeners[i].onKeyUp();
+            if (AS2KeyAdapter._listeners[i].onKeyUp)
+                AS2KeyAdapter._listeners[i].onKeyUp();
     }
 }
 export = AS2KeyAdapter;
