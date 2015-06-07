@@ -64,13 +64,15 @@ var AS2KeyAdapter = (function () {
         AS2KeyAdapter._keys[event.keyCode] = true;
         var len = AS2KeyAdapter._listeners.length;
         for (var i = 0; i < len; i++)
-            AS2KeyAdapter._listeners[i].onKeyDown();
+            if (AS2KeyAdapter._listeners[i].onKeyDown)
+                AS2KeyAdapter._listeners[i].onKeyDown();
     };
     AS2KeyAdapter._onKeyUp = function (event) {
         AS2KeyAdapter._keys[event.keyCode] = false;
         var len = AS2KeyAdapter._listeners.length;
         for (var i = 0; i < len; i++)
-            AS2KeyAdapter._listeners[i].onKeyUp();
+            if (AS2KeyAdapter._listeners[i].onKeyUp)
+                AS2KeyAdapter._listeners[i].onKeyUp();
     };
     AS2KeyAdapter._keys = new Array();
     AS2KeyAdapter._listeners = new Array();
@@ -385,13 +387,13 @@ var AS2MovieClipAdapter = (function (_super) {
     };
     AS2MovieClipAdapter.prototype.gotoAndPlay = function (frame) {
         if (frame == null)
-            throw new Error();
+            return;
         this.play();
         this._gotoFrame(frame);
     };
     AS2MovieClipAdapter.prototype.gotoAndStop = function (frame) {
         if (frame == null)
-            throw new Error();
+            return;
         this.stop();
         this._gotoFrame(frame);
     };
