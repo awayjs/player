@@ -180,7 +180,7 @@ var AS2MovieClipAdapter = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AS2MovieClipAdapter.prototype, "_totalFrames", {
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "_totalframes", {
         get: function () {
             return this.adaptee.numFrames;
         },
@@ -266,10 +266,14 @@ var AS2MovieClipAdapter = (function (_super) {
         pt.y = newPoint.y;
     };
     AS2MovieClipAdapter.prototype.gotoAndPlay = function (frame) {
+        if (frame == null)
+            throw new Error();
         this.play();
         this._gotoFrame(frame);
     };
     AS2MovieClipAdapter.prototype.gotoAndStop = function (frame) {
+        if (frame == null)
+            throw new Error();
         this.stop();
         this._gotoFrame(frame);
     };

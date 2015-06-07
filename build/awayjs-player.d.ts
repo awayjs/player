@@ -49,7 +49,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    constructor(adaptee: DisplayObjectContainer);
 	    _framesloaded: number;
 	    _currentframe: number;
-	    _totalFrames: number;
+	    _totalframes: number;
 	    enabled: boolean;
 	    createEmptyMovieClip(name: string, depth: number): AS2MovieClipAdapter;
 	    duplicateMovieClip(name: string, depth: number, initObject: Object): MovieClip;
