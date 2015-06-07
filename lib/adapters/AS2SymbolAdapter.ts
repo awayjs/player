@@ -189,7 +189,7 @@ class AS2SymbolAdapter
 
     get _alpha() : number
     {
-        return this.adaptee.transform.colorTransform.alphaMultiplier;
+        return this.adaptee.transform.colorTransform.alphaMultiplier || 1;
     }
 
     set _alpha(value: number)
