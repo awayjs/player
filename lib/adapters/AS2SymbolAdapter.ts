@@ -137,22 +137,22 @@ class AS2SymbolAdapter
 
     get _xscale() : number
     {
-        return this._adaptee.scaleX;
+        return this._adaptee.scaleX*100;
     }
 
     set _xscale(value : number)
     {
-        this._adaptee.scaleX = value;
-    }
-
-    set _yscale(value : number)
-    {
-        this._adaptee.scaleY = value;
+        this._adaptee.scaleX = value/100;
     }
 
     get _yscale() : number
     {
-        return this._adaptee.scaleY;
+        return this._adaptee.scaleY*100;
+    }
+
+    set _yscale(value : number)
+    {
+        this._adaptee.scaleY = value/100;
     }
 
     get _visible() : boolean
