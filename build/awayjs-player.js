@@ -799,20 +799,20 @@ var AS2SymbolAdapter = (function () {
     });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_xscale", {
         get: function () {
-            return this._adaptee.scaleX;
+            return this._adaptee.scaleX * 100;
         },
         set: function (value) {
-            this._adaptee.scaleX = value;
+            this._adaptee.scaleX = value / 100;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_yscale", {
         get: function () {
-            return this._adaptee.scaleY;
+            return this._adaptee.scaleY * 100;
         },
         set: function (value) {
-            this._adaptee.scaleY = value;
+            this._adaptee.scaleY = value / 100;
         },
         enumerable: true,
         configurable: true
