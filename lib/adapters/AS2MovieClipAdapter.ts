@@ -214,7 +214,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	localToGlobal(pt: any) : void
     {
-        var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+        var newPoint = this.adaptee.localToGlobal(new Point(pt.x, pt.y));
         pt.x = newPoint.x;
         pt.y = newPoint.y;
     }
