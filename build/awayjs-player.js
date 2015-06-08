@@ -750,6 +750,16 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_height", {
+        get: function () {
+            return this._adaptee.height;
+        },
+        set: function (value) {
+            this._adaptee.height = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_name", {
         get: function () {
             return this._adaptee.name;
@@ -813,6 +823,16 @@ var AS2SymbolAdapter = (function () {
         },
         set: function (value) {
             this._adaptee.visible = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_width", {
+        get: function () {
+            return this._adaptee.width;
+        },
+        set: function (value) {
+            this._adaptee.width = value;
         },
         enumerable: true,
         configurable: true

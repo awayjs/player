@@ -251,6 +251,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    constructor(adaptee: DisplayObjectContainer);
 	    getVersion(): number;
 	    adaptee: DisplayObjectContainer;
+	    _height: number;
 	    _name: string;
 	    _rotation: number;
 	    _x: number;
@@ -258,6 +259,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _xscale: number;
 	    _yscale: number;
 	    _visible: boolean;
+	    _width: number;
 	    getDepth(): number;
 	    _quality: string;
 	    quality: string;
