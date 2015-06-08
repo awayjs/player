@@ -31,6 +31,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	// translate to scripts:
     private _onEnterFrame: Function;
     private _onRelease: Function;
+    private _onMouseDown: Function;
+    private _onMouseUp: Function;
 
 	constructor(adaptee : DisplayObjectContainer)
 	{
@@ -276,6 +278,26 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
     }
 
+    public get onMouseDown(): Function
+    {
+        return this._onMouseDown;
+    }
+
+    public set onMouseDown(value : Function)
+    {
+        this._onMouseDown = this._replaceEventListener(MouseEvent.MOUSE_DOWN, this._onMouseDown, value);
+    }
+
+    public get onMouseUp(): Function
+    {
+        return this._onMouseUp;
+    }
+
+    public set onMouseUp(value : Function)
+    {
+        this._onMouseUp = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onMouseUp, value);
+    }
+
     public _pRegisterChild(child : DisplayObject)
     {
         if (child.name)
@@ -344,12 +366,14 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     private _replaceEventListener(eventType:string, currentListener:Function, newListener:Function)
     {
         var mc = this.adaptee;
-        if (currentListener) mc.removeEventListener(eventType, currentListener);
+
+        if (currentListener)
+            mc.removeEventListener(eventType, currentListener);
 
         if (newListener) {
             var self = this;
             var delegate = function() { newListener.call(self); };
-            mc.addEventListener(MovieClipEvent.ENTER_FRAME, delegate);
+            mc.addEventListener(eventType, delegate);
         }
 
         return delegate;
