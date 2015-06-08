@@ -90,6 +90,16 @@ class AS2SymbolAdapter
         return this._adaptee;
     }
 
+    get _height():number
+    {
+        return this._adaptee.height;
+    }
+
+    set _height(value:number)
+    {
+        this._adaptee.height = value;
+    }
+
     get _name() : string
     {
         return this._adaptee.name;
@@ -153,6 +163,16 @@ class AS2SymbolAdapter
     set _visible(value : boolean)
     {
         this._adaptee.visible = value;
+    }
+
+    get _width():number
+    {
+        return this._adaptee.width;
+    }
+
+    set _width(value:number)
+    {
+        this._adaptee.width = value;
     }
 
     getDepth() : number
