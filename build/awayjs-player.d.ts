@@ -147,6 +147,8 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _nameChangeCallback;
 	    private _onEnterFrame;
 	    private _onRelease;
+	    private _onMouseDown;
+	    private _onMouseUp;
 	    constructor(adaptee: DisplayObjectContainer);
 	    _framesloaded: number;
 	    _currentframe: number;
@@ -172,6 +174,8 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
 	    onEnterFrame: Function;
 	    onRelease: Function;
+	    onMouseDown: Function;
+	    onMouseUp: Function;
 	    _pRegisterChild(child: DisplayObject): void;
 	    _pUnregisterChild(child: DisplayObject): void;
 	    _pOnChildAdded(event: MovieClipEvent): void;

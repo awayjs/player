@@ -413,7 +413,7 @@ var AS2MovieClipAdapter = (function (_super) {
     //loadMovie(url: string, method: string = null) : void {}
     //loadVariables(url: string, method: string = null) : void {}
     AS2MovieClipAdapter.prototype.localToGlobal = function (pt) {
-        var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+        var newPoint = this.adaptee.localToGlobal(new Point(pt.x, pt.y));
         pt.x = newPoint.x;
         pt.y = newPoint.y;
     };
@@ -457,6 +457,26 @@ var AS2MovieClipAdapter = (function (_super) {
         },
         set: function (value) {
             this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onMouseDown", {
+        get: function () {
+            return this._onMouseDown;
+        },
+        set: function (value) {
+            this._onMouseDown = this._replaceEventListener(MouseEvent.MOUSE_DOWN, this._onMouseDown, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onMouseUp", {
+        get: function () {
+            return this._onMouseUp;
+        },
+        set: function (value) {
+            this._onMouseUp = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onMouseUp, value);
         },
         enumerable: true,
         configurable: true
@@ -523,7 +543,7 @@ var AS2MovieClipAdapter = (function (_super) {
             var delegate = function () {
                 newListener.call(self);
             };
-            mc.addEventListener(MovieClipEvent.ENTER_FRAME, delegate);
+            mc.addEventListener(eventType, delegate);
         }
         return delegate;
     };
