@@ -134,6 +134,17 @@ declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    data: Object;
+	    constructor();
+	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -187,17 +198,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
 	export = AS2MovieClipAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
-	class AS2SharedObjectAdapter {
-	    data: Object;
-	    constructor();
-	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
-	    flush(): void;
-	}
-	export = AS2SharedObjectAdapter;
 	
 }
 
@@ -267,7 +267,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    getDepth(): number;
 	    _quality: string;
 	    quality: string;
-	    trace(): void;
+	    trace(message: any): void;
 	    getTimer(): Number;
 	    int(value: any): number;
 	    _alpha: number;

@@ -875,8 +875,8 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
-    AS2SymbolAdapter.prototype.trace = function () {
-        //console.log.apply(window, arguments);
+    AS2SymbolAdapter.prototype.trace = function (message) {
+        console.log(message);
     };
     // may need proper high-def timer mechanism
     AS2SymbolAdapter.prototype.getTimer = function () {
@@ -1952,7 +1952,6 @@ var AddChildAtDepthCommand = (function () {
         var target = sourceMovieClip.getPotentialChildInstance(this._childID);
         target["__AS2Depth"] = this._targetDepth;
         sourceMovieClip.activateChild(this._childID);
-        sourceMovieClip.visible = true;
     };
     return AddChildAtDepthCommand;
 })();
