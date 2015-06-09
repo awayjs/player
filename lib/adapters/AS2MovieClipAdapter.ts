@@ -11,6 +11,7 @@ import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 import Point = require("awayjs-core/lib/geom/Point");
+import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 {
@@ -76,7 +77,17 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	//attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
 
-	//attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
+    attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip {
+        var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
+        var adapter = new AS2MovieClipAdapter(attached_mc);
+        adapter.adaptee.name = name;
+        adapter.adaptee["__AS2Depth"] = depth;
+        this.adaptee.addChild(adapter.adaptee);
+        this._updateDepths(<MovieClip>this.adaptee);
+        return attached_mc;
+        // todo: apply object from initObject to attached_mc
+
+    }
 
 	//beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
 
