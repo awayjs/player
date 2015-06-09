@@ -270,6 +270,7 @@ var MovieClip = require("awayjs-player/lib/display/MovieClip");
 var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 var MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 var Point = require("awayjs-core/lib/geom/Point");
+var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
     function AS2MovieClipAdapter(adaptee) {
@@ -316,7 +317,17 @@ var AS2MovieClipAdapter = (function (_super) {
     });
     //attachAudio(id: AS2SoundAdapter) : void {	}
     //attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
-    //attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip { return null; }
+    AS2MovieClipAdapter.prototype.attachMovie = function (id, name, depth, initObject) {
+        if (initObject === void 0) { initObject = null; }
+        var attached_mc = AssetLibrary.getAsset(id);
+        var adapter = new AS2MovieClipAdapter(attached_mc);
+        adapter.adaptee.name = name;
+        adapter.adaptee["__AS2Depth"] = depth;
+        this.adaptee.addChild(adapter.adaptee);
+        this._updateDepths(this.adaptee);
+        return attached_mc;
+        // todo: apply object from initObject to attached_mc
+    };
     //beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
     //beginFill(rgb: Number, alpha: number = 1.0) : void {}
     //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
@@ -551,7 +562,7 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/geom/Point":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter() {
         this.data = {};

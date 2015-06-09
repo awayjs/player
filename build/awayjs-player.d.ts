@@ -134,17 +134,6 @@ declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
-	class AS2SharedObjectAdapter {
-	    data: Object;
-	    constructor();
-	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
-	    flush(): void;
-	}
-	export = AS2SharedObjectAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -165,6 +154,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    _currentframe: number;
 	    _totalframes: number;
 	    enabled: boolean;
+	    attachMovie(id: string, name: string, depth: number, initObject?: Object): MovieClip;
 	    createEmptyMovieClip(name: string, depth: number): AS2MovieClipAdapter;
 	    duplicateMovieClip(name: string, depth: number, initObject: Object): MovieClip;
 	    getBytesLoaded(): number;
@@ -198,6 +188,17 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
 	export = AS2MovieClipAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    data: Object;
+	    constructor();
+	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
 	
 }
 
