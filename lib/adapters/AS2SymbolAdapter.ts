@@ -191,9 +191,9 @@ class AS2SymbolAdapter
         this.__quality = value;
     }
 
-    trace() : void
+    trace(message:any) : void
     {
-        //console.log.apply(window, arguments);
+        console.log(message);
     }
 
     // may need proper high-def timer mechanism
