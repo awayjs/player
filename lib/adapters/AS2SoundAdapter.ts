@@ -150,8 +150,14 @@ class AS2SoundAdapter
 
     private updateVolume()
     {
-        if(this._soundProps.audio)
-            this._soundProps.audio.volume = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+        if(this._soundProps.audio){
+            var vol:number =  this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+            if(vol>1)
+                vol=1;
+            if(vol<0)
+                vol=0;
+            this._soundProps.audio.volume = vol;
+        }
     }
 }
 export = AS2SoundAdapter;
