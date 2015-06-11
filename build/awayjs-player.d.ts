@@ -142,6 +142,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
+	import View = require("awayjs-display/lib/containers/View");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
 	    __pSoundProps: AS2MCSoundProps;
 	    private _nameChangeCallback;
@@ -149,7 +150,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _onRelease;
 	    private _onMouseDown;
 	    private _onMouseUp;
-	    constructor(adaptee: DisplayObjectContainer);
+	    constructor(adaptee: DisplayObjectContainer, view: View);
 	    _framesloaded: number;
 	    _currentframe: number;
 	    _totalframes: number;
@@ -243,7 +244,9 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
 	import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 	import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
+	import View = require("awayjs-display/lib/containers/View");
 	class AS2SymbolAdapter {
+	    _view: View;
 	    Key: typeof AS2KeyAdapter;
 	    Mouse: typeof AS2MouseAdapter;
 	    Stage: typeof AS2StageAdapter;
@@ -253,14 +256,16 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    private __quality;
 	    private static REFERENCE_TIME;
 	    private static CLASS_REPLACEMENTS;
-	    constructor(adaptee: DisplayObjectContainer);
+	    constructor(adaptee: DisplayObjectContainer, view: View);
 	    getVersion(): number;
 	    adaptee: DisplayObjectContainer;
 	    _height: number;
 	    _name: string;
 	    _rotation: number;
 	    _x: number;
+	    _xmouse: number;
 	    _y: number;
+	    _ymouse: number;
 	    _xscale: number;
 	    _yscale: number;
 	    _visible: boolean;
@@ -300,9 +305,10 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
 	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+	import View = require("awayjs-display/lib/containers/View");
 	class AS2TextFieldAdapter extends AS2SymbolAdapter implements TextFieldAdapter {
 	    private _embedFonts;
-	    constructor(adaptee: AdaptedTextField);
+	    constructor(adaptee: AdaptedTextField, view: View);
 	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
 	    embedFonts: boolean;
 	    text: string;
@@ -446,7 +452,10 @@ declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
+	import View = require("awayjs-display/lib/containers/View");
 	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
+	    private _view;
+	    constructor(view: View);
 	    createMovieClip(): MovieClip;
 	    createTextField(): AdaptedTextField;
 	}
@@ -658,20 +667,6 @@ declare module "awayjs-player/lib/timeline/commands/ApplyAS2DepthsCommand" {
 	
 }
 
-declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	/**
-	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
-	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
-	 * across MovieClip instances.
-	 */
-	interface FrameCommand {
-	    execute(sourceMovieClip: MovieClip, frame: number): void;
-	}
-	export = FrameCommand;
-	
-}
-
 declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -685,6 +680,20 @@ declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	    translateScript(classReplacements: any): void;
 	}
 	export = ExecuteScriptCommand;
+	
+}
+
+declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	/**
+	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
+	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
+	 * across MovieClip instances.
+	 */
+	interface FrameCommand {
+	    execute(sourceMovieClip: MovieClip, frame: number): void;
+	}
+	export = FrameCommand;
 	
 }
 

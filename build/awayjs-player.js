@@ -273,10 +273,10 @@ var Point = require("awayjs-core/lib/geom/Point");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
-    function AS2MovieClipAdapter(adaptee) {
+    function AS2MovieClipAdapter(adaptee, view) {
         adaptee = adaptee || new MovieClip();
         // create an empty MovieClip if none is passed
-        _super.call(this, adaptee);
+        _super.call(this, adaptee, view);
         this.__pSoundProps = new AS2MCSoundProps();
         var self = this;
         adaptee.addEventListener(MovieClipEvent.CHILD_ADDED, function (event) {
@@ -320,7 +320,7 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.attachMovie = function (id, name, depth, initObject) {
         if (initObject === void 0) { initObject = null; }
         var attached_mc = AssetLibrary.getAsset(id);
-        var adapter = new AS2MovieClipAdapter(attached_mc);
+        var adapter = new AS2MovieClipAdapter(attached_mc, this._view);
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
@@ -333,7 +333,7 @@ var AS2MovieClipAdapter = (function (_super) {
     //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
     //clear() : void {}
     AS2MovieClipAdapter.prototype.createEmptyMovieClip = function (name, depth) {
-        var adapter = new AS2MovieClipAdapter(null);
+        var adapter = new AS2MovieClipAdapter(null, this._view);
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
@@ -450,7 +450,7 @@ var AS2MovieClipAdapter = (function (_super) {
     };
     //unloadMovie() : void {}
     AS2MovieClipAdapter.prototype.clone = function (newAdaptee) {
-        return new AS2MovieClipAdapter(newAdaptee);
+        return new AS2MovieClipAdapter(newAdaptee, this._view);
     };
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onEnterFrame", {
         get: function () {
@@ -729,9 +729,10 @@ var AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 var AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
-    function AS2SymbolAdapter(adaptee) {
+    function AS2SymbolAdapter(adaptee, view) {
         this.__quality = "high";
         this._adaptee = adaptee;
+        this._view = view;
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
         if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
@@ -818,12 +819,26 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_xmouse", {
+        get: function () {
+            return this._view.getLocalMouseX(this._adaptee);
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2SymbolAdapter.prototype, "_y", {
         get: function () {
             return this._adaptee.y;
         },
         set: function (value) {
             this._adaptee.y = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_ymouse", {
+        get: function () {
+            return this._view.getLocalMouseY(this._adaptee);
         },
         enumerable: true,
         configurable: true
@@ -1000,12 +1015,12 @@ var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 var AS2TextFieldAdapter = (function (_super) {
     __extends(AS2TextFieldAdapter, _super);
-    function AS2TextFieldAdapter(adaptee) {
+    function AS2TextFieldAdapter(adaptee, view) {
         // create an empty text field if none is passed
-        _super.call(this, adaptee || new AdaptedTextField());
+        _super.call(this, adaptee || new AdaptedTextField(), view);
     }
     AS2TextFieldAdapter.prototype.clone = function (newAdaptee) {
-        return new AS2TextFieldAdapter(newAdaptee);
+        return new AS2TextFieldAdapter(newAdaptee, this._view);
     };
     Object.defineProperty(AS2TextFieldAdapter.prototype, "embedFonts", {
         get: function () {
@@ -1532,16 +1547,17 @@ var AS2TextFieldAdapter = require("awayjs-player/lib/adapters/AS2TextFieldAdapte
 var MovieClip = require("awayjs-player/lib/display/MovieClip");
 var AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
 var AS2SceneGraphFactory = (function () {
-    function AS2SceneGraphFactory() {
+    function AS2SceneGraphFactory(view) {
+        this._view = view;
     }
     AS2SceneGraphFactory.prototype.createMovieClip = function () {
         var mc = new MovieClip();
-        mc.adapter = new AS2MovieClipAdapter(mc);
+        mc.adapter = new AS2MovieClipAdapter(mc, this._view);
         return mc;
     };
     AS2SceneGraphFactory.prototype.createTextField = function () {
         var tf = new AdaptedTextField();
-        tf.adapter = new AS2TextFieldAdapter(tf);
+        tf.adapter = new AS2TextFieldAdapter(tf, this._view);
         return tf;
     };
     return AS2SceneGraphFactory;
