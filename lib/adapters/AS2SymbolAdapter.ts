@@ -10,9 +10,14 @@ import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
+import View			= require("awayjs-display/lib/containers/View");
+
+
 // also contains global AS2 gunctions
 class AS2SymbolAdapter
 {
+    public _view:View;
+
     // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
     // And then change properties to statics
     public get Key() { return AS2KeyAdapter; }
@@ -34,12 +39,6 @@ class AS2SymbolAdapter
     // trackAsMenu: Boolean
     // _url: String [read-only]
     // useHandCursor: Boolean
-
-    // _height: Number
-    // _width: Number
-
-    // _xmouse: Number [read-only]
-    // _ymouse: Number [read-only]
 
     // id (renamed to instanceID)
 
@@ -65,9 +64,10 @@ class AS2SymbolAdapter
     private static REFERENCE_TIME : number = -1;
     private static CLASS_REPLACEMENTS : Object;
 
-    constructor(adaptee : DisplayObjectContainer)
+    constructor(adaptee : DisplayObjectContainer, view:View)
     {
         this._adaptee = adaptee;
+        this._view = view;
 
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
@@ -125,6 +125,11 @@ class AS2SymbolAdapter
         this._adaptee.x = value;
     }
 
+    get _xmouse() : number
+    {
+        return this._view.getLocalMouseX(this._adaptee);
+    }
+
     get _y() : number
     {
         return this._adaptee.y;
@@ -133,6 +138,11 @@ class AS2SymbolAdapter
     set _y(value : number)
     {
         this._adaptee.y = value;
+    }
+
+    get _ymouse() : number
+    {
+        return this._view.getLocalMouseY(this._adaptee);
     }
 
     get _xscale() : number

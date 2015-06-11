@@ -12,6 +12,8 @@ import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 import Point = require("awayjs-core/lib/geom/Point");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
+import View			= require("awayjs-display/lib/containers/View");
+
 
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 {
@@ -35,11 +37,11 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     private _onMouseDown: Function;
     private _onMouseUp: Function;
 
-	constructor(adaptee : DisplayObjectContainer)
+	constructor(adaptee : DisplayObjectContainer, view:View)
 	{
         adaptee = adaptee || new MovieClip();
         // create an empty MovieClip if none is passed
-        super(adaptee);
+        super(adaptee, view);
 
         this.__pSoundProps = new AS2MCSoundProps();
 
@@ -79,7 +81,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
     attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip {
         var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
-        var adapter = new AS2MovieClipAdapter(attached_mc);
+        var adapter = new AS2MovieClipAdapter(attached_mc, this._view);
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
@@ -99,7 +101,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
 	createEmptyMovieClip(name: string, depth: number) : AS2MovieClipAdapter
     {
-        var adapter = new AS2MovieClipAdapter(null);
+        var adapter = new AS2MovieClipAdapter(null, this._view);
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
@@ -266,7 +268,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
     clone(newAdaptee:DisplayObjectContainer):MovieClipAdapter
     {
-        return new AS2MovieClipAdapter(newAdaptee);
+        return new AS2MovieClipAdapter(newAdaptee, this._view);
     }
 
     public get onEnterFrame(): Function
