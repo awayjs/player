@@ -333,6 +333,12 @@ declare module "awayjs-player/lib/adapters/TextFieldAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/bounds/AxisAlignedBoundingBox2D" {
+	import AxisAlignedBoundingBox = require("awayjs-display/lib/bounds/AxisAlignedBoundingBox");
+	export = AxisAlignedBoundingBox;
+	
+}
+
 declare module "awayjs-player/lib/display/AdaptedTextField" {
 	import TextField = require("awayjs-display/lib/entities/TextField");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
@@ -459,11 +465,39 @@ declare module "awayjs-player/lib/factories/TimelineSceneGraphFactory" {
 	
 }
 
+declare module "awayjs-player/lib/partition/Entity2DNode" {
+	import Vector3D = require("awayjs-core/lib/geom/Vector3D");
+	import EntityNode = require("awayjs-display/lib/partition/EntityNode");
+	/**
+	 * @class away.partition.EntityNode
+	 */
+	class Entity2DNode extends EntityNode {
+	    static id: string;
+	    /**
+	     * @inheritDoc
+	     */
+	    isIntersectingRay(rayPosition: Vector3D, rayDirection: Vector3D): boolean;
+	    updateBounds(): void;
+	}
+	export = Entity2DNode;
+	
+}
+
 declare module "awayjs-player/lib/partition/Partition2D" {
 	import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import IEntity = require("awayjs-display/lib/entities/IEntity");
 	import Partition = require("awayjs-display/lib/partition/Partition");
 	class Partition2D extends Partition {
+	    private _entity2DNodePool;
 	    constructor(root: DisplayObject);
+	    /**
+	     * @internal
+	     */
+	    _iRegisterEntity(entity: IEntity): void;
+	    /**
+	     * @internal
+	     */
+	    _iUnregisterEntity(entity: IEntity): void;
 	}
 	export = Partition2D;
 	
@@ -624,6 +658,20 @@ declare module "awayjs-player/lib/timeline/commands/ApplyAS2DepthsCommand" {
 	
 }
 
+declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	/**
+	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
+	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
+	 * across MovieClip instances.
+	 */
+	interface FrameCommand {
+	    execute(sourceMovieClip: MovieClip, frame: number): void;
+	}
+	export = FrameCommand;
+	
+}
+
 declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
@@ -637,20 +685,6 @@ declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	    translateScript(classReplacements: any): void;
 	}
 	export = ExecuteScriptCommand;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	/**
-	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
-	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
-	 * across MovieClip instances.
-	 */
-	interface FrameCommand {
-	    execute(sourceMovieClip: MovieClip, frame: number): void;
-	}
-	export = FrameCommand;
 	
 }
 

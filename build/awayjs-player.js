@@ -1035,7 +1035,76 @@ module.exports = AS2TextFieldAdapter;
 
 },{}],"awayjs-player/lib/adapters/TextFieldAdapter":[function(require,module,exports){
 
-},{}],"awayjs-player/lib/display/AdaptedTextField":[function(require,module,exports){
+},{}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var AxisAlignedBoundingBox = require("awayjs-display/lib/bounds/AxisAlignedBoundingBox");
+/**
+ * AxisAlignedBoundingBox represents a bounding box volume that has its planes aligned to the local coordinate axes of the bounded object.
+ * This is useful for most meshes.
+ */
+var AxisAlignedBoundingBox2D = (function (_super) {
+    __extends(AxisAlignedBoundingBox2D, _super);
+    /**
+     * Creates a new <code>AxisAlignedBoundingBox</code> object.
+     */
+    function AxisAlignedBoundingBox2D(entity) {
+        _super.call(this, entity);
+    }
+    AxisAlignedBoundingBox2D.prototype.rayIntersection = function (position, direction, targetNormal) {
+        if (this._pInvalidated)
+            this._pUpdate();
+        var halfExtentsX = this._box.width / 2;
+        var halfExtentsY = this._box.height / 2;
+        var centerX = this._box.x + halfExtentsX;
+        var centerY = this._box.y + halfExtentsY;
+        var px = position.x - centerX;
+        var py = position.y - centerY;
+        var pz = position.z;
+        var vx = direction.x;
+        var vy = direction.y;
+        var vz = direction.z;
+        var ix;
+        var iy;
+        var intersects;
+        var rayEntryDistance;
+        if (!intersects && vz < 0) {
+            rayEntryDistance = -pz / vz;
+            if (rayEntryDistance > 0) {
+                ix = px + rayEntryDistance * vx;
+                iy = py + rayEntryDistance * vy;
+                if (iy > -halfExtentsY && iy < halfExtentsY && ix > -halfExtentsX && ix < halfExtentsX) {
+                    targetNormal.x = 0;
+                    targetNormal.y = 0;
+                    targetNormal.z = 1;
+                    intersects = true;
+                }
+            }
+        }
+        if (!intersects && vz > 0) {
+            rayEntryDistance = -pz / vz;
+            if (rayEntryDistance > 0) {
+                ix = px + rayEntryDistance * vx;
+                iy = py + rayEntryDistance * vy;
+                if (iy > -halfExtentsY && iy < halfExtentsY && ix > -halfExtentsX && ix < halfExtentsX) {
+                    targetNormal.x = 0;
+                    targetNormal.y = 0;
+                    targetNormal.z = -1;
+                    intersects = true;
+                }
+            }
+        }
+        return intersects ? rayEntryDistance : -1;
+    };
+    return AxisAlignedBoundingBox2D;
+})(AxisAlignedBoundingBox);
+module.exports = AxisAlignedBoundingBox;
+
+},{"awayjs-display/lib/bounds/AxisAlignedBoundingBox":undefined}],"awayjs-player/lib/display/AdaptedTextField":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1315,6 +1384,8 @@ var MovieClip = (function (_super) {
         clone._iMaskID = this._iMaskID;
         clone._iMasks = this._iMasks ? this._iMasks.concat() : null;
         clone.name = this.name;
+        clone.mouseEnabled = this.mouseEnabled;
+        clone.mouseChildren = this.mouseChildren;
         if (this.transform.matrix)
             clone.transform.matrix = this.transform.matrix.clone();
         clone.transform.matrix3D = this.transform.matrix3D;
@@ -1479,7 +1550,55 @@ module.exports = AS2SceneGraphFactory;
 
 },{"awayjs-player/lib/adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","awayjs-player/lib/adapters/AS2TextFieldAdapter":"awayjs-player/lib/adapters/AS2TextFieldAdapter","awayjs-player/lib/display/AdaptedTextField":"awayjs-player/lib/display/AdaptedTextField","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip"}],"awayjs-player/lib/factories/TimelineSceneGraphFactory":[function(require,module,exports){
 
-},{}],"awayjs-player/lib/partition/Partition2DNode":[function(require,module,exports){
+},{}],"awayjs-player/lib/partition/Entity2DNode":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Vector3D = require("awayjs-core/lib/geom/Vector3D");
+var EntityNode = require("awayjs-display/lib/partition/EntityNode");
+var AxisAlignedBoundingBox2D = require("awayjs-player/lib/bounds/AxisAlignedBoundingBox2D");
+/**
+ * @class away.partition.EntityNode
+ */
+var Entity2DNode = (function (_super) {
+    __extends(Entity2DNode, _super);
+    function Entity2DNode() {
+        _super.apply(this, arguments);
+    }
+    /**
+     * @inheritDoc
+     */
+    Entity2DNode.prototype.isIntersectingRay = function (rayPosition, rayDirection) {
+        if (!this._entity._iIsVisible())
+            return false;
+        var pickingCollisionVO = this._entity._iPickingCollisionVO;
+        pickingCollisionVO.localRayPosition = this._entity.inverseSceneTransform.transformVector(rayPosition);
+        pickingCollisionVO.localRayDirection = this._entity.inverseSceneTransform.deltaTransformVector(rayDirection);
+        if (!pickingCollisionVO.localNormal)
+            pickingCollisionVO.localNormal = new Vector3D();
+        var rayEntryDistance = this._bounds.rayIntersection(pickingCollisionVO.localRayPosition, pickingCollisionVO.localRayDirection, pickingCollisionVO.localNormal);
+        if (rayEntryDistance < 0)
+            return false;
+        pickingCollisionVO.rayEntryDistance = rayEntryDistance - this._entity.zOffset;
+        pickingCollisionVO.rayPosition = rayPosition;
+        pickingCollisionVO.rayDirection = rayDirection;
+        pickingCollisionVO.rayOriginIsInsideBounds = rayEntryDistance == 0;
+        return true;
+    };
+    Entity2DNode.prototype.updateBounds = function () {
+        //hardcode to AxisAlignedBoundingBox2D for the intersection
+        this._bounds = new AxisAlignedBoundingBox2D(this._entity);
+        this.updateDebugEntity();
+    };
+    Entity2DNode.id = "entity2DNode";
+    return Entity2DNode;
+})(EntityNode);
+module.exports = Entity2DNode;
+
+},{"awayjs-core/lib/geom/Vector3D":undefined,"awayjs-display/lib/partition/EntityNode":undefined,"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D"}],"awayjs-player/lib/partition/Partition2DNode":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1557,17 +1676,32 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var Partition = require("awayjs-display/lib/partition/Partition");
+var Entity2DNode = require("awayjs-player/lib/partition/Entity2DNode");
 var Partition2DNode = require("awayjs-player/lib/partition/Partition2DNode");
+var EntityNodePool = require("awayjs-display/lib/pool/EntityNodePool");
 var Partition2D = (function (_super) {
     __extends(Partition2D, _super);
     function Partition2D(root) {
         _super.call(this, new Partition2DNode(root));
+        this._entity2DNodePool = new EntityNodePool(Entity2DNode, this);
     }
+    /**
+     * @internal
+     */
+    Partition2D.prototype._iRegisterEntity = function (entity) {
+        this.iMarkForUpdate(this._entity2DNodePool.getItem(entity));
+    };
+    /**
+     * @internal
+     */
+    Partition2D.prototype._iUnregisterEntity = function (entity) {
+        this.iRemoveEntity(this._entity2DNodePool.disposeItem(entity));
+    };
     return Partition2D;
 })(Partition);
 module.exports = Partition2D;
 
-},{"awayjs-display/lib/partition/Partition":undefined,"awayjs-player/lib/partition/Partition2DNode":"awayjs-player/lib/partition/Partition2DNode"}],"awayjs-player/lib/renderer/Mask":[function(require,module,exports){
+},{"awayjs-display/lib/partition/Partition":undefined,"awayjs-display/lib/pool/EntityNodePool":undefined,"awayjs-player/lib/partition/Entity2DNode":"awayjs-player/lib/partition/Entity2DNode","awayjs-player/lib/partition/Partition2DNode":"awayjs-player/lib/partition/Partition2DNode"}],"awayjs-player/lib/renderer/Mask":[function(require,module,exports){
 var Mask = (function () {
     function Mask(stage, renderer) {
         this._stage = stage;
