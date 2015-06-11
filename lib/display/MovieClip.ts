@@ -296,7 +296,8 @@ class MovieClip extends DisplayObjectContainer
         clone._iMaskID = this._iMaskID;
         clone._iMasks = this._iMasks? this._iMasks.concat() : null;
         clone.name = this.name;
-
+        clone.mouseEnabled = this.mouseEnabled;
+        clone.mouseChildren = this.mouseChildren;
 
         if (this.transform.matrix)
             clone.transform.matrix = this.transform.matrix.clone();
