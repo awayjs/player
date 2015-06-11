@@ -81,7 +81,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
     attachMovie(id: string, name: string, depth: number, initObject: Object = null) : MovieClip {
         var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
-        var adapter = new AS2MovieClipAdapter(attached_mc, this._view);
+        var cloned_mc:MovieClip = <MovieClip> attached_mc.clone();
+        var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
