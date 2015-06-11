@@ -320,7 +320,8 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.attachMovie = function (id, name, depth, initObject) {
         if (initObject === void 0) { initObject = null; }
         var attached_mc = AssetLibrary.getAsset(id);
-        var adapter = new AS2MovieClipAdapter(attached_mc, this._view);
+        var cloned_mc = attached_mc.clone();
+        var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
@@ -703,8 +704,14 @@ var AS2SoundAdapter = (function () {
         this.updateVolume();
     };
     AS2SoundAdapter.prototype.updateVolume = function () {
-        if (this._soundProps.audio)
-            this._soundProps.audio.volume = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+        if (this._soundProps.audio) {
+            var vol = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+            if (vol > 1)
+                vol = 1;
+            if (vol < 0)
+                vol = 0;
+            this._soundProps.audio.volume = vol;
+        }
     };
     AS2SoundAdapter._globalSoundProps = new AS2MCSoundProps();
     return AS2SoundAdapter;
