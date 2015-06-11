@@ -779,6 +779,9 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    AS2SymbolAdapter.prototype.String = function (value) {
+        return value.toString();
+    };
     AS2SymbolAdapter.prototype.getVersion = function () {
         return 0;
     };

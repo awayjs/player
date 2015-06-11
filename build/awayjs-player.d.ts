@@ -251,6 +251,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    Mouse: typeof AS2MouseAdapter;
 	    Stage: typeof AS2StageAdapter;
 	    SharedObject: typeof AS2SharedObjectAdapter;
+	    String(value: any): any;
 	    private __root;
 	    private _adaptee;
 	    private __quality;
