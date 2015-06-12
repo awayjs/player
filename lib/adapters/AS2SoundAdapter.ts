@@ -22,9 +22,9 @@ class AS2SoundAdapter
         this._target = target;
         this._soundProps = (target != null && target.__pSoundProps)? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
 
-        AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
-
         this._onGlobalChangeDelegate = (event:Event) => this.onGlobalChange(event);
+
+        AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
     }
 
     get looping()
