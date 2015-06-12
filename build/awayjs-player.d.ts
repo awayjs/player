@@ -604,28 +604,15 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	class TimelineKeyFrame {
-	    private _firstFrame;
-	    private _lastFrame;
-	    private _duration;
-	    private _label;
-	    private _frameCommands;
-	    private _frameConstructCommands;
-	    private _framePostConstructCommands;
-	    private _frameDestructCommands;
-	    constructor();
-	    label: string;
-	    addCommand(command: FrameCommand): void;
-	    addConstructCommand(command: FrameCommand): void;
-	    addPostConstructCommand(command: FrameCommand): void;
-	    addDestructCommand(command: FrameCommand): void;
 	    firstFrame: number;
 	    duration: number;
 	    lastFrame: number;
-	    setFrameTime(startTime: number, duration: number): void;
+	    label: string;
+	    frameConstructCommands: Array<FrameCommand>;
+	    framePostConstructCommands: Array<FrameCommand>;
+	    constructor(firstFrame: number, duration: number);
 	    construct(sourceMovieClip: MovieClip): void;
 	    postConstruct(sourceMovieClip: MovieClip): void;
-	    deconstruct(sourceMovieClip: MovieClip): void;
-	    update(sourceMovieClip: MovieClip, frame: number): void;
 	}
 	export = TimelineKeyFrame;
 	

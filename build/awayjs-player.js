@@ -1477,12 +1477,9 @@ var MovieClip = (function (_super) {
                 isActive = MovieClip.CONSTRUCTED;
             }
             if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive !== MovieClip.INACTIVE) {
-                keyFrame.deconstruct(this);
                 this._keyFrameActive[i] = MovieClip.INACTIVE;
                 isActive = MovieClip.INACTIVE;
             }
-            if (!skipFrames && isActive)
-                keyFrame.update(this, this._currentFrameIndex);
         }
     };
     // DEBUG CODE:
@@ -2029,85 +2026,23 @@ module.exports = InterpolationObject;
 
 },{}],"awayjs-player/lib/timeline/TimelineKeyFrame":[function(require,module,exports){
 var TimelineKeyFrame = (function () {
-    function TimelineKeyFrame() {
-        this._duration = 1; //use millisecs for duration ? or frames ?
-        this._frameCommands = [];
-        this._frameConstructCommands = [];
-        this._framePostConstructCommands = [];
-        this._frameDestructCommands = [];
+    function TimelineKeyFrame(firstFrame, duration) {
+        this.frameConstructCommands = [];
+        this.framePostConstructCommands = [];
+        this.firstFrame = firstFrame;
+        this.duration = duration;
+        this.lastFrame = firstFrame + duration;
     }
-    Object.defineProperty(TimelineKeyFrame.prototype, "label", {
-        get: function () {
-            return this._label;
-        },
-        set: function (value) {
-            this._label = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimelineKeyFrame.prototype.addCommand = function (command) {
-        // make the timeline available for the commands
-        this._frameCommands.push(command);
-    };
-    TimelineKeyFrame.prototype.addConstructCommand = function (command) {
-        // make the timeline available for the commands
-        this._frameConstructCommands.push(command);
-    };
-    TimelineKeyFrame.prototype.addPostConstructCommand = function (command) {
-        // make the timeline available for the commands
-        this._framePostConstructCommands.push(command);
-    };
-    TimelineKeyFrame.prototype.addDestructCommand = function (command) {
-        // make the timeline available for the commands
-        this._frameDestructCommands.push(command);
-    };
-    Object.defineProperty(TimelineKeyFrame.prototype, "firstFrame", {
-        get: function () {
-            return this._firstFrame;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineKeyFrame.prototype, "duration", {
-        get: function () {
-            return this._duration;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimelineKeyFrame.prototype, "lastFrame", {
-        get: function () {
-            return this._lastFrame;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimelineKeyFrame.prototype.setFrameTime = function (startTime, duration) {
-        this._firstFrame = startTime;
-        this._duration = duration;
-        this._lastFrame = startTime + duration;
-    };
     TimelineKeyFrame.prototype.construct = function (sourceMovieClip) {
-        var len = this._frameConstructCommands.length;
+        var len = this.frameConstructCommands.length;
         for (var i = 0; i < len; i++)
-            this._frameConstructCommands[i].execute(sourceMovieClip, this._firstFrame);
+            this.frameConstructCommands[i].execute(sourceMovieClip, this.firstFrame);
     };
     // needs to be called after children have been constructed
     TimelineKeyFrame.prototype.postConstruct = function (sourceMovieClip) {
-        var len = this._framePostConstructCommands.length;
+        var len = this.framePostConstructCommands.length;
         for (var i = 0; i < len; i++)
-            this._framePostConstructCommands[i].execute(sourceMovieClip, this._firstFrame);
-    };
-    TimelineKeyFrame.prototype.deconstruct = function (sourceMovieClip) {
-        var len = this._frameDestructCommands.length;
-        for (var i = 0; i < len; i++)
-            this._frameDestructCommands[i].execute(sourceMovieClip, this._lastFrame + 1);
-    };
-    TimelineKeyFrame.prototype.update = function (sourceMovieClip, frame) {
-        var len = this._frameCommands.length;
-        for (var i = 0; i < len; i++)
-            this._frameCommands[i].execute(sourceMovieClip, frame);
+            this.framePostConstructCommands[i].execute(sourceMovieClip, this.firstFrame);
     };
     return TimelineKeyFrame;
 })();
