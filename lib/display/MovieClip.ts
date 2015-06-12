@@ -382,13 +382,9 @@ class MovieClip extends DisplayObjectContainer
             }
 
             if (frameIndex >= keyFrame.lastFrame || frameIndex < keyFrame.firstFrame && isActive !== MovieClip.INACTIVE) {
-                keyFrame.deconstruct(this);
                 this._keyFrameActive[i] = MovieClip.INACTIVE;
                 isActive = MovieClip.INACTIVE;
             }
-
-            if (!skipFrames && isActive)
-                keyFrame.update(this, this._currentFrameIndex);
         }
     }
 
