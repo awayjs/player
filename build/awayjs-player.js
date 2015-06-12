@@ -592,8 +592,8 @@ var AS2SoundAdapter = (function () {
         // not sure how to handle target yet
         this._target = target;
         this._soundProps = (target != null && target.__pSoundProps) ? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
-        AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
         this._onGlobalChangeDelegate = function (event) { return _this.onGlobalChange(event); };
+        AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
     }
     Object.defineProperty(AS2SoundAdapter.prototype, "looping", {
         get: function () {
