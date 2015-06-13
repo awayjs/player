@@ -219,7 +219,8 @@ var AS2MCSoundProps = (function (_super) {
         set: function (value) {
             if (this._audio) {
                 this._audio.removeEventListener('ended', this._onEndedDelegate);
-                this._audio.pause();
+                if (this._audio.readyState)
+                    this._audio.pause();
             }
             this._audio = value;
             this._loops = 0;
@@ -660,7 +661,7 @@ var AS2SoundAdapter = (function () {
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
         if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
-        if (this._soundProps.audio) {
+        if (this._soundProps.audio && this._soundProps.audio.readyState) {
             this._soundProps.audio.currentTime = offsetInSeconds;
             this._soundProps.loops = loops;
             this._soundProps.audio.play();
@@ -668,17 +669,17 @@ var AS2SoundAdapter = (function () {
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
-        if (this._soundProps.audio)
+        if (this._soundProps.audio && this._soundProps.audio.readyState)
             this._soundProps.audio.pause();
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
-            if (this._soundProps.audio)
+            if (this._soundProps.audio && this._soundProps.audio.readyState)
                 return this._soundProps.audio.currentTime;
             return 0;
         },
         set: function (value) {
-            if (this._soundProps.audio)
+            if (this._soundProps.audio && this._soundProps.audio.readyState)
                 this._soundProps.audio.currentTime = value;
         },
         enumerable: true,
@@ -686,7 +687,7 @@ var AS2SoundAdapter = (function () {
     });
     Object.defineProperty(AS2SoundAdapter.prototype, "duration", {
         get: function () {
-            if (this._soundProps.audio)
+            if (this._soundProps.audio && this._soundProps.audio.readyState)
                 return this._soundProps.audio.duration;
             return 0;
         },
@@ -704,7 +705,7 @@ var AS2SoundAdapter = (function () {
         this.updateVolume();
     };
     AS2SoundAdapter.prototype.updateVolume = function () {
-        if (this._soundProps.audio) {
+        if (this._soundProps.audio && this._soundProps.audio.readyState) {
             var vol = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
             if (vol > 1)
                 vol = 1;
