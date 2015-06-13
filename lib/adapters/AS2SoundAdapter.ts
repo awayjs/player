@@ -104,7 +104,7 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
-        if(this._soundProps.audio) {
+        if(this._soundProps.audio && this._soundProps.audio.readyState) {
             this._soundProps.audio.currentTime = offsetInSeconds;
             this._soundProps.loops = loops;
             this._soundProps.audio.play();
@@ -113,27 +113,27 @@ class AS2SoundAdapter
 
     stop(linkageID:string = null)
     {
-        if(this._soundProps.audio)
+        if(this._soundProps.audio && this._soundProps.audio.readyState)
             this._soundProps.audio.pause();
     }
 
     get position() : number
     {
-        if(this._soundProps.audio)
+        if(this._soundProps.audio && this._soundProps.audio.readyState)
             return this._soundProps.audio.currentTime;
         return 0;
     }
 
     set position(value : number)
     {
-        if(this._soundProps.audio)
+        if(this._soundProps.audio && this._soundProps.audio.readyState)
             this._soundProps.audio.currentTime = value;
     }
 
     get duration() : number
     {
 
-        if(this._soundProps.audio)
+        if(this._soundProps.audio && this._soundProps.audio.readyState)
             return this._soundProps.audio.duration;
         return 0;
     }
@@ -150,7 +150,7 @@ class AS2SoundAdapter
 
     private updateVolume()
     {
-        if(this._soundProps.audio){
+        if(this._soundProps.audio && this._soundProps.audio.readyState){
             var vol:number =  this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
             if(vol>1)
                 vol=1;

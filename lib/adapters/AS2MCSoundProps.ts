@@ -61,7 +61,9 @@ class AS2MCSoundProps extends EventDispatcher
     {
         if (this._audio) {
             this._audio.removeEventListener('ended', this._onEndedDelegate);
-            this._audio.pause();
+
+            if (this._audio.readyState)
+                this._audio.pause();
         }
 
         this._audio = value;
