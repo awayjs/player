@@ -1342,7 +1342,7 @@ var MovieClip = (function (_super) {
         var frameMarker = Math.floor(1000 / this._fps);
         // right now, just advance frame once time marker has been reached (only allow for one frame advance per-update)
         this._time += Math.min(timeDelta, frameMarker);
-        if (this._time > frameMarker) {
+        if (this._time >= frameMarker) {
             this._time -= frameMarker; //evens out RAF fluctuations.
             this.advanceFrame();
             this.dispatchEvent(this._enterFrame);
