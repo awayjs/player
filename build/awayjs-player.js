@@ -500,7 +500,8 @@ var AS2MovieClipAdapter = (function (_super) {
     };
     AS2MovieClipAdapter.prototype._pUnregisterChild = function (child) {
         for (var key in this) {
-            if (this.hasOwnProperty(key) && this[key] === child) {
+            // using instance id of child to make sure we unregister only the correct object
+            if (this.hasOwnProperty(key) && this[key] === child["adapter"] && this[key]["__child_id"] === child["adapter"]["__child_id"]) {
                 delete this[key];
                 return;
             }
@@ -514,7 +515,6 @@ var AS2MovieClipAdapter = (function (_super) {
             self._pOnChildNameChanged.call(self, event);
         };
         child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
-        this._pRegisterChild(child);
     };
     AS2MovieClipAdapter.prototype._pOnChildRemoved = function (event) {
         var child = event.displayObject;
@@ -1365,6 +1365,8 @@ var MovieClip = (function (_super) {
     MovieClip.prototype.getPotentialChildInstance = function (id) {
         if (!this._potentialInstances[id]) {
             this._potentialInstances[id] = this._potentialPrototypes[id].clone();
+            // save the id on the instance to savly unregister in case it gets registered for script access
+            this._potentialInstances[id]["__child_id"] = id;
         }
         return this._potentialInstances[id];
     };
@@ -2283,8 +2285,12 @@ var SetInstanceNameCommand = (function () {
     }
     SetInstanceNameCommand.prototype.execute = function (sourceMovieClip, time) {
         var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
-        sourceMovieClip[this._name] = target;
         target.name = this._name;
+        // i know that changing the name should trigger the event on AS2MovieClipAtapter,
+        // which in turn should register the object with a new name.
+        // but it did not seem to be working (maybe because of events being to slow ?)
+        // brute force to register this child for scriptaccess on the parent movieclip
+        sourceMovieClip["adapter"]._pRegisterChild(target);
     };
     return SetInstanceNameCommand;
 })();
