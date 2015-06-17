@@ -326,6 +326,7 @@ var AS2MovieClipAdapter = (function (_super) {
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(this.adaptee);
         return attached_mc;
         // todo: apply object from initObject to attached_mc
@@ -339,6 +340,7 @@ var AS2MovieClipAdapter = (function (_super) {
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(this.adaptee);
         return adapter;
     };
@@ -781,6 +783,9 @@ var AS2SymbolAdapter = (function () {
         configurable: true
     });
     AS2SymbolAdapter.prototype.String = function (value) {
+        return value.toString();
+    };
+    AS2SymbolAdapter.prototype.string = function (value) {
         return value.toString();
     };
     AS2SymbolAdapter.prototype.getVersion = function () {
