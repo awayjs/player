@@ -85,6 +85,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(<MovieClip>this.adaptee);
         return attached_mc;
         // todo: apply object from initObject to attached_mc
@@ -105,6 +106,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(<MovieClip>this.adaptee);
         return adapter;
     }
