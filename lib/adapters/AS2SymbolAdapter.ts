@@ -25,6 +25,7 @@ class AS2SymbolAdapter
     public get Stage() { return AS2StageAdapter; }
     public get SharedObject() { return AS2SharedObjectAdapter; }
     public String(value:any) { return value.toString(); }
+    public string(value:any) { return value.toString(); }
 
     // blendMode
     // cacheAsBitmap
