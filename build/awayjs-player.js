@@ -325,6 +325,7 @@ var AS2MovieClipAdapter = (function (_super) {
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(this.adaptee);
         return attached_mc;
         // todo: apply object from initObject to attached_mc
@@ -338,6 +339,7 @@ var AS2MovieClipAdapter = (function (_super) {
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(this.adaptee);
         return adapter;
     };
@@ -499,7 +501,8 @@ var AS2MovieClipAdapter = (function (_super) {
     };
     AS2MovieClipAdapter.prototype._pUnregisterChild = function (child) {
         for (var key in this) {
-            if (this.hasOwnProperty(key) && this[key] === child) {
+            // using instance id of child to make sure we unregister only the correct object
+            if (this.hasOwnProperty(key) && this[key] === child["adapter"] && this[key]["__child_id"] === child["adapter"]["__child_id"]) {
                 delete this[key];
                 return;
             }
@@ -513,7 +516,6 @@ var AS2MovieClipAdapter = (function (_super) {
             self._pOnChildNameChanged.call(self, event);
         };
         child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
-        this._pRegisterChild(child);
     };
     AS2MovieClipAdapter.prototype._pOnChildRemoved = function (event) {
         var child = event.displayObject;
@@ -775,6 +777,9 @@ var AS2SymbolAdapter = (function () {
         configurable: true
     });
     AS2SymbolAdapter.prototype.String = function (value) {
+        return value.toString();
+    };
+    AS2SymbolAdapter.prototype.string = function (value) {
         return value.toString();
     };
     AS2SymbolAdapter.prototype.getVersion = function () {
@@ -1359,6 +1364,8 @@ var MovieClip = (function (_super) {
     MovieClip.prototype.getPotentialChildInstance = function (id) {
         if (!this._potentialInstances[id]) {
             this._potentialInstances[id] = this._potentialPrototypes[id].clone();
+            // save the id on the instance to savly unregister in case it gets registered for script access
+            this._potentialInstances[id]["__child_id"] = id;
         }
         return this._potentialInstances[id];
     };
@@ -2277,8 +2284,12 @@ var SetInstanceNameCommand = (function () {
     }
     SetInstanceNameCommand.prototype.execute = function (sourceMovieClip, time) {
         var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
-        sourceMovieClip[this._name] = target;
         target.name = this._name;
+        // i know that changing the name should trigger the event on AS2MovieClipAtapter,
+        // which in turn should register the object with a new name.
+        // but it did not seem to be working (maybe because of events being to slow ?)
+        // brute force to register this child for scriptaccess on the parent movieclip
+        sourceMovieClip["adapter"]._pRegisterChild(target);
     };
     return SetInstanceNameCommand;
 })();

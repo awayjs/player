@@ -238,6 +238,8 @@ class MovieClip extends DisplayObjectContainer
     {
         if (!this._potentialInstances[id]) {
             this._potentialInstances[id] = this._potentialPrototypes[id].clone();
+            // save the id on the instance to savly unregister in case it gets registered for script access
+            this._potentialInstances[id]["__child_id"]=id;
         }
 
         return this._potentialInstances[id];

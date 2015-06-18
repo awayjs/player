@@ -14,7 +14,6 @@ import Point = require("awayjs-core/lib/geom/Point");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 import View			= require("awayjs-display/lib/containers/View");
 
-
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 {
 	// _droptarget [read-only]
@@ -86,6 +85,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(<MovieClip>this.adaptee);
         return attached_mc;
         // todo: apply object from initObject to attached_mc
@@ -106,6 +106,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         adapter.adaptee.name = name;
         adapter.adaptee["__AS2Depth"] = depth;
         this.adaptee.addChild(adapter.adaptee);
+        this._pRegisterChild(adapter.adaptee);
         this._updateDepths(<MovieClip>this.adaptee);
         return adapter;
     }
@@ -321,7 +322,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     public _pUnregisterChild(child : DisplayObject)
     {
         for (var key in this) {
-            if (this.hasOwnProperty(key) && this[key] === child) {
+            // using instance id of child to make sure we unregister only the correct object
+            if (this.hasOwnProperty(key) && this[key] === child["adapter"] && this[key]["__child_id"] === child["adapter"]["__child_id"]) {
                 delete this[key];
                 return;
             }
@@ -336,7 +338,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         // scope is broken, so fix it
         this._nameChangeCallback = function(event:MovieClipEvent) { self._pOnChildNameChanged.call(self, event); }
         child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback );
-        this._pRegisterChild(child);
     }
 
     private _pOnChildRemoved(event:MovieClipEvent)

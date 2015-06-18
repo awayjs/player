@@ -3,6 +3,7 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
+import AS2MovieClipAtapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 // can't use SetPropertyCommand since we NEED the setter to be called properly
 class SetInstanceNameCommand implements FrameCommand
 {
@@ -19,8 +20,12 @@ class SetInstanceNameCommand implements FrameCommand
     public execute(sourceMovieClip : MovieClip, time:number):void
     {
         var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
-        sourceMovieClip[this._name] = target;
         target.name = this._name;
+        // i know that changing the name should trigger the event on AS2MovieClipAtapter,
+        // which in turn should register the object with a new name.
+        // but it did not seem to be working (maybe because of events being to slow ?)
+        // brute force to register this child for scriptaccess on the parent movieclip
+        (<AS2MovieClipAtapter>sourceMovieClip["adapter"])._pRegisterChild(target);
     }
 }
 export = SetInstanceNameCommand;
