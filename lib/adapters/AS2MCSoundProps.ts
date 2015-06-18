@@ -1,3 +1,4 @@
+import WaveAudio				= require("awayjs-core/lib/data/WaveAudio");
 import Event = require("awayjs-core/lib/events/Event");
 import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 
@@ -7,7 +8,7 @@ class AS2MCSoundProps extends EventDispatcher
     private _pan : number = 1;
     private _changeEvent : Event = new Event(Event.CHANGE);
     private _loops : number = 0;
-    private _audio : HTMLAudioElement;
+    private _audio : WaveAudio;
     private _onEndedDelegate : (event:any) => void;
 
     constructor()
@@ -57,13 +58,12 @@ class AS2MCSoundProps extends EventDispatcher
         return this._audio;
     }
 
-    public set audio(value:HTMLAudioElement)
+    public set audio(value:WaveAudio)
     {
         if (this._audio) {
             this._audio.removeEventListener('ended', this._onEndedDelegate);
 
-            if (this._audio.readyState)
-                this._audio.pause();
+            this._audio.stop();
         }
 
         this._audio = value;
@@ -80,10 +80,10 @@ class AS2MCSoundProps extends EventDispatcher
         if (--this._loops > 0) {
             this._audio.currentTime = 0;
             this._audio.play();
-        }
-        else {
+        } else {
             this._loops = 0;
         }
     }
 }
+
 export = AS2MCSoundProps;

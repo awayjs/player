@@ -210,7 +210,7 @@ class MovieClip extends DisplayObjectContainer
         this._time += Math.min(timeDelta, frameMarker);
 
         if (this._time >= frameMarker) {
-            this._time -= frameMarker; //evens out RAF fluctuations.
+            this._time = 0;
             this.advanceFrame();
             this.dispatchEvent(this._enterFrame);
             this.executePostConstructCommands();
