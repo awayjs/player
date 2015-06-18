@@ -126,15 +126,6 @@ declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
-	class AS2MouseAdapter {
-	    private static _globalListeners;
-	    static addListener(listener: Object): void;
-	}
-	export = AS2MouseAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
@@ -190,6 +181,15 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
 	export = AS2MovieClipAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
+	class AS2MouseAdapter {
+	    private static _globalListeners;
+	    static addListener(listener: Object): void;
+	}
+	export = AS2MouseAdapter;
 	
 }
 
