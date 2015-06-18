@@ -106,6 +106,7 @@ declare module "awayjs-player/lib/adapters/AS2KeyAdapter" {
 }
 
 declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
+	import WaveAudio = require("awayjs-core/lib/data/WaveAudio");
 	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 	class AS2MCSoundProps extends EventDispatcher {
 	    private _volume;
@@ -118,7 +119,7 @@ declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
 	    volume: number;
 	    pan: number;
 	    loops: number;
-	    audio: HTMLAudioElement;
+	    audio: WaveAudio;
 	    private onEnded(event);
 	}
 	export = AS2MCSoundProps;
