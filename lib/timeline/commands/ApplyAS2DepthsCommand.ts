@@ -11,7 +11,7 @@ class ApplyAS2DepthsCommand implements FrameCommand
     {
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         var childrenArray = sourceMovieClip["_children"];
         childrenArray.sort(this.sortChildrenByDepth);

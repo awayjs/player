@@ -20,7 +20,7 @@ class ExecuteScriptCommand implements FrameCommand
             this._translatedScript = <Function>script;
     }
 
-    public execute(sourceMovieClip : MovieClip, frame:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         if (!this._translatedScript) {
             this.translateScript(sourceMovieClip.adapter.classReplacements);
@@ -33,7 +33,7 @@ class ExecuteScriptCommand implements FrameCommand
         }
         catch(err)
         {
-            console.log("Script error in " + sourceMovieClip.name + ":\n" + frame, this._translatedScript);
+            console.log("Script error in " + sourceMovieClip.name + "\n", this._translatedScript);
             console.log(err.message);
                     throw err;
         }

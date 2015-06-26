@@ -11,7 +11,7 @@ class AddChildCommand implements FrameCommand
         this._childID = childID;
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         sourceMovieClip.activateChild(this._childID);
     }

@@ -17,11 +17,20 @@ class UpdatePropertyCommand implements FrameCommand
         this._value = value;
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         try {
+
             var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
-            target[this._propertyName] = this._value;
+            if(target.parent==sourceMovieClip) {
+                var blocked_by_script:boolean=false;
+                if (target.isAsset(MovieClip)) {
+                    var mc:MovieClip = <MovieClip>target;
+                    blocked_by_script = mc.adapter.isBlockedByScript();
+                }
+                if (!blocked_by_script)
+                    target[this._propertyName] = this._value;
+            }
         }
         catch(err) {
             console.log("Failed to set " + this._propertyName + " on " + sourceMovieClip.name);

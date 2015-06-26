@@ -15,7 +15,7 @@ class SetMaskCommand implements FrameCommand
         this._maskIDs = maskIDs;
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         var len = this._maskIDs.length;
         var masks = new Array<DisplayObject>();

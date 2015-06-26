@@ -17,7 +17,7 @@ class SetInstanceNameCommand implements FrameCommand
         this._name = name;
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
         target.name = this._name;

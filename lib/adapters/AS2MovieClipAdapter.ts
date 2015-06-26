@@ -27,9 +27,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 	// transform: Transform		// contains matrix + color matrix
 
     public __pSoundProps : AS2MCSoundProps;
-
     private _nameChangeCallback : Function;
-
 	// translate to scripts:
     private _onEnterFrame: Function;
     private _onRelease: Function;
@@ -43,7 +41,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         super(adaptee, view);
 
         this.__pSoundProps = new AS2MCSoundProps();
-
         var self = this;
         adaptee.addEventListener(MovieClipEvent.CHILD_ADDED,
             function(event:MovieClipEvent) { self._pOnChildAdded.call(self, event); }
@@ -321,13 +318,12 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
     public _pUnregisterChild(child : DisplayObject)
     {
-        for (var key in this) {
             // using instance id of child to make sure we unregister only the correct object
-            if (this.hasOwnProperty(key) && this[key] === child["adapter"] && this[key]["__child_id"] === child["adapter"]["__child_id"]) {
-                delete this[key];
-                return;
-            }
-        }
+        //if (this.hasOwnProperty(child.name) && this[child.name] === child["adapter"]) {
+            delete this[child.name];
+           // return;
+        //}
+
     }
 
     public _pOnChildAdded(event:MovieClipEvent)
@@ -336,15 +332,15 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
         var self = this;
 
         // scope is broken, so fix it
-        this._nameChangeCallback = function(event:MovieClipEvent) { self._pOnChildNameChanged.call(self, event); }
-        child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback );
+        //this._nameChangeCallback = function(event:MovieClipEvent) { self._pOnChildNameChanged.call(self, event); }
+        //child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback );
     }
 
     private _pOnChildRemoved(event:MovieClipEvent)
     {
         var child = event.displayObject;
-        child.removeEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
-        if (child.name) this._pUnregisterChild(child);
+        //child.removeEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
+        //if (child.name) this._pUnregisterChild(child);
     }
 
     private _pOnChildNameChanged(event:MovieClipEvent)

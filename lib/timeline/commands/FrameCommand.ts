@@ -7,6 +7,6 @@ import MovieClip = require("awayjs-player/lib/display/MovieClip");
  */
 interface FrameCommand
 {
-    execute(sourceMovieClip : MovieClip, frame:number):void;
+    execute(sourceMovieClip : MovieClip):void;
 }
 export = FrameCommand;

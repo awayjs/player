@@ -11,7 +11,7 @@ class RemoveChildrenAtDepthCommand implements FrameCommand
 		this._depth_to_remove = depth_to_remove;
 	}
 
-	public execute(sourceMovieClip : MovieClip, time:number):void
+	public execute(sourceMovieClip : MovieClip):void
 	{
 		var childrenArray = sourceMovieClip["_children"];
 		for(var i:number=0; i<this._depth_to_remove.length;i++){

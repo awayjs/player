@@ -17,7 +17,7 @@ class SetButtonCommand implements FrameCommand
         this._targetID = targetID;
     }
 
-    public execute(sourceMovieClip : MovieClip, time:number):void
+    public execute(sourceMovieClip : MovieClip):void
     {
         var target = sourceMovieClip.getPotentialChildInstance(this._targetID);
         if (target instanceof MovieClip) {

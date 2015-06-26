@@ -27,6 +27,9 @@ class AS2SymbolAdapter
     public String(value:any) { return value.toString(); }
     public string(value:any) { return value.toString(); }
 
+    public isBlockedByScript():boolean { return this._blockedByScript;}
+    public freeFromScript():void { this._blockedByScript=false;}
+
     // blendMode
     // cacheAsBitmap
     // filters
@@ -62,6 +65,7 @@ class AS2SymbolAdapter
 
     private __quality : string = "high";
 
+    private _blockedByScript:boolean;
 
     private static REFERENCE_TIME : number = -1;
     private static CLASS_REPLACEMENTS : Object;
@@ -71,6 +75,7 @@ class AS2SymbolAdapter
         this._adaptee = adaptee;
         this._view = view;
 
+        this._blockedByScript=false;
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
 
@@ -81,6 +86,7 @@ class AS2SymbolAdapter
             AS2SymbolAdapter.CLASS_REPLACEMENTS["Sound"] = "awayjs-player/lib/adapters/AS2SoundAdapter";
         }
     }
+
 
     getVersion() : number
     {
@@ -100,6 +106,7 @@ class AS2SymbolAdapter
     set _height(value:number)
     {
         this._adaptee.height = value;
+        this._blockedByScript=true;
     }
 
     get _name() : string
@@ -115,6 +122,7 @@ class AS2SymbolAdapter
     set _rotation(value : number)
     {
         this._adaptee.rotationZ = value;
+        this._blockedByScript=true;
     }
 
     get _x() : number
@@ -125,6 +133,7 @@ class AS2SymbolAdapter
     set _x(value : number)
     {
         this._adaptee.x = value;
+        this._blockedByScript=true;
     }
 
     get _xmouse() : number
@@ -140,6 +149,7 @@ class AS2SymbolAdapter
     set _y(value : number)
     {
         this._adaptee.y = value;
+        this._blockedByScript=true;
     }
 
     get _ymouse() : number
@@ -155,6 +165,7 @@ class AS2SymbolAdapter
     set _xscale(value : number)
     {
         this._adaptee.scaleX = value/100;
+        this._blockedByScript=true;
     }
 
     get _yscale() : number
@@ -165,6 +176,7 @@ class AS2SymbolAdapter
     set _yscale(value : number)
     {
         this._adaptee.scaleY = value/100;
+        this._blockedByScript=true;
     }
 
     get _visible() : boolean
@@ -175,6 +187,7 @@ class AS2SymbolAdapter
     set _visible(value : boolean)
     {
         this._adaptee.visible = value;
+        //this._blockedByScript=true;
     }
 
     get _width():number
@@ -185,6 +198,7 @@ class AS2SymbolAdapter
     set _width(value:number)
     {
         this._adaptee.width = value;
+        this._blockedByScript=true;
     }
 
     getDepth() : number
@@ -201,6 +215,7 @@ class AS2SymbolAdapter
     set quality(value : string)
     {
         this.__quality = value;
+        this._blockedByScript=true;
     }
 
     trace(message:any) : void
@@ -230,6 +245,7 @@ class AS2SymbolAdapter
             this.adaptee.transform.colorTransform = new ColorTransform();
 
         this.adaptee.transform.colorTransform.alphaMultiplier = value;
+        this._blockedByScript=true;
     }
 
     get _url() : string

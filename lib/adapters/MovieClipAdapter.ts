@@ -2,8 +2,10 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 
 interface MovieClipAdapter
 {
-    adaptee : DisplayObjectContainer
+    adaptee : DisplayObjectContainer;
     clone(newAdaptee:DisplayObjectContainer) : MovieClipAdapter;
+    isBlockedByScript():boolean;
+    freeFromScript():void;
 
     // Lists a bunch of class names which need to be replaced with adapter types
     classReplacements:Object;
