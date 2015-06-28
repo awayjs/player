@@ -65,7 +65,7 @@ class AS2SymbolAdapter
 
     private __quality : string = "high";
 
-    private _blockedByScript:boolean;
+    public _blockedByScript:boolean;
 
     private static REFERENCE_TIME : number = -1;
     private static CLASS_REPLACEMENTS : Object;
@@ -187,7 +187,7 @@ class AS2SymbolAdapter
     set _visible(value : boolean)
     {
         this._adaptee.visible = value;
-        //this._blockedByScript=true;
+       // this._blockedByScript=true;
     }
 
     get _width():number
@@ -215,7 +215,7 @@ class AS2SymbolAdapter
     set quality(value : string)
     {
         this.__quality = value;
-        this._blockedByScript=true;
+       // this._blockedByScript=true;
     }
 
     trace(message:any) : void
