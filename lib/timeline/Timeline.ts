@@ -128,8 +128,8 @@ class Timeline
 					if(child.isAsset(MovieClip)){
 						var mc:MovieClip = <MovieClip>child;
 						previous_script_childs[prev_script_cnt++] = mc;
-						if(mc.adapter.isBlockedByScript())
-							previous_sessions[session_cnt++] = child["__sessionID"];
+						//if(mc.adapter.isBlockedByScript())
+						previous_sessions[session_cnt++] = child["__sessionID"];
 					}
 					target_mc.removeChildAt(i);
 				}
@@ -155,7 +155,8 @@ class Timeline
 					child.visible=true;
 					child["_iMatrix3D"]= new Matrix3D();
 					child["colorTransform"]= new ColorTransform();
-
+					if(child.isAsset(MovieClip))
+						(<MovieClip>child).reset();
 					//todo: i think all movieclips that was newly added, should be resetted to frame 1
 					//todo: but for some reason, it makes things worse than better
 

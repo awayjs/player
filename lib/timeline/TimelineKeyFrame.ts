@@ -100,6 +100,8 @@ class TimelineKeyFrame
         target["_iMatrix3D"] = new Matrix3D();
         target["colorTransform"] = new ColorTransform();
       }
+      if(target.isAsset(MovieClip))
+        (<MovieClip>target).reset();
       //todo: i think all movieclips that was newly added, should be resetted to frame 1
       //todo: but for some reason, it makes things worse than better
     }

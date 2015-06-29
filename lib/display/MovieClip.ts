@@ -124,7 +124,9 @@ class MovieClip extends DisplayObjectContainer
             this._keyFramesWaitingForPostConstruct.shift();
         }*/
         if(this.adapter && !this.adapter.isBlockedByScript()){
-            this._keyFramesWaitingForPostConstruct=[];
+            //this._keyFramesWaitingForPostConstruct=[];
+            this._isPlaying=true;
+            //this._time = 0;
             this.currentFrameIndex=0;
             this._skipAdvance = true;
         }
@@ -144,7 +146,7 @@ class MovieClip extends DisplayObjectContainer
                 value = this.timeline.numFrames() - 1;
 
             this._skipAdvance = true;
-            //this._time = 50000;
+            this._time = 0;
 
             this.timeline.gotoFrame(this, value);
 
@@ -401,7 +403,7 @@ class MovieClip extends DisplayObjectContainer
         var len:number = this.numChildren-1;
         for (i = len; i >=0; --i) {
             var child = this.getChildAt(i);
-            if (child instanceof MovieClip) {
+            if (child.isAsset(MovieClip)) {
                 if ((<MovieClip>child).executePostConstructCommands()) {
                     has_script_executed = true;
                 }

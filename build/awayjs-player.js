@@ -1266,7 +1266,7 @@ var MovieClip = (function (_super) {
                 else if (value >= this.timeline.numFrames())
                     value = this.timeline.numFrames() - 1;
                 this._skipAdvance = true;
-                //this._time = 50000;
+                this._time = 0;
                 this.timeline.gotoFrame(this, value);
                 this._currentFrameIndex = value;
             }
@@ -1306,7 +1306,9 @@ var MovieClip = (function (_super) {
             this._keyFramesWaitingForPostConstruct.shift();
         }*/
         if (this.adapter && !this.adapter.isBlockedByScript()) {
-            this._keyFramesWaitingForPostConstruct = [];
+            //this._keyFramesWaitingForPostConstruct=[];
+            this._isPlaying = true;
+            //this._time = 0;
             this.currentFrameIndex = 0;
             this._skipAdvance = true;
         }
@@ -1513,7 +1515,7 @@ var MovieClip = (function (_super) {
         var len = this.numChildren - 1;
         for (i = len; i >= 0; --i) {
             var child = this.getChildAt(i);
-            if (child instanceof MovieClip) {
+            if (child.isAsset(MovieClip)) {
                 if (child.executePostConstructCommands()) {
                     has_script_executed = true;
                 }
@@ -2068,6 +2070,8 @@ var TimelineKeyFrame = (function () {
                 target["_iMatrix3D"] = new Matrix3D();
                 target["colorTransform"] = new ColorTransform();
             }
+            if (target.isAsset(MovieClip))
+                target.reset();
         }
         if (len > 0) {
             sourceMovieClip.adapter.updateDepths();
@@ -2213,8 +2217,8 @@ var Timeline = (function () {
                     if (child.isAsset(MovieClip)) {
                         var mc = child;
                         previous_script_childs[prev_script_cnt++] = mc;
-                        if (mc.adapter.isBlockedByScript())
-                            previous_sessions[session_cnt++] = child["__sessionID"];
+                        //if(mc.adapter.isBlockedByScript())
+                        previous_sessions[session_cnt++] = child["__sessionID"];
                     }
                     target_mc.removeChildAt(i);
                 }
@@ -2236,6 +2240,8 @@ var Timeline = (function () {
                     child.visible = true;
                     child["_iMatrix3D"] = new Matrix3D();
                     child["colorTransform"] = new ColorTransform();
+                    if (child.isAsset(MovieClip))
+                        child.reset();
                 }
             }
             for (i = 0; i < previous_script_childs.length; ++i) {
