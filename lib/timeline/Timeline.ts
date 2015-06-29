@@ -96,12 +96,12 @@ class Timeline
 		var last_keyframeIndex:number = target_mc.constructedKeyFrameIndex;
 		var target_keyframeIndex:number = this._keyframe_indices[value];
 
+		if(this._keyFrames[target_keyframeIndex].firstFrame==value)
+			target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
 
 		if(frameIndex==value){
 			return;
 		}
-		if(this._keyFrames[target_keyframeIndex].firstFrame==value)
-			target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
 		if(target_keyframeIndex!=last_keyframeIndex){
 
 			var previous_sessions:Array<number> = [];

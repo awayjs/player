@@ -123,13 +123,13 @@ class MovieClip extends DisplayObjectContainer
             this._keyFramesWaitingForPostConstruct[0].postConstruct(this);
             this._keyFramesWaitingForPostConstruct.shift();
         }*/
-        if(this.adapter && !this.adapter.isBlockedByScript()){
-            //this._keyFramesWaitingForPostConstruct=[];
+        //if(this.adapter && !this.adapter.isBlockedByScript()){
+            this._keyFramesWaitingForPostConstruct=[];
             this._isPlaying=true;
             //this._time = 0;
             this.currentFrameIndex=0;
             this._skipAdvance = true;
-        }
+       // }
         //this._isPlaying=true;
 
     }

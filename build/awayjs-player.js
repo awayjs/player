@@ -1305,13 +1305,13 @@ var MovieClip = (function (_super) {
             this._keyFramesWaitingForPostConstruct[0].postConstruct(this);
             this._keyFramesWaitingForPostConstruct.shift();
         }*/
-        if (this.adapter && !this.adapter.isBlockedByScript()) {
-            //this._keyFramesWaitingForPostConstruct=[];
-            this._isPlaying = true;
-            //this._time = 0;
-            this.currentFrameIndex = 0;
-            this._skipAdvance = true;
-        }
+        //if(this.adapter && !this.adapter.isBlockedByScript()){
+        this._keyFramesWaitingForPostConstruct = [];
+        this._isPlaying = true;
+        //this._time = 0;
+        this.currentFrameIndex = 0;
+        this._skipAdvance = true;
+        // }
         //this._isPlaying=true;
     };
     Object.defineProperty(MovieClip.prototype, "adapter", {
@@ -2188,11 +2188,11 @@ var Timeline = (function () {
         var frameIndex = target_mc.currentFrameIndex;
         var last_keyframeIndex = target_mc.constructedKeyFrameIndex;
         var target_keyframeIndex = this._keyframe_indices[value];
+        if (this._keyFrames[target_keyframeIndex].firstFrame == value)
+            target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
         if (frameIndex == value) {
             return;
         }
-        if (this._keyFrames[target_keyframeIndex].firstFrame == value)
-            target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
         if (target_keyframeIndex != last_keyframeIndex) {
             var previous_sessions = [];
             var target_sessions = [];
