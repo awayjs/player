@@ -886,7 +886,7 @@ var AS2SymbolAdapter = (function () {
         },
         set: function (value) {
             this._adaptee.visible = value;
-            // this._blockedByScript=true;
+            //this._blockedByScript=true;
         },
         enumerable: true,
         configurable: true
@@ -1204,6 +1204,7 @@ var MovieClip = (function (_super) {
     function MovieClip() {
         _super.call(this);
         this._loop = true;
+        this._forceFirstScript = false;
         this._prototype = this;
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
@@ -1215,6 +1216,16 @@ var MovieClip = (function (_super) {
         this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
         this.inheritColorTransform = true;
     }
+    Object.defineProperty(MovieClip.prototype, "forceFirstScript", {
+        get: function () {
+            return this._forceFirstScript;
+        },
+        set: function (value) {
+            this._forceFirstScript = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MovieClip.prototype, "timeline", {
         get: function () {
             return this._timeline;
@@ -1309,6 +1320,7 @@ var MovieClip = (function (_super) {
         this._keyFramesWaitingForPostConstruct = [];
         this._isPlaying = true;
         //this._time = 0;
+        this._forceFirstScript = true;
         this.currentFrameIndex = 0;
         this._skipAdvance = true;
         // }
@@ -1445,7 +1457,7 @@ var MovieClip = (function (_super) {
         if (this.timeline) {
             var i;
             var oldFrameIndex = this._currentFrameIndex;
-            var advance = this._isPlaying && !this._skipAdvance;
+            var advance = (this._isPlaying && !this._skipAdvance);
             if (advance && this._currentFrameIndex == this.timeline.numFrames() - 1 && !this._loop) {
                 advance = false;
             }
@@ -2188,73 +2200,83 @@ var Timeline = (function () {
         var frameIndex = target_mc.currentFrameIndex;
         var last_keyframeIndex = target_mc.constructedKeyFrameIndex;
         var target_keyframeIndex = this._keyframe_indices[value];
-        if (this._keyFrames[target_keyframeIndex].firstFrame == value)
-            target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
         if (frameIndex == value) {
+            if (target_mc.forceFirstScript) {
+                if (this._keyFrames[target_keyframeIndex].firstFrame == value)
+                    target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
+            }
+            target_mc.forceFirstScript = false;
             return;
         }
-        if (target_keyframeIndex != last_keyframeIndex) {
-            var previous_sessions = [];
-            var target_sessions = [];
-            var previous_script_childs = [];
-            var session_cnt = 0;
-            var prev_script_cnt = 0;
+        target_mc.forceFirstScript = false;
+        if (this._keyFrames[target_keyframeIndex].firstFrame == value)
+            target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
+        if ((frameIndex + 1) == value) {
+        }
+        if (target_keyframeIndex == last_keyframeIndex) {
+            return;
+        }
+        var previous_sessions = [];
+        var target_sessions = [];
+        var previous_script_childs = [];
+        var session_cnt = 0;
+        var prev_script_cnt = 0;
+        if (target_keyframeIndex > last_keyframeIndex) {
+            start_index_pass1 = last_keyframeIndex + 1;
+        }
+        else {
+            start_index_pass1 = 0;
+        }
+        for (i = target_mc.numChildren - 1; i >= 0; i--) {
+            var child = target_mc.getChildAt(i);
             if (target_keyframeIndex > last_keyframeIndex) {
-                start_index_pass1 = last_keyframeIndex + 1;
+                if (child.isAsset(MovieClip)) {
+                    previous_script_childs[prev_script_cnt++] = child;
+                }
+                previous_sessions[session_cnt++] = child["__sessionID"];
             }
             else {
-                start_index_pass1 = 0;
-            }
-            for (i = target_mc.numChildren - 1; i >= 0; i--) {
-                var child = target_mc.getChildAt(i);
-                if (target_keyframeIndex > last_keyframeIndex) {
-                    if (child.isAsset(MovieClip)) {
-                        previous_script_childs[prev_script_cnt++] = child;
-                    }
+                if (child.isAsset(MovieClip)) {
+                    var mc = child;
+                    previous_script_childs[prev_script_cnt++] = mc;
+                    //if(mc.adapter.isBlockedByScript())
                     previous_sessions[session_cnt++] = child["__sessionID"];
                 }
-                else {
-                    if (child.isAsset(MovieClip)) {
-                        var mc = child;
-                        previous_script_childs[prev_script_cnt++] = mc;
-                        //if(mc.adapter.isBlockedByScript())
-                        previous_sessions[session_cnt++] = child["__sessionID"];
-                    }
-                    target_mc.removeChildAt(i);
-                }
+                target_mc.removeChildAt(i);
             }
-            start_index_pass2 = start_index_pass1;
-            for (k = start_index_pass1; k <= target_keyframeIndex; k++) {
-                this._keyFrames[k].construct_childs(target_mc);
-                //  check number of childs. if number of childs = 0; we can start pass2 at this frame
-                if (target_mc.numChildren == 0) {
-                    start_index_pass2 = k;
-                }
-            }
-            target_mc.adapter.updateDepths();
-            session_cnt = 0;
-            for (i = 0; i < target_mc.numChildren; ++i) {
-                var child = target_mc.getChildAt(i);
-                target_sessions[session_cnt++] = child["__sessionID"];
-                if (previous_sessions.indexOf(child["__sessionID"]) == -1) {
-                    child.visible = true;
-                    child["_iMatrix3D"] = new Matrix3D();
-                    child["colorTransform"] = new ColorTransform();
-                    if (child.isAsset(MovieClip))
-                        child.reset();
-                }
-            }
-            for (i = 0; i < previous_script_childs.length; ++i) {
-                if (target_sessions.indexOf(previous_script_childs[i]["__sessionID"]) == -1) {
-                    previous_script_childs[i].adapter.freeFromScript();
-                    target_mc.adapter.unregisterScriptObject(previous_script_childs[i]);
-                }
-            }
-            for (k = start_index_pass2; k <= target_keyframeIndex; k++) {
-                this._keyFrames[k].updateProperties(target_mc);
-            }
-            target_mc.constructedKeyFrameIndex = target_keyframeIndex;
         }
+        start_index_pass2 = start_index_pass1;
+        for (k = start_index_pass1; k <= target_keyframeIndex; k++) {
+            this._keyFrames[k].construct_childs(target_mc);
+            //  check number of childs. if number of childs = 0; we can start pass2 at this frame
+            if (target_mc.numChildren == 0) {
+                start_index_pass2 = k;
+            }
+        }
+        if (target_mc.numChildren > 0)
+            target_mc.adapter.updateDepths();
+        session_cnt = 0;
+        for (i = 0; i < target_mc.numChildren; ++i) {
+            var child = target_mc.getChildAt(i);
+            target_sessions[session_cnt++] = child["__sessionID"];
+            if (previous_sessions.indexOf(child["__sessionID"]) == -1) {
+                child.visible = true;
+                child["_iMatrix3D"] = new Matrix3D();
+                child["colorTransform"] = new ColorTransform();
+                if (child.isAsset(MovieClip))
+                    child.reset();
+            }
+        }
+        for (i = 0; i < previous_script_childs.length; ++i) {
+            if (target_sessions.indexOf(previous_script_childs[i]["__sessionID"]) == -1) {
+                previous_script_childs[i].adapter.freeFromScript();
+                target_mc.adapter.unregisterScriptObject(previous_script_childs[i]);
+            }
+        }
+        for (k = start_index_pass2; k <= target_keyframeIndex; k++) {
+            this._keyFrames[k].updateProperties(target_mc);
+        }
+        target_mc.constructedKeyFrameIndex = target_keyframeIndex;
     };
     Timeline.prototype.constructNextFrame = function (target_mc) {
         var frameIndex = target_mc.currentFrameIndex;

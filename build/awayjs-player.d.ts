@@ -388,6 +388,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _fps;
 	    private _isPlaying;
 	    private _loop;
+	    private _forceFirstScript;
 	    private _prototype;
 	    private _enterFrame;
 	    private _skipAdvance;
@@ -395,6 +396,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _potentialInstances;
 	    private _keyFramesWaitingForPostConstruct;
 	    constructor();
+	    forceFirstScript: boolean;
 	    timeline: Timeline;
 	    loop: boolean;
 	    numFrames: number;
@@ -425,7 +427,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	     */
 	    stop(): void;
 	    clone(): DisplayObject;
-	    private advanceFrame(skipChildren?);
+	    advanceFrame(skipChildren?: boolean): void;
 	    private advanceChildren();
 	    logHierarchy(depth?: number): void;
 	    printHierarchyName(depth: number, target: DisplayObject): void;

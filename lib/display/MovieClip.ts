@@ -26,6 +26,7 @@ class MovieClip extends DisplayObjectContainer
     private _fps:number;// we use ms internally, but have fps, so user can set time by frame
     private _isPlaying:boolean;// false if paused or stopped
     private _loop:boolean = true;
+    private _forceFirstScript:boolean = false;
 
     // not sure if needed
     private _prototype:MovieClip;
@@ -47,17 +48,26 @@ class MovieClip extends DisplayObjectContainer
 
         this._keyFramesWaitingForPostConstruct=[];
         this._isPlaying = true; // auto-play
+
         this._fps = 30;
         this._time = 0;
         this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
         this.inheritColorTransform = true;
     }
 
-    public get timeline()
+    public get forceFirstScript():boolean
+    {
+        return this._forceFirstScript;
+    }
+    public set forceFirstScript(value:boolean)
+    {
+        this._forceFirstScript = value;
+    }
+
+    public get timeline():Timeline
     {
         return this._timeline;
     }
-
     public set timeline(value:Timeline)
     {
         this._timeline = value;
@@ -127,6 +137,7 @@ class MovieClip extends DisplayObjectContainer
             this._keyFramesWaitingForPostConstruct=[];
             this._isPlaying=true;
             //this._time = 0;
+            this._forceFirstScript=true;
             this.currentFrameIndex=0;
             this._skipAdvance = true;
        // }
@@ -311,12 +322,12 @@ class MovieClip extends DisplayObjectContainer
     }
 
 
-    private advanceFrame(skipChildren:boolean = false)
+    public advanceFrame(skipChildren:boolean = false)
     {
         if(this.timeline) {
             var i;
             var oldFrameIndex = this._currentFrameIndex;
-            var advance = this._isPlaying && !this._skipAdvance;
+            var advance = (this._isPlaying && !this._skipAdvance);
             if (advance && this._currentFrameIndex == this.timeline.numFrames() - 1 && !this._loop) {
                 advance = false;
             }
