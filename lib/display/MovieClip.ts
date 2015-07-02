@@ -32,6 +32,7 @@ class MovieClip extends DisplayObjectContainer
     private _prototype:MovieClip;
     private _enterFrame:MovieClipEvent;
     private _skipAdvance : boolean;
+    private _isInit : boolean;
 
     private _adapter:MovieClipAdapter;
 
@@ -45,7 +46,7 @@ class MovieClip extends DisplayObjectContainer
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
         this._constructedKeyFrameIndex = -1;
-
+        this._isInit=true;
         this._keyFramesWaitingForPostConstruct=[];
         this._isPlaying = true; // auto-play
 
@@ -53,6 +54,15 @@ class MovieClip extends DisplayObjectContainer
         this._time = 0;
         this._enterFrame = new MovieClipEvent(MovieClipEvent.ENTER_FRAME, this);
         this.inheritColorTransform = true;
+    }
+
+    public get isInit():boolean
+    {
+        return this._isInit;
+    }
+    public set isInit(value:boolean)
+    {
+        this._isInit = value;
     }
 
     public get forceFirstScript():boolean
@@ -111,38 +121,28 @@ class MovieClip extends DisplayObjectContainer
     {
         this._constructedKeyFrameIndex = value;
     }
+
     public reset():void
     {
-        /*
-        var i:number=0;
-        for (i=this.numChildren-1; i>=0; i--) {
-            var child:DisplayObject = this.getChildAt(i);
-            //(<AS2MovieClipAtapter>this.adapter)._pUnregisterChild(child);
-            this.removeChild(child);
-        }*/
-        /*
-        this._currentFrameIndex = -1;
-        this._constructedKeyFrameIndex = -1;
-        var isplaying:boolean = this._isPlaying;
-        this._skipAdvance = false;
-        this.advanceFrame();
-        this._isPlaying=isplaying;
-       /* console.log("test reset");
-        if(this._keyFramesWaitingForPostConstruct.length>0){
-            console.log("test 1");
-            this._keyFramesWaitingForPostConstruct[0].postConstruct(this);
-            this._keyFramesWaitingForPostConstruct.shift();
-        }*/
-        //if(this.adapter && !this.adapter.isBlockedByScript()){
-            this._keyFramesWaitingForPostConstruct=[];
-            this._isPlaying=true;
-            //this._time = 0;
-            this._forceFirstScript=true;
-            this.currentFrameIndex=0;
-            this._skipAdvance = true;
-       // }
-        //this._isPlaying=true;
+        //if(this.adapter && this.adapter.isBlockedByScript()){
+        this._keyFramesWaitingForPostConstruct = [];
+        this._isPlaying = true;
+        //this._time = 0;
+        this._forceFirstScript = true;
+        this.currentFrameIndex = 0;
+        this._skipAdvance = true;
 
+        this._isInit=true;
+        var i:number=0;
+        for (i=0; i<this.numChildren; ++i) {
+             var child:DisplayObject = this.getChildAt(i);
+             if(child.isAsset(MovieClip)){
+                 if(!(<MovieClip>child).isInit)
+                    (<MovieClip>child).reset();
+
+             }
+         }
+        //}
     }
     /*
     * Setting the currentFrameIndex will move the playhead for this movieclip to the new position
@@ -157,7 +157,7 @@ class MovieClip extends DisplayObjectContainer
                 value = this.timeline.numFrames() - 1;
 
             this._skipAdvance = true;
-            this._time = 0;
+            //this._time = 0;
 
             this.timeline.gotoFrame(this, value);
 
@@ -253,9 +253,9 @@ class MovieClip extends DisplayObjectContainer
         if (this._time >= frameMarker) {
             this._time = 0;
             this.advanceFrame();
-            var has_executed_script:boolean=true;
 
             this.dispatchEvent(this._enterFrame);
+            var has_executed_script:boolean=true;
             while(has_executed_script)
                 has_executed_script=this.executePostConstructCommands();
 
@@ -324,6 +324,7 @@ class MovieClip extends DisplayObjectContainer
 
     public advanceFrame(skipChildren:boolean = false)
     {
+        this.isInit=false;
         if(this.timeline) {
             var i;
             var oldFrameIndex = this._currentFrameIndex;
@@ -335,24 +336,23 @@ class MovieClip extends DisplayObjectContainer
                 this._currentFrameIndex = 0;
                 advance = false;
             }
-            var gotoNext:boolean=true;
             if (advance) {
-                if (++this._currentFrameIndex == this.timeline.numFrames()) {
+                ++this._currentFrameIndex;
+                if (this._currentFrameIndex== this.timeline.numFrames()) {
                     // looping - jump to first frame.
-                    this.currentFrameIndex = 0;
-                    gotoNext=false;
+                    this.currentFrameIndex=0;
                 }
-            }
-            if ((gotoNext)&&(oldFrameIndex != this._currentFrameIndex || this._skipAdvance)){
-                // not looping - construct next frame
-                this.timeline.constructNextFrame(this);
+                else if (oldFrameIndex != this._currentFrameIndex){
+                    // not looping - construct next frame
+                    this.timeline.constructNextFrame(this);
+                }
             }
 
             if (!skipChildren)
                 this.advanceChildren();
 
-            this._skipAdvance = false;
         }
+        this._skipAdvance = false;
     }
 
     private advanceChildren()

@@ -21,6 +21,9 @@ class SetMaskCommand implements FrameCommand
         var masks = new Array<DisplayObject>();
         for (var i:number = 0; i < len; ++i) {
             masks[i] = sourceMovieClip.getPotentialChildInstance(this._maskIDs[i]);
+            (<DisplayObject>masks[i]).mouseEnabled=false;
+            if(masks[i].isAsset(MovieClip))
+                (<MovieClip>masks[i]).mouseChildren=false;
         }
         sourceMovieClip.getPotentialChildInstance(this._targetID)._iMasks = masks;
     }

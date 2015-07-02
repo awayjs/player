@@ -392,10 +392,12 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _prototype;
 	    private _enterFrame;
 	    private _skipAdvance;
+	    private _isInit;
 	    private _adapter;
 	    private _potentialInstances;
 	    private _keyFramesWaitingForPostConstruct;
 	    constructor();
+	    isInit: boolean;
 	    forceFirstScript: boolean;
 	    timeline: Timeline;
 	    loop: boolean;
@@ -636,18 +638,6 @@ declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
 	    postConstruct(sourceMovieClip: MovieClip): void;
 	}
 	export = TimelineKeyFrame;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/ApplyAS2DepthsCommand" {
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class ApplyAS2DepthsCommand implements FrameCommand {
-	    constructor();
-	    execute(sourceMovieClip: MovieClip): void;
-	    private sortChildrenByDepth(a, b);
-	}
-	export = ApplyAS2DepthsCommand;
 	
 }
 

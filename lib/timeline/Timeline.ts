@@ -95,11 +95,18 @@ class Timeline
 		var frameIndex:number = target_mc.currentFrameIndex;
 		var last_keyframeIndex:number = target_mc.constructedKeyFrameIndex;
 		var target_keyframeIndex:number = this._keyframe_indices[value];
-
 		if(frameIndex==value){
 			if(target_mc.forceFirstScript){
 				if(this._keyFrames[target_keyframeIndex].firstFrame==value)
 					target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
+
+				for (i=0; i<target_mc.numChildren; ++i) {
+					var child:DisplayObject = target_mc.getChildAt(i);
+					if(child.isAsset(MovieClip)){
+						//(<MovieClip>child).reset();
+
+					}
+				}
 			}
 			target_mc.forceFirstScript=false;
 			return;
@@ -174,8 +181,6 @@ class Timeline
 				child["colorTransform"]= new ColorTransform();
 				if(child.isAsset(MovieClip))
 					(<MovieClip>child).reset();
-				//todo: i think all movieclips that was newly added, should be resetted to frame 1
-				//todo: but for some reason, it makes things worse than better
 
 			}
 		}
