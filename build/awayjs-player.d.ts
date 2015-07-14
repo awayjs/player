@@ -561,6 +561,20 @@ declare module "awayjs-player/lib/renderer/Mask" {
 	
 }
 
+declare module "awayjs-player/lib/renderer/RenderableSort2D" {
+	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
+	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
+	/**
+	 * @class away.sort.RenderableMergeSort
+	 */
+	class RenderableMergeSort implements IEntitySorter {
+	    sortBlendedRenderables(head: IRenderable): IRenderable;
+	    sortOpaqueRenderables(head: IRenderable): IRenderable;
+	}
+	export = RenderableMergeSort;
+	
+}
+
 declare module "awayjs-player/lib/renderer/Renderer2D" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
@@ -573,20 +587,6 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	    applyRenderable(renderable: RenderableBase): void;
 	}
 	export = Renderer2D;
-	
-}
-
-declare module "awayjs-player/lib/renderer/RenderableSort2D" {
-	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
-	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
-	/**
-	 * @class away.sort.RenderableMergeSort
-	 */
-	class RenderableMergeSort implements IEntitySorter {
-	    sortBlendedRenderables(head: IRenderable): IRenderable;
-	    sortOpaqueRenderables(head: IRenderable): IRenderable;
-	}
-	export = RenderableMergeSort;
 	
 }
 
@@ -662,21 +662,6 @@ declare module "awayjs-player/lib/timeline/Timeline" {
 	
 }
 
-declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class ExecuteScriptCommand {
-	    private _script;
-	    private _translatedScript;
-	    constructor(script: Function);
-	    constructor(script: string);
-	    execute(sourceMovieClip: MovieClip): void;
-	    private regexIndexOf(str, regex, startpos);
-	    translateScript(classReplacements: any): void;
-	}
-	export = ExecuteScriptCommand;
-	
-}
-
 declare module "awayjs-player/lib/timeline/commands/ButtonListenerHolder" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
 	class ButtonListenerHolder {
@@ -689,6 +674,21 @@ declare module "awayjs-player/lib/timeline/commands/ButtonListenerHolder" {
 	    constructor(target: MovieClip);
 	}
 	export = ButtonListenerHolder;
+	
+}
+
+declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
+	import MovieClip = require("awayjs-player/lib/display/MovieClip");
+	class ExecuteScriptCommand {
+	    private _script;
+	    private _translatedScript;
+	    constructor(script: Function);
+	    constructor(script: string);
+	    execute(sourceMovieClip: MovieClip): void;
+	    private regexIndexOf(str, regex, startpos);
+	    translateScript(classReplacements: any): void;
+	}
+	export = ExecuteScriptCommand;
 	
 }
 
