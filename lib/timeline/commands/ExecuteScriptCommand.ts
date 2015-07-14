@@ -1,7 +1,6 @@
-import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
-class ExecuteScriptCommand implements FrameCommand
+class ExecuteScriptCommand
 {
     // script are functions called with "this" referring to either the adapter or the MovieClip
     private _script:string;
@@ -28,6 +27,7 @@ class ExecuteScriptCommand implements FrameCommand
 
         var caller = sourceMovieClip.adapter? sourceMovieClip.adapter : sourceMovieClip;
 
+       // console.log("Script in " + sourceMovieClip.name + "\n", this._script);
         try {
             this._translatedScript.call(caller);
         }

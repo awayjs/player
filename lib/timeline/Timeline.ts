@@ -1,50 +1,187 @@
 import MovieClip                    = require("awayjs-player/lib/display/MovieClip");
-import FrameCommand                 = require("awayjs-player/lib/timeline/commands/FrameCommand");
-import TimelineKeyFrame             = require("awayjs-player/lib/timeline/TimelineKeyFrame");
+import ExecuteScriptCommand             = require("awayjs-player/lib/timeline/commands/ExecuteScriptCommand");
+import ButtonListenerHolder             = require("awayjs-player/lib/timeline/commands/ButtonListenerHolder");
 import ByteArray						= require("awayjs-core/lib/utils/ByteArray");
 import DisplayObject                    = require("awayjs-display/lib/base/DisplayObject");
 import ColorTransform					= require("awayjs-core/lib/geom/ColorTransform");
 import Matrix3D							= require("awayjs-core/lib/geom/Matrix3D");
+import Vector3D							= require("awayjs-core/lib/geom/Vector3D");
 
 
 class Timeline
 {
 
-	public _keyframe_indices:Array<number>;     //stores 1 keyframeindex per frameindex
-	public _labels:Object;                      // dictionary to store label => frameindex
+	private _keyframe_indices:Array<number>;     		//stores 1 keyframeindex per frameindex
+	private _keyframe_firstframes:Array<number>;     	//stores the firstframe of each keyframe
+	private _keyframe_constructframes:Array<number>;    //stores the previous fullConstruct keyframeindex
 
-	private _keyFrames:Array<TimelineKeyFrame>;
+	private _keyframe_durations:ArrayBufferView;    //only needed to calulcate other arrays
+
+	public _labels:Object;			// dictionary to store label => keyframeindex
+	public _framescripts:Object;    // dictionary to store keyframeindex => ExecuteScriptCommand
+
+	// synched:
+	private _frame_command_indices:ArrayBufferView;
+	private _frame_recipe:ArrayBufferView;
+
+	// synched:
+	private _command_index_stream:ArrayBufferView;
+	private _command_length_stream:ArrayBufferView;
+
+	private _add_child_stream:ArrayBufferView;
+	private _remove_child_stream:ArrayBufferView;
+	private _update_child_stream:ArrayBufferView;
+
+	private _update_child_props_length_stream:ArrayBufferView;
+	private _update_child_props_indices_stream:ArrayBufferView;
+
+	private _property_index_stream:ArrayBufferView;
+	private _property_type_stream:ArrayBufferView;
+
+	private _properties_stream_int:ArrayBufferView;		// lists of ints used for property values. for now, only mask_ids are using ints
+
+	// propertiy_values_stream:
+	private _properties_stream_f32_mtx_all:ArrayBufferView;	// list of floats
+	private _properties_stream_f32_mtx_scale_rot:ArrayBufferView;	// list of floats
+	private _properties_stream_f32_mtx_pos:ArrayBufferView;	// list of floats
+	private _properties_stream_f32_ct:ArrayBufferView;	// list of floats
+	private _properties_stream_strings:Array<string>;
 
 	private _potentialPrototypes:Array<DisplayObject>;
 
+	public numKeyFrames:number=0;
 
 	constructor()
 	{
 		this._potentialPrototypes=[];
 		this._keyframe_indices=[];
 		this._labels={};
-		this._keyFrames=[];
+		this._framescripts={};
+	}
+
+	public init():void
+	{
+		if((this._frame_command_indices==null)||(this._frame_recipe==null)||(this._keyframe_durations==null))
+			return;
+		this._keyframe_firstframes=[];
+		this._keyframe_constructframes=[];
+		var frame_cnt=0;
+		var ic=0;
+		var ic2=0;
+		var keyframe_cnt=0;
+		var last_construct_frame=0;
+		for(ic=0; ic<this.numKeyFrames; ic++){
+			var duration=this._keyframe_durations[(ic)];
+
+			if((this._frame_recipe[ic] & 1) == 1)
+				last_construct_frame=keyframe_cnt;
+
+			this._keyframe_firstframes[keyframe_cnt]=frame_cnt;
+			this._keyframe_constructframes[keyframe_cnt++]=last_construct_frame;
+
+			for(ic2=0; ic2<duration; ic2++){
+				this._keyframe_indices[frame_cnt++]=ic;
+			}
+		}
+	}
+	public set keyframe_durations(value:ArrayBufferView)
+	{
+		this._keyframe_durations=value;
+	}
+	public set frame_command_indices(value:ArrayBufferView)
+	{
+		this._frame_command_indices=value;
+	}
+	public set frame_recipe(value:ArrayBufferView)
+	{
+		this._frame_recipe=value;
+	}
+
+
+	public set command_index_stream(value:ArrayBufferView)
+	{
+		this._command_index_stream=value;
+	}
+	public set command_length_stream(value:ArrayBufferView)
+	{
+		this._command_length_stream=value;
+	}
+
+
+	public set add_child_stream(value:ArrayBufferView)
+	{
+		this._add_child_stream=value;
+	}
+	public set remove_child_stream(value:ArrayBufferView)
+	{
+		this._remove_child_stream=value;
+	}
+	public set update_child_stream(value:ArrayBufferView)
+	{
+		this._update_child_stream=value;
+	}
+
+	public set update_child_props_indices_stream(value:ArrayBufferView)
+	{
+		this._update_child_props_indices_stream=value;
+	}
+	public set update_child_props_length_stream(value:ArrayBufferView)
+	{
+		this._update_child_props_length_stream=value;
+	}
+
+	public set property_index_stream(value:ArrayBufferView)
+	{
+		this._property_index_stream=value;
+	}
+	public set property_type_stream(value:ArrayBufferView)
+	{
+		this._property_type_stream=value;
+	}
+
+	public set properties_stream_f32_mtx_all(value:Float32Array)
+	{
+		this._properties_stream_f32_mtx_all=value;
+	}
+	public set properties_stream_f32_mtx_scale_rot(value:Float32Array)
+	{
+		this._properties_stream_f32_mtx_scale_rot=value;
+	}
+	public set properties_stream_f32_mtx_pos(value:Float32Array)
+	{
+		this._properties_stream_f32_mtx_pos=value;
+	}
+	public set properties_stream_f32_ct(value:Float32Array)
+	{
+		this._properties_stream_f32_ct=value;
+	}
+	public set properties_stream_int(value:ArrayBufferView)
+	{
+		this._properties_stream_int=value;
+	}
+	public set properties_stream_strings(value:Array<string>)
+	{
+		this._properties_stream_strings=value;
+	}
+
+	public set keyframe_indices(value:Array<number>)
+	{
+		this._keyframe_indices=value;
+	}
+	public set keyframe_firstframes(value:Array<number>)
+	{
+		this._keyframe_firstframes=value;
+	}
+	public set keyframe_constructframes(value:Array<number>)
+	{
+		this._keyframe_constructframes=value;
 	}
 
 	public numFrames():number
 	{
 		return this._keyframe_indices.length;
 	}
-	public numKeyFrames():number
-	{
-		return this._keyFrames.length;
-	}
-	/**
-	 * Add a new TimelineFrame.
-	 */
-	public addFrame(newFrame:TimelineKeyFrame)
-	{
-		var i:number;
-		for(i=0;i<newFrame.duration;i++)
-			this._keyframe_indices.push(this._keyFrames.length);
 
-		this._keyFrames.push(newFrame);
-	}
 
 	public getPotentialChildPrototype(id:number):DisplayObject
 	{
@@ -55,10 +192,7 @@ class Timeline
 	{
 		return this._keyframe_indices[frame_index];
 	}
-	public getKeyframeForFrameIndex(frame_index:number) : TimelineKeyFrame
-	{
-		return this._keyFrames[this._keyframe_indices[frame_index]];
-	}
+
 	public getPotentialChilds() : Array<DisplayObject>
 	{
 		return this._potentialPrototypes;
@@ -74,38 +208,35 @@ class Timeline
 		this._potentialPrototypes[id] = prototype;
 	}
 
+	public executeScriptIfAvailable(target_mc:MovieClip, frameIndex:number) : void
+	{
+		if(this._framescripts[frameIndex]!=null){
+			target_mc.addScriptForExecution(this._framescripts[frameIndex]);
+		}
+	}
 	public jumpToLabel(target_mc:MovieClip, label:string) : void
 	{
 		var key_frame_index:number = this._labels[label];
-		if(key_frame_index>=0){
-			var target_keyframe:TimelineKeyFrame = this._keyFrames[key_frame_index];
-			target_mc.currentFrameIndex=target_keyframe.firstFrame;
-		}
+		if(key_frame_index>=0)
+			target_mc.currentFrameIndex=this._keyframe_firstframes[key_frame_index];
 
 	}
 
-	/* moves the playhead of the targetmovieclip to the given frameindex
-	 */
+
 	public gotoFrame(target_mc:MovieClip, value : number)
 	{
-		var k:number;
-		var i:number;
-		var start_index_pass1:number;
-		var start_index_pass2:number;
+
+		//console.log("gotoframe");
 		var frameIndex:number = target_mc.currentFrameIndex;
-		var last_keyframeIndex:number = target_mc.constructedKeyFrameIndex;
-		var target_keyframeIndex:number = this._keyframe_indices[value];
+		var current_keyframe_idx:number = target_mc.constructedKeyFrameIndex;
+		var target_keyframe_idx:number = this._keyframe_indices[value];
+
+		var firstframe=this._keyframe_firstframes[target_keyframe_idx];
 		if(frameIndex==value){
+			//we are already on this frame. execute framescript if needed
 			if(target_mc.forceFirstScript){
-				if(this._keyFrames[target_keyframeIndex].firstFrame==value)
-					target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
-
-				for (i=0; i<target_mc.numChildren; ++i) {
-					var child:DisplayObject = target_mc.getChildAt(i);
-					if(child.isAsset(MovieClip)){
-						//(<MovieClip>child).reset();
-
-					}
+				if(firstframe==value) {
+					this.executeScriptIfAvailable(target_mc, target_keyframe_idx);
 				}
 			}
 			target_mc.forceFirstScript=false;
@@ -113,106 +244,408 @@ class Timeline
 		}
 		target_mc.forceFirstScript=false;
 
-		if(this._keyFrames[target_keyframeIndex].firstFrame==value)
-			target_mc.addFrameForScriptExecution(this._keyFrames[target_keyframeIndex]);
-
-		if((frameIndex+1)==value){
-			// this is continous playback. advance 1 frame (force advance)
-			//target_mc.advanceFrame(false, true);
-			//return;
+		//console.log("gotoframe 2");
+		if(firstframe==value){
+			//frame changed. and firstframe of keyframe. execute framescript if available
+			this.executeScriptIfAvailable(target_mc, target_keyframe_idx);
 		}
 
-		if(target_keyframeIndex==last_keyframeIndex) {
+		if(current_keyframe_idx==target_keyframe_idx) {
+			// already constructed
 			return;
 		}
 
+		var break_frame_idx:number=this._keyframe_constructframes[target_keyframe_idx];
 
-		var previous_sessions:Array<number> = [];
-		var target_sessions:Array<number> = [];
-		var previous_script_childs:Array<MovieClip> = [];
+		//we now have 3 index to keyframes: current_keyframe_idx / target_keyframe_idx / break_frame_idx
+
+		var jump_forward:boolean = (target_keyframe_idx > current_keyframe_idx);
+		var jump_gap:boolean = (break_frame_idx > current_keyframe_idx);
+
+		// in case we jump back or we jump a gap, we want to start constructing at BreakFrame
+		var start_construct_idx:number=break_frame_idx;
+		// in case we jump fporward, but not jump a gap, we start at current_keyframe_idx +1
+		if((jump_forward)&&(!jump_gap)){
+			start_construct_idx=current_keyframe_idx+1;
+		}
+		var removeAll:boolean=false;
+		var removeAllFromScript:boolean=false;
+		// if we jump backwards, or if we jump a gap, we want to remove everything from the stage.
+		// if we jump a gap, we also want to free everything from script access.
+		if((!jump_forward)||(jump_gap)){
+			removeAll=true;
+			if(jump_gap){
+				removeAllFromScript;
+			}
+		}
+
+		var previous_sessions:Array<number> = [];	// store a list of all previous active sessionIDs
+		var previous_mcs:Array<MovieClip> = [];	// store a list of all previous active Movieclips
 		var session_cnt:number=0;
 		var prev_script_cnt:number=0;
-		if(target_keyframeIndex>last_keyframeIndex){
-			start_index_pass1=last_keyframeIndex+1;
-		}
-		else{
-			start_index_pass1=0;
-		}
-
+		var i:number=0;
+		var k:number=0;
 		for (i=target_mc.numChildren-1; i>=0; i--) {
+			//else{
 			var child:DisplayObject = target_mc.getChildAt(i);
-			if(target_keyframeIndex>last_keyframeIndex) {
-				if(child.isAsset(MovieClip)){
-					previous_script_childs[prev_script_cnt++] = <MovieClip>child;
-				}
+
+			// if we jump back, or if we do not jump a gap, we need to collect all sessionIDs, in order to know what to reset
+			if((!jump_forward)||(!jump_gap)){
 				previous_sessions[session_cnt++] = child["__sessionID"];
 			}
-			else{
-				if(child.isAsset(MovieClip)){
-					var mc:MovieClip = <MovieClip>child;
-					previous_script_childs[prev_script_cnt++] = mc;
-					//if(mc.adapter.isBlockedByScript())
-					previous_sessions[session_cnt++] = child["__sessionID"];
+			if (removeAll) {
+				if(removeAllFromScript){
+					target_mc.adapter.unregisterScriptObject(child);
+					if(child.isAsset(MovieClip) && (<MovieClip>child).adapter)
+						(<MovieClip>child).adapter.freeFromScript();
+
 				}
 				target_mc.removeChildAt(i);
 			}
-		}
-		start_index_pass2=start_index_pass1;
-
-		//  pass1: only apply add/remove commands.
-		for(k=start_index_pass1; k<=target_keyframeIndex; k++){
-			this._keyFrames[k].construct_childs(target_mc);
-			//  check number of childs. if number of childs = 0; we can start pass2 at this frame
-			if(target_mc.numChildren==0){
-				start_index_pass2=k;
+			else{
+				if(child.isAsset(MovieClip))
+					previous_mcs[prev_script_cnt++] = <MovieClip>child;
 			}
 		}
-		if(target_mc.numChildren>0)
+
+		//  pass1: only apply add/remove commands.
+		var update_indices:Array<number>=[];// store a list of updatecommand_indices, so we dont have to read frame_recipe again
+		var update_cnt=0;
+		var added_new_child:boolean=false;
+		for(k=start_construct_idx;k<=target_keyframe_idx; k++){
+
+			var frame_command_idx:number=this._frame_command_indices[k];
+			var frame_recipe:number=this._frame_recipe[k];
+
+			if ((frame_recipe & 2)==2) {
+				this.remove_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
+			}
+			if((frame_recipe & 4)==4) {
+				added_new_child=true;
+				this.add_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
+			}
+			if((frame_recipe & 8)==8) {
+				update_indices[update_cnt++]=frame_command_idx;// execute update command later
+			}
+
+		}
+		if(added_new_child)
 			target_mc.adapter.updateDepths();
+
 		session_cnt=0;
+		var target_sessions:Array<number> = [];
 		// between passes:
 		// if a child has a sessionID that was not present in previous frame, it must be reset
 		for (i=0; i<target_mc.numChildren; ++i) {
 			var child:DisplayObject = target_mc.getChildAt(i);
-			target_sessions[session_cnt++]=child["__sessionID"];
-			if(previous_sessions.indexOf(child["__sessionID"])==-1){
-				child.visible=true;
-				child["_iMatrix3D"]= new Matrix3D();
-				child["colorTransform"]= new ColorTransform();
-				if(child.isAsset(MovieClip))
+			target_sessions[session_cnt++] = child["__sessionID"];
+			if (previous_sessions.indexOf(child["__sessionID"]) == -1) {
+				child.reset_to_init_state();
+				if (child.isAsset(MovieClip))
 					(<MovieClip>child).reset();
+			}
+			else{
+				if(!jump_forward) {
+					var doit:boolean = true;
+					if (child.isAsset(MovieClip)) {
+						if ((<MovieClip>child).adapter && (<MovieClip>child).adapter.isBlockedByScript())
+							doit = false;
+					}
+					if (doit)
+						child.reset_to_init_state();
+				}
+			}
+		}
 
+		// all objects that was present on previous frame, but not on current need to be unregistered
+		for (i=0; i<previous_mcs.length; ++i) {
+			if(target_sessions.indexOf(previous_mcs[i]["__sessionID"])==-1){
+				previous_mcs[i].adapter.freeFromScript();
+				target_mc.adapter.unregisterScriptObject(previous_mcs[i]);
 			}
 		}
-		// all mc that was present on previous frame, but not on current need to be unregistered
-		for (i=0; i<previous_script_childs.length; ++i) {
-			if(target_sessions.indexOf(previous_script_childs[i]["__sessionID"])==-1){
-				previous_script_childs[i].adapter.freeFromScript();
-				target_mc.adapter.unregisterScriptObject(previous_script_childs[i]);
-			}
-		}
+
 		//  pass2: apply update commands for objects on stage (only if they are not blocked by script)
-		for(k=start_index_pass2; k<=target_keyframeIndex; k++){
-			this._keyFrames[k].updateProperties(target_mc);
+		var frame_command_idx:number=0;
+		for(k=0;k<update_indices.length; k++){
+			frame_command_idx=update_indices[k];
+			this.update_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx] );
 		}
-		target_mc.constructedKeyFrameIndex=target_keyframeIndex;
-
+		target_mc.constructedKeyFrameIndex=target_keyframe_idx;
 	}
 
 
 	public constructNextFrame(target_mc:MovieClip)
 	{
+
+		//console.log("next frame");
 		var frameIndex:number = target_mc.currentFrameIndex;
 		var constructed_keyFrameIndex:number = target_mc.constructedKeyFrameIndex;
 		var new_keyFrameIndex:number = this._keyframe_indices[frameIndex];
-		var current_keyframe:TimelineKeyFrame = this._keyFrames[new_keyFrameIndex];
+
 		if(constructed_keyFrameIndex!=new_keyFrameIndex){
 			target_mc.constructedKeyFrameIndex=new_keyFrameIndex;
-			current_keyframe.construct(target_mc);
-			current_keyframe.updateProperties(target_mc);
-			if(current_keyframe.firstFrame==frameIndex)
-				target_mc.addFrameForScriptExecution(current_keyframe);
+
+			var frame_command_idx=this._frame_command_indices[new_keyFrameIndex];
+			var frame_recipe=this._frame_recipe[new_keyFrameIndex];
+
+			if((frame_recipe & 1)==1){
+				var i;
+				for (i=target_mc.numChildren-1; i>=0; i--) {
+					var target=target_mc.getChildAt(i);
+					target_mc.removeChildAt(i);
+					//target_mc.adapter.unregisterScriptObject(target);
+					//if(target.isAsset(MovieClip) && (<MovieClip>target).adapter)
+					//	(<MovieClip>target).adapter.freeFromScript();
+				}
+			}
+			else if ((frame_recipe & 2)==2) {
+				this.remove_childs_continous(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
+			}
+			if((frame_recipe & 4)==4) {
+				this.add_childs_continous(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
+				target_mc.adapter.updateDepths();
+			}
+			if((frame_recipe & 8)==8) {
+				this.update_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
+			}
+
 		}
+		if(this._keyframe_firstframes[new_keyFrameIndex]==frameIndex){
+			this.executeScriptIfAvailable(target_mc, new_keyFrameIndex);
+		}
+
+	}
+
+
+	public remove_childs(sourceMovieClip:MovieClip, start_index:number, len:number)
+	{
+
+		//console.log("remove_childs "+len);
+		// remove objects by depth
+		var i:number;
+		var c:number;
+		var childrenArray = sourceMovieClip["_children"];
+		for(i=0; i<len;i++){
+			var remove_depth:number=this._remove_child_stream[start_index+i]-16383;
+			//console.log("	remove_depth "+remove_depth);
+			for(c=0; c<childrenArray.length;c++){
+				if(childrenArray[c].__AS2Depth==remove_depth){
+					sourceMovieClip.removeChild(childrenArray[c]);
+					break;
+				}
+			}
+		}
+	}
+
+	public remove_childs_continous(sourceMovieClip:MovieClip, start_index:number, len:number)
+	{
+
+		//console.log("remove_childs "+len);
+		// remove objects by depth
+		var i:number;
+		var c:number;
+		var childrenArray = sourceMovieClip["_children"];
+		for(i=0; i<len;i++){
+			var remove_depth:number=this._remove_child_stream[start_index+i]-16383;
+			//console.log("	remove_depth "+remove_depth);
+			for(c=0; c<childrenArray.length;c++){
+				if(childrenArray[c].__AS2Depth==remove_depth){
+					var target = childrenArray[c];
+					sourceMovieClip.removeChild(target);
+					//sourceMovieClip.adapter.unregisterScriptObject(target);
+					//if(target.isAsset(MovieClip) && (<MovieClip>target).adapter)
+					//	(<MovieClip>target).adapter.freeFromScript();
+					break;
+				}
+			}
+		}
+	}
+	// used to add childs when jumping between frames
+	public add_childs(sourceMovieClip:MovieClip, start_index:number, len:number)
+	{
+		//console.log("add_childs "+len);
+		var i:number;
+		for(i=0; i<len;i++){
+			var target = sourceMovieClip.getPotentialChildInstance(this._add_child_stream[(start_index*2)+(i*2)]);
+			//console.log("	add child "+this._add_childs_stream[start_index+(i*3)]);
+			target["__AS2Depth"]  = this._add_child_stream[(start_index*2)+(i*2)+1]-16383;
+			target["__sessionID"] = start_index+i;
+			sourceMovieClip.addChild(target);
+		}
+	}
+
+	// used to add childs when jumping between frames
+	public add_childs_continous(sourceMovieClip:MovieClip, start_index:number, len:number)
+	{
+		//console.log("add_childs "+len);
+		var i:number;
+		for(i=0; i<len;i++){
+			var target = sourceMovieClip.getPotentialChildInstance(this._add_child_stream[(start_index*2)+(i*2)]);
+			//console.log("	add child "+this._add_childs_stream[start_index+(i*3)]);
+			target["__AS2Depth"]  = this._add_child_stream[(start_index*2)+(i*2)+1]-16383;
+			target["__sessionID"] = start_index+i;
+
+			if(target.isAsset(MovieClip)){
+				if((<MovieClip>target).adapter && !(<MovieClip>target).adapter.isBlockedByScript())
+					(<MovieClip>target).reset();
+			}
+			else{
+				target.reset_to_init_state();
+			}
+			sourceMovieClip.addChild(target);
+		}
+	}
+
+	public update_childs(sourceMovieClip:MovieClip, start_index:number, len:number)
+	{
+
+		//console.log("update childs");
+		var i:number;
+		var pc:number;
+		var props_cnt:number;
+		var props_start_idx:number;
+		var value_start_index:number;
+		var props_type:number;
+		var doit:boolean;
+		//console.log("sourceMovieClip = "+sourceMovieClip.name+" objects to update = "+len);
+		for(i=0; i<len;i++) {
+			var childID:number=this._update_child_stream[start_index+i];
+			//console.log("childID = "+childID);
+			var target = sourceMovieClip.getPotentialChildInstance(childID);
+			if (target.parent == sourceMovieClip) {
+				doit = true;
+				// check if the child is active + not blocked by script
+				if (target.isAsset(MovieClip)) {
+					if ((<MovieClip>target).adapter.isBlockedByScript()) {
+						doit = false;
+					}
+				}
+				if (doit) {
+					props_start_idx=this._update_child_props_indices_stream[start_index+i];
+					props_cnt=this._update_child_props_length_stream[start_index+i];
+
+					//console.log("	props_cnt = "+props_cnt);
+					for(pc=0; pc<props_cnt;pc++) {
+						props_type = this._property_type_stream[props_start_idx+pc];
+						value_start_index = this._property_index_stream[props_start_idx+pc];
+						//console.log("	props_id = "+props_id);
+						//console.log("	value_start_index = "+value_start_index);
+						switch(props_type){
+							case 0:
+								break;
+
+							case 1:// displaytransform
+								var new_matrix:Matrix3D = target["_iMatrix3D"];
+								if(new_matrix==null){
+									new_matrix = new Matrix3D();
+								}
+								new_matrix.rawData[0] = this._properties_stream_f32_mtx_all[(value_start_index*6)];
+								new_matrix.rawData[1] = this._properties_stream_f32_mtx_all[(value_start_index*6)+1];
+								new_matrix.rawData[4] = this._properties_stream_f32_mtx_all[(value_start_index*6)+2];
+								new_matrix.rawData[5] = this._properties_stream_f32_mtx_all[(value_start_index*6)+3];
+								new_matrix.rawData[12] = this._properties_stream_f32_mtx_all[(value_start_index*6)+4];
+								new_matrix.rawData[13] = this._properties_stream_f32_mtx_all[(value_start_index*6)+5];
+								target["_iMatrix3D"]=new_matrix;
+								//console.log("displaytransform  ");
+								break;
+
+							case 2:// colormatrix
+								var new_ct:ColorTransform = target["colorTransform"];
+								if(new_ct==null){
+									new_ct = new ColorTransform();
+								}
+								new_ct.redMultiplier = this._properties_stream_f32_ct[(value_start_index*8)];
+								new_ct.greenMultiplier = this._properties_stream_f32_ct[(value_start_index*8)+1];
+								new_ct.blueMultiplier = this._properties_stream_f32_ct[(value_start_index*8)+2];
+								new_ct.alphaMultiplier = this._properties_stream_f32_ct[(value_start_index*8)+3];
+								new_ct.redOffset = this._properties_stream_f32_ct[(value_start_index*8)+4];
+								new_ct.greenOffset = this._properties_stream_f32_ct[(value_start_index*8)+5];
+								new_ct.blueOffset = this._properties_stream_f32_ct[(value_start_index*8)+6];
+								new_ct.alphaOffset = this._properties_stream_f32_ct[(value_start_index*8)+7];
+								target["colorTransform"]=new_ct;
+								break;
+
+							case 3:// masks
+								var mask_length:number=this._properties_stream_int[value_start_index];
+								var firstMaskID:number=this._properties_stream_int[value_start_index+1] -1;
+								//console.log("mask length "+mask_length);
+								if ((mask_length == 1) && (firstMaskID == -1)) {
+									target["_iMaskID"] = childID;
+									//console.log("set masks = "+childID);
+								}
+								else{
+									var mc:number=0;
+									var mc2:number=0;
+									var masks = new Array<DisplayObject>();
+									for(mc=1; mc<=mask_length; mc++){
+										masks[mc2] = sourceMovieClip.getPotentialChildInstance(this._properties_stream_int[value_start_index+mc]-1);
+										(<DisplayObject>masks[mc2]).mouseEnabled=false;
+										if(masks[mc2].isAsset(MovieClip))
+											(<MovieClip>masks[mc2]).mouseChildren=false;
+										mc2++;
+										//console.log("set mask2 = "+this._update_props_ints[value_start_index+mc]);
+									}
+									target._iMasks = masks;
+								}
+								break;
+
+							case 4:// instance name movieclip instance
+								target.name = this._properties_stream_strings[value_start_index];
+								sourceMovieClip.adapter.registerScriptObject(target);
+								//console.log("registered object = "+target.name);
+								break;
+							case 5:// instance name button instance
+								target.name = this._properties_stream_strings[value_start_index];
+								sourceMovieClip.adapter.registerScriptObject(target);
+								//console.log("registered button = "+target.name);
+								(<MovieClip>target).makeButton();
+								break;
+
+							case 6://visible
+								if(value_start_index==0)
+									target.visible=false;
+								else
+									target.visible=true;
+								break;
+							case 11:// displaytransform
+								var new_matrix:Matrix3D = target["_iMatrix3D"];
+								if(new_matrix==null){
+									new_matrix = new Matrix3D();
+								}
+								new_matrix.rawData[0] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)];
+								new_matrix.rawData[1] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)+1];
+								new_matrix.rawData[4] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)+2];
+								new_matrix.rawData[5] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)+3];
+								target["_iMatrix3D"]=new_matrix;
+								//console.log("displaytransform  rot/scale");
+								break;
+							case 12:// displaytransform
+								var new_matrix:Matrix3D = target["_iMatrix3D"];
+								if(new_matrix==null){
+									new_matrix = new Matrix3D();
+								}
+								new_matrix.rawData[12] = this._properties_stream_f32_mtx_pos[(value_start_index*2)];
+								new_matrix.rawData[13] = this._properties_stream_f32_mtx_pos[(value_start_index*2)+1];
+								target["_iMatrix3D"]=new_matrix;
+
+								//console.log("displaytransform2  pos "+this._properties_stream_f32_mtx_pos[(value_start_index*2)]+" "+this._properties_stream_f32_mtx_pos[(value_start_index*2)+1]);
+								//console.log("displaytransform  pos "+new_matrix.rawData[4]+" "+new_matrix.rawData[5]);
+								break;
+							default:
+								break;
+
+						}
+					}
+
+				}
+				//else
+				//	console.log("skip kid 2");
+			}
+			//else
+			//	console.log("skip kid");
+		}
+
 	}
 }
 

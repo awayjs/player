@@ -7,17 +7,26 @@ import Mesh = require("awayjs-display/lib/entities/Mesh");
 import Billboard = require("awayjs-display/lib/entities/Billboard");
 import AS2MovieClipAtapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 
+import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
+import SceneEvent = require("awayjs-display/lib/events/SceneEvent");
+
 import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
-import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 import Timeline = require("awayjs-player/lib/timeline/Timeline");
 import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+import ExecuteScriptCommand             = require("awayjs-player/lib/timeline/commands/ExecuteScriptCommand");
 
 class MovieClip extends DisplayObjectContainer
 {
     public static assetType:string = "[asset MovieClip]";
 
     private _timeline:Timeline;
+
+    private _isButton:boolean;
+    private _onMouseOver:Function;
+    private _onMouseOut:Function;
+    private _onMouseDown:Function;
+    private _onMouseUp:Function;
 
     private _time:number;// the current time inside the animation
     private _currentFrameIndex:number;// the current frame
@@ -37,7 +46,7 @@ class MovieClip extends DisplayObjectContainer
     private _adapter:MovieClipAdapter;
 
     private _potentialInstances:Array<DisplayObject>;
-    private _keyFramesWaitingForPostConstruct:Array<TimelineKeyFrame>;
+    private _keyFramesWaitingForPostConstruct:Array<ExecuteScriptCommand>;
 
     constructor()
     {
@@ -49,6 +58,7 @@ class MovieClip extends DisplayObjectContainer
         this._isInit=true;
         this._keyFramesWaitingForPostConstruct=[];
         this._isPlaying = true; // auto-play
+        this._isButton=false;
 
         this._fps = 30;
         this._time = 0;
@@ -129,20 +139,34 @@ class MovieClip extends DisplayObjectContainer
         this._isPlaying = true;
         //this._time = 0;
         this._forceFirstScript = true;
-        this.currentFrameIndex = 0;
-        this._skipAdvance = true;
+        this._currentFrameIndex = 0;
+        this._constructedKeyFrameIndex = -1;
+        var i:number=this.numChildren;
+        while (i--)
+            this.removeChildAt(i);
 
-        this._isInit=true;
-        var i:number=0;
-        for (i=0; i<this.numChildren; ++i) {
-             var child:DisplayObject = this.getChildAt(i);
-             if(child.isAsset(MovieClip)){
-                 if(!(<MovieClip>child).isInit)
-                    (<MovieClip>child).reset();
+        this.timeline.constructNextFrame(this);
 
-             }
-         }
-        //}
+        // i was thinking we might need to reset all children, but it makes stuff worse
+        /*
+        var i:number=this.numChildren;
+        while (i--) {
+            var child = this.getChildAt(i);
+            if (child.isAsset(MovieClip))
+                (<MovieClip>child).reset();
+        }
+        */
+        /*
+        for (var key in this._potentialInstances) {
+            if (this._potentialInstances[key]) {
+                if(this._potentialInstances[key].isAsset(MovieClip))
+                    (<MovieClip>this._potentialInstances[key]).reset();
+            }
+        }
+        */
+        //this.advanceChildren();
+        this._skipAdvance=true;
+
     }
     /*
     * Setting the currentFrameIndex will move the playhead for this movieclip to the new position
@@ -177,6 +201,29 @@ class MovieClip extends DisplayObjectContainer
     {
         this._adapter = value;
     }
+    public makeButton()
+    {
+        this._isButton=true;
+        this.stop();
+        this._onMouseOver = function() { this.currentFrameIndex = 1; };
+        this._onMouseOut = function() { this.currentFrameIndex = 0; };
+        this._onMouseDown = function() { this.currentFrameIndex = 2; };
+        this._onMouseUp = function() { this.currentFrameIndex = this.currentFrameIndex == 0? 0 : 1; };
+
+        this.addEventListener(MouseEvent.MOUSE_OVER, this._onMouseOver);
+        this.addEventListener(MouseEvent.MOUSE_OUT, this._onMouseOut);
+        this.addEventListener(MouseEvent.MOUSE_DOWN, this._onMouseDown);
+        this.addEventListener(MouseEvent.MOUSE_UP, this._onMouseUp);
+    }
+
+    public removeButtonListener()
+    {
+        this.removeEventListener(MouseEvent.MOUSE_OVER, this._onMouseOver);
+        this.removeEventListener(MouseEvent.MOUSE_OUT, this._onMouseOut);
+        this.removeEventListener(MouseEvent.MOUSE_DOWN, this._onMouseDown);
+        this.removeEventListener(MouseEvent.MOUSE_UP, this._onMouseUp);
+
+    }
 
     public get name() : string
     {
@@ -198,8 +245,12 @@ class MovieClip extends DisplayObjectContainer
         super.addChild(child);
 
         if(child.isAsset(MovieClip)){
-            if((<MovieClip>child).currentFrameIndex==-1)
-                (<MovieClip>child).reset();
+            if((<MovieClip>child).timeline)
+            {
+                if ((<MovieClip>child).currentFrameIndex == -1) {
+                    (<MovieClip>child).reset();
+                }
+            }
         }
 
         this.dispatchEvent(new MovieClipEvent(MovieClipEvent.CHILD_ADDED, child));
@@ -253,6 +304,8 @@ class MovieClip extends DisplayObjectContainer
         if (this._time >= frameMarker) {
             this._time = 0;
             this.advanceFrame();
+            //console.log("update "+this._currentFrameIndex);
+            //console.log("update key "+this._constructedKeyFrameIndex);
 
             this.dispatchEvent(this._enterFrame);
             var has_executed_script:boolean=true;
@@ -271,7 +324,7 @@ class MovieClip extends DisplayObjectContainer
         return this._potentialInstances[id];
     }
 
-    public addFrameForScriptExecution(value:TimelineKeyFrame)
+    public addScriptForExecution(value:ExecuteScriptCommand)
     {
         this._keyFramesWaitingForPostConstruct.push(value);
     }
@@ -324,21 +377,22 @@ class MovieClip extends DisplayObjectContainer
 
     public advanceFrame(skipChildren:boolean = false)
     {
-        this.isInit=false;
         if(this.timeline) {
             var i;
             var oldFrameIndex = this._currentFrameIndex;
-            var advance = (this._isPlaying && !this._skipAdvance);
-            if (advance && this._currentFrameIndex == this.timeline.numFrames() - 1 && !this._loop) {
+            var advance = (this._isPlaying && !this._skipAdvance) || oldFrameIndex == -1;
+            if (advance && oldFrameIndex == this.timeline.numFrames() - 1 && !this._loop) {
                 advance = false;
             }
-            if (advance && this._currentFrameIndex <= 0 && this.timeline.numFrames() == 1) {
+            if (advance && oldFrameIndex == 0 && this.timeline.numFrames() == 1) {
+                //console.log("one frame clip");
                 this._currentFrameIndex = 0;
                 advance = false;
             }
             if (advance) {
+                //console.log("advance");
                 ++this._currentFrameIndex;
-                if (this._currentFrameIndex== this.timeline.numFrames()) {
+                if (this._currentFrameIndex == this.timeline.numFrames()) {
                     // looping - jump to first frame.
                     this.currentFrameIndex=0;
                 }
@@ -397,20 +451,20 @@ class MovieClip extends DisplayObjectContainer
     executePostConstructCommands():boolean
     {
 
-        var i;
         // a script ,might call gotoAndStop() / gotoAndPlay() on itself or on other mc
         // this might result in more script that should be executed.
-        // each mc provides a list of frames that needs postconstructing.
-        // in this function, we postcontruct all those frames
+        // each mc provides a list of index to script that needs postconstructing.
+        // in this function, we postcontruct all those scripts
         var has_script_executed:boolean=false;
         if(this.timeline) {
             if(this._keyFramesWaitingForPostConstruct.length>0){
                 has_script_executed=true;
-                this._keyFramesWaitingForPostConstruct[0].postConstruct(this);
+                this._keyFramesWaitingForPostConstruct[0].execute(this);
                 this._keyFramesWaitingForPostConstruct.shift();
             }
         }
 
+        var i;
         var len:number = this.numChildren-1;
         for (i = len; i >=0; --i) {
             var child = this.getChildAt(i);

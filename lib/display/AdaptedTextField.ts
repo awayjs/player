@@ -2,7 +2,6 @@ import TextField = require("awayjs-display/lib/entities/TextField");
 import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 
 import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
-import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 
 class AdaptedTextField extends TextField

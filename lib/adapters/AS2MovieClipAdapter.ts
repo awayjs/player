@@ -319,6 +319,9 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
   public unregisterScriptObject(child : DisplayObject)
   {
     delete this[child.name];
+    if(child.isAsset(MovieClip)){
+      (<MovieClip>child).removeButtonListener();
+    }
   }
 
   public _pOnChildAdded(event:MovieClipEvent)

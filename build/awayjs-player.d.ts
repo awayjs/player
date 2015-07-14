@@ -377,11 +377,16 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
-	import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 	import Timeline = require("awayjs-player/lib/timeline/Timeline");
+	import ExecuteScriptCommand = require("awayjs-player/lib/timeline/commands/ExecuteScriptCommand");
 	class MovieClip extends DisplayObjectContainer {
 	    static assetType: string;
 	    private _timeline;
+	    private _isButton;
+	    private _onMouseOver;
+	    private _onMouseOut;
+	    private _onMouseDown;
+	    private _onMouseUp;
 	    private _time;
 	    private _currentFrameIndex;
 	    private _constructedKeyFrameIndex;
@@ -407,6 +412,8 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    constructedKeyFrameIndex: number;
 	    reset(): void;
 	    adapter: MovieClipAdapter;
+	    makeButton(): void;
+	    removeButtonListener(): void;
 	    name: string;
 	    addChild(child: DisplayObject): DisplayObject;
 	    removeChild(child: DisplayObject): DisplayObject;
@@ -421,7 +428,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	     */
 	    update(timeDelta: number): void;
 	    getPotentialChildInstance(id: number): DisplayObject;
-	    addFrameForScriptExecution(value: TimelineKeyFrame): void;
+	    addScriptForExecution(value: ExecuteScriptCommand): void;
 	    activateChild(id: number): void;
 	    deactivateChild(id: number): void;
 	    /**
@@ -554,20 +561,6 @@ declare module "awayjs-player/lib/renderer/Mask" {
 	
 }
 
-declare module "awayjs-player/lib/renderer/RenderableSort2D" {
-	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
-	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
-	/**
-	 * @class away.sort.RenderableMergeSort
-	 */
-	class RenderableMergeSort implements IEntitySorter {
-	    sortBlendedRenderables(head: IRenderable): IRenderable;
-	    sortOpaqueRenderables(head: IRenderable): IRenderable;
-	}
-	export = RenderableMergeSort;
-	
-}
-
 declare module "awayjs-player/lib/renderer/Renderer2D" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
@@ -583,68 +576,95 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	
 }
 
+declare module "awayjs-player/lib/renderer/RenderableSort2D" {
+	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
+	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
+	/**
+	 * @class away.sort.RenderableMergeSort
+	 */
+	class RenderableMergeSort implements IEntitySorter {
+	    sortBlendedRenderables(head: IRenderable): IRenderable;
+	    sortOpaqueRenderables(head: IRenderable): IRenderable;
+	}
+	export = RenderableMergeSort;
+	
+}
+
 declare module "awayjs-player/lib/timeline/Timeline" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import TimelineKeyFrame = require("awayjs-player/lib/timeline/TimelineKeyFrame");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	class Timeline {
-	    _keyframe_indices: Array<number>;
+	    private _keyframe_indices;
+	    private _keyframe_firstframes;
+	    private _keyframe_constructframes;
+	    private _keyframe_durations;
 	    _labels: Object;
-	    private _keyFrames;
+	    _framescripts: Object;
+	    private _frame_command_indices;
+	    private _frame_recipe;
+	    private _command_index_stream;
+	    private _command_length_stream;
+	    private _add_child_stream;
+	    private _remove_child_stream;
+	    private _update_child_stream;
+	    private _update_child_props_length_stream;
+	    private _update_child_props_indices_stream;
+	    private _property_index_stream;
+	    private _property_type_stream;
+	    private _properties_stream_int;
+	    private _properties_stream_f32_mtx_all;
+	    private _properties_stream_f32_mtx_scale_rot;
+	    private _properties_stream_f32_mtx_pos;
+	    private _properties_stream_f32_ct;
+	    private _properties_stream_strings;
 	    private _potentialPrototypes;
+	    numKeyFrames: number;
 	    constructor();
+	    init(): void;
+	    keyframe_durations: ArrayBufferView;
+	    frame_command_indices: ArrayBufferView;
+	    frame_recipe: ArrayBufferView;
+	    command_index_stream: ArrayBufferView;
+	    command_length_stream: ArrayBufferView;
+	    add_child_stream: ArrayBufferView;
+	    remove_child_stream: ArrayBufferView;
+	    update_child_stream: ArrayBufferView;
+	    update_child_props_indices_stream: ArrayBufferView;
+	    update_child_props_length_stream: ArrayBufferView;
+	    property_index_stream: ArrayBufferView;
+	    property_type_stream: ArrayBufferView;
+	    properties_stream_f32_mtx_all: Float32Array;
+	    properties_stream_f32_mtx_scale_rot: Float32Array;
+	    properties_stream_f32_mtx_pos: Float32Array;
+	    properties_stream_f32_ct: Float32Array;
+	    properties_stream_int: ArrayBufferView;
+	    properties_stream_strings: Array<string>;
+	    keyframe_indices: Array<number>;
+	    keyframe_firstframes: Array<number>;
+	    keyframe_constructframes: Array<number>;
 	    numFrames(): number;
-	    numKeyFrames(): number;
-	    /**
-	     * Add a new TimelineFrame.
-	     */
-	    addFrame(newFrame: TimelineKeyFrame): void;
 	    getPotentialChildPrototype(id: number): DisplayObject;
 	    getKeyframeIndexForFrameIndex(frame_index: number): number;
-	    getKeyframeForFrameIndex(frame_index: number): TimelineKeyFrame;
 	    getPotentialChilds(): Array<DisplayObject>;
 	    getPotentialChildInstance(id: number): DisplayObject;
 	    registerPotentialChild(prototype: DisplayObject): void;
+	    executeScriptIfAvailable(target_mc: MovieClip, frameIndex: number): void;
 	    jumpToLabel(target_mc: MovieClip, label: string): void;
 	    gotoFrame(target_mc: MovieClip, value: number): void;
 	    constructNextFrame(target_mc: MovieClip): void;
+	    remove_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
+	    remove_childs_continous(sourceMovieClip: MovieClip, start_index: number, len: number): void;
+	    add_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
+	    add_childs_continous(sourceMovieClip: MovieClip, start_index: number, len: number): void;
+	    update_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
 	}
 	export = Timeline;
 	
 }
 
-declare module "awayjs-player/lib/timeline/TimelineKeyFrame" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	class TimelineKeyFrame {
-	    firstFrame: number;
-	    duration: number;
-	    lastFrame: number;
-	    label: string;
-	    removeDepth: Array<number>;
-	    addCommands: Array<number>;
-	    updateChildIDs: Array<number>;
-	    updateChildProperties: Array<Object>;
-	    registerChilds: Array<number>;
-	    registerNames: Array<string>;
-	    frameConstructCommands: Array<FrameCommand>;
-	    frameUpdatePropertiesCommands: Array<FrameCommand>;
-	    framePostConstructCommands: Array<FrameCommand>;
-	    constructor(firstFrame: number, duration: number);
-	    construct_childs(sourceMovieClip: MovieClip): void;
-	    construct(sourceMovieClip: MovieClip): void;
-	    updateProperties(sourceMovieClip: MovieClip): void;
-	    registerObjects(sourceMovieClip: MovieClip): void;
-	    postConstruct(sourceMovieClip: MovieClip): void;
-	}
-	export = TimelineKeyFrame;
-	
-}
-
 declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class ExecuteScriptCommand implements FrameCommand {
+	class ExecuteScriptCommand {
 	    private _script;
 	    private _translatedScript;
 	    constructor(script: Function);
@@ -657,47 +677,18 @@ declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
 	
 }
 
-declare module "awayjs-player/lib/timeline/commands/FrameCommand" {
+declare module "awayjs-player/lib/timeline/commands/ButtonListenerHolder" {
 	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	/**
-	 * IMPORTANT: FrameCommands are NOT allowed to store references to actual objects, only childIDs. This prevents complex
-	 * cross-command object reference management when instancing. It also allows commands and frames instances to be shared
-	 * across MovieClip instances.
-	 */
-	interface FrameCommand {
-	    execute(sourceMovieClip: MovieClip): void;
-	}
-	export = FrameCommand;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/SetButtonCommand" {
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class SetButtonCommand implements FrameCommand {
-	    private _targetID;
+	class ButtonListenerHolder {
+	    private _target_mc;
 	    private _onMouseOver;
 	    private _onMouseOut;
 	    private _onMouseDown;
 	    private _onMouseUp;
 	    private _onRemovedFromScene;
-	    constructor(targetID: number);
-	    execute(sourceMovieClip: MovieClip): void;
+	    constructor(target: MovieClip);
 	}
-	export = SetButtonCommand;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/SetMaskCommand" {
-	import FrameCommand = require("awayjs-player/lib/timeline/commands/FrameCommand");
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class SetMaskCommand implements FrameCommand {
-	    private _targetID;
-	    private _maskIDs;
-	    constructor(targetID: number, maskIDs: Array<number>);
-	    execute(sourceMovieClip: MovieClip): void;
-	}
-	export = SetMaskCommand;
+	export = ButtonListenerHolder;
 	
 }
 
