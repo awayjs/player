@@ -233,17 +233,9 @@ class Timeline
 
 		var firstframe=this._keyframe_firstframes[target_keyframe_idx];
 		if(frameIndex==value){
-			//we are already on this frame. execute framescript if needed
-			if(target_mc.forceFirstScript){
-				if(firstframe==value) {
-					this.executeScriptIfAvailable(target_mc, target_keyframe_idx);
-				}
-			}
-			target_mc.forceFirstScript=false;
+			//we are already on this frame.
 			return;
 		}
-		target_mc.forceFirstScript=false;
-
 		//console.log("gotoframe 2");
 		if(firstframe==value){
 			//frame changed. and firstframe of keyframe. execute framescript if available

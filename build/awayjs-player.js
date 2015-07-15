@@ -780,6 +780,9 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.string = function (value) {
         return value.toString();
     };
+    AS2SymbolAdapter.prototype.getURL = function (value) {
+        return value;
+    };
     AS2SymbolAdapter.prototype.isBlockedByScript = function () {
         return this._blockedByScript;
     };
@@ -1208,7 +1211,6 @@ var MovieClip = (function (_super) {
     function MovieClip() {
         _super.call(this);
         this._loop = true;
-        this._forceFirstScript = false;
         this._prototype = this;
         this._potentialInstances = [];
         this._currentFrameIndex = -1;
@@ -1228,16 +1230,6 @@ var MovieClip = (function (_super) {
         },
         set: function (value) {
             this._isInit = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MovieClip.prototype, "forceFirstScript", {
-        get: function () {
-            return this._forceFirstScript;
-        },
-        set: function (value) {
-            this._forceFirstScript = value;
         },
         enumerable: true,
         configurable: true
@@ -1315,14 +1307,24 @@ var MovieClip = (function (_super) {
         //if(this.adapter && this.adapter.isBlockedByScript()){
         this._keyFramesWaitingForPostConstruct = [];
         this._isPlaying = true;
-        //this._time = 0;
-        this._forceFirstScript = true;
-        this._currentFrameIndex = 0;
+        this._time = 0;
+        this._currentFrameIndex = -1;
         this._constructedKeyFrameIndex = -1;
         var i = this.numChildren;
         while (i--)
             this.removeChildAt(i);
-        this.timeline.constructNextFrame(this);
+        for (var key in this._potentialInstances) {
+            if (this._potentialInstances[key]) {
+                if (this._potentialInstances[key].isAsset(MovieClip))
+                    this._potentialInstances[key].reset();
+            }
+        }
+        if (this.parent) {
+            this._currentFrameIndex = 0;
+            this.timeline.constructNextFrame(this);
+            this._skipAdvance = true;
+        }
+        //___scoped_this___.dennis.mov.Man.body.reach.gotoAndPlay("call");
         // i was thinking we might need to reset all children, but it makes stuff worse
         /*
         var i:number=this.numChildren;
@@ -1332,16 +1334,7 @@ var MovieClip = (function (_super) {
                 (<MovieClip>child).reset();
         }
         */
-        /*
-        for (var key in this._potentialInstances) {
-            if (this._potentialInstances[key]) {
-                if(this._potentialInstances[key].isAsset(MovieClip))
-                    (<MovieClip>this._potentialInstances[key]).reset();
-            }
-        }
-        */
         //this.advanceChildren();
-        this._skipAdvance = true;
     };
     Object.defineProperty(MovieClip.prototype, "adapter", {
         // adapter is used to provide MovieClip to scripts taken from different platforms
@@ -2263,16 +2256,9 @@ var Timeline = (function () {
         var target_keyframe_idx = this._keyframe_indices[value];
         var firstframe = this._keyframe_firstframes[target_keyframe_idx];
         if (frameIndex == value) {
-            //we are already on this frame. execute framescript if needed
-            if (target_mc.forceFirstScript) {
-                if (firstframe == value) {
-                    this.executeScriptIfAvailable(target_mc, target_keyframe_idx);
-                }
-            }
-            target_mc.forceFirstScript = false;
+            //we are already on this frame.
             return;
         }
-        target_mc.forceFirstScript = false;
         //console.log("gotoframe 2");
         if (firstframe == value) {
             //frame changed. and firstframe of keyframe. execute framescript if available

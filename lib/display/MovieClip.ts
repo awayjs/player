@@ -35,7 +35,6 @@ class MovieClip extends DisplayObjectContainer
     private _fps:number;// we use ms internally, but have fps, so user can set time by frame
     private _isPlaying:boolean;// false if paused or stopped
     private _loop:boolean = true;
-    private _forceFirstScript:boolean = false;
 
     // not sure if needed
     private _prototype:MovieClip;
@@ -75,14 +74,6 @@ class MovieClip extends DisplayObjectContainer
         this._isInit = value;
     }
 
-    public get forceFirstScript():boolean
-    {
-        return this._forceFirstScript;
-    }
-    public set forceFirstScript(value:boolean)
-    {
-        this._forceFirstScript = value;
-    }
 
     public get timeline():Timeline
     {
@@ -137,16 +128,27 @@ class MovieClip extends DisplayObjectContainer
         //if(this.adapter && this.adapter.isBlockedByScript()){
         this._keyFramesWaitingForPostConstruct = [];
         this._isPlaying = true;
-        //this._time = 0;
-        this._forceFirstScript = true;
-        this._currentFrameIndex = 0;
+        this._time = 0;
+        this._currentFrameIndex = -1;
         this._constructedKeyFrameIndex = -1;
         var i:number=this.numChildren;
         while (i--)
             this.removeChildAt(i);
 
-        this.timeline.constructNextFrame(this);
+        // force reset all potential childs on timeline.
+        for (var key in this._potentialInstances) {
+            if (this._potentialInstances[key]) {
+                if (this._potentialInstances[key].isAsset(MovieClip))
+                    (<MovieClip>this._potentialInstances[key]).reset();
+            }
+        }
 
+        if(this.parent) {
+            this._currentFrameIndex = 0;
+            this.timeline.constructNextFrame(this);
+            this._skipAdvance=true;
+        }
+//___scoped_this___.dennis.mov.Man.body.reach.gotoAndPlay("call");
         // i was thinking we might need to reset all children, but it makes stuff worse
         /*
         var i:number=this.numChildren;
@@ -156,16 +158,7 @@ class MovieClip extends DisplayObjectContainer
                 (<MovieClip>child).reset();
         }
         */
-        /*
-        for (var key in this._potentialInstances) {
-            if (this._potentialInstances[key]) {
-                if(this._potentialInstances[key].isAsset(MovieClip))
-                    (<MovieClip>this._potentialInstances[key]).reset();
-            }
-        }
-        */
         //this.advanceChildren();
-        this._skipAdvance=true;
 
     }
     /*

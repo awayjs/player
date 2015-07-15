@@ -255,6 +255,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    SharedObject: typeof AS2SharedObjectAdapter;
 	    String(value: any): any;
 	    string(value: any): any;
+	    getURL(value: string): string;
 	    isBlockedByScript(): boolean;
 	    freeFromScript(): void;
 	    private __root;
@@ -393,7 +394,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _fps;
 	    private _isPlaying;
 	    private _loop;
-	    private _forceFirstScript;
 	    private _prototype;
 	    private _enterFrame;
 	    private _skipAdvance;
@@ -403,7 +403,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _keyFramesWaitingForPostConstruct;
 	    constructor();
 	    isInit: boolean;
-	    forceFirstScript: boolean;
 	    timeline: Timeline;
 	    loop: boolean;
 	    numFrames: number;

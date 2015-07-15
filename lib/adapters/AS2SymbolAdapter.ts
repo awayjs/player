@@ -26,6 +26,7 @@ class AS2SymbolAdapter
     public get SharedObject() { return AS2SharedObjectAdapter; }
     public String(value:any) { return value.toString(); }
     public string(value:any) { return value.toString(); }
+    public getURL(value:string) { return value; }
 
     public isBlockedByScript():boolean { return this._blockedByScript;}
     public freeFromScript():void { this._blockedByScript=false;}
