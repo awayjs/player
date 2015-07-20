@@ -3,11 +3,11 @@ class AS2SharedObjectAdapter
     public data : Object;
     private _object_name : string;
 
-    constructor(localPath:string)
+    constructor(name:string)
     {
-        this._object_name=localPath;
+        this._object_name=name;
         if(typeof(Storage) !== "undefined") {
-            this.data = JSON.parse(localStorage.getItem(localPath));
+            this.data = JSON.parse(localStorage.getItem(name));
         }
         if(this.data==null){
             console.log("no shared object found");
@@ -18,7 +18,7 @@ class AS2SharedObjectAdapter
     // should become a static
     public static getLocal(name:string, localPath:string, secure:boolean) : AS2SharedObjectAdapter
     {
-        return new AS2SharedObjectAdapter(localPath);
+        return new AS2SharedObjectAdapter(name);
     }
 
     // needs to stay as it is

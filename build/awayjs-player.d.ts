@@ -198,7 +198,7 @@ declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
 	class AS2SharedObjectAdapter {
 	    data: Object;
 	    private _object_name;
-	    constructor(localPath: string);
+	    constructor(name: string);
 	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
 	    flush(): void;
 	}

@@ -564,10 +564,10 @@ module.exports = AS2MovieClipAdapter;
 
 },{"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
-    function AS2SharedObjectAdapter(localPath) {
-        this._object_name = localPath;
+    function AS2SharedObjectAdapter(name) {
+        this._object_name = name;
         if (typeof (Storage) !== "undefined") {
-            this.data = JSON.parse(localStorage.getItem(localPath));
+            this.data = JSON.parse(localStorage.getItem(name));
         }
         if (this.data == null) {
             console.log("no shared object found");
@@ -576,7 +576,7 @@ var AS2SharedObjectAdapter = (function () {
     }
     // should become a static
     AS2SharedObjectAdapter.getLocal = function (name, localPath, secure) {
-        return new AS2SharedObjectAdapter(localPath);
+        return new AS2SharedObjectAdapter(name);
     };
     // needs to stay as it is
     AS2SharedObjectAdapter.prototype.flush = function () {
