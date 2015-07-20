@@ -1,6 +1,4 @@
 import MovieClip                    = require("awayjs-player/lib/display/MovieClip");
-import ExecuteScriptCommand             = require("awayjs-player/lib/timeline/commands/ExecuteScriptCommand");
-import ButtonListenerHolder             = require("awayjs-player/lib/timeline/commands/ButtonListenerHolder");
 import ByteArray						= require("awayjs-core/lib/utils/ByteArray");
 import DisplayObject                    = require("awayjs-display/lib/base/DisplayObject");
 import ColorTransform					= require("awayjs-core/lib/geom/ColorTransform");
@@ -19,6 +17,7 @@ class Timeline
 
 	public _labels:Object;			// dictionary to store label => keyframeindex
 	public _framescripts:Object;    // dictionary to store keyframeindex => ExecuteScriptCommand
+	public _framescripts_translated:Object;    // dictionary to store keyframeindex => bool that keeps track of already converted scripts
 
 	// synched:
 	private _frame_command_indices:ArrayBufferView;
@@ -57,6 +56,7 @@ class Timeline
 		this._keyframe_indices=[];
 		this._labels={};
 		this._framescripts={};
+		this._framescripts_translated={};
 	}
 
 	public init():void
@@ -82,6 +82,82 @@ class Timeline
 			for(ic2=0; ic2<duration; ic2++){
 				this._keyframe_indices[frame_cnt++]=ic;
 			}
+		}
+	}
+	public get_framescript(keyframe_index:number):string
+	{
+		if(this._framescripts[keyframe_index]==null)
+			return "";
+		if (typeof this._framescripts[keyframe_index] == "string")
+			return this._framescripts[keyframe_index];
+		else{
+			throw new Error("Framescript is already translated to Function!!!");
+		}
+		return "";
+	}
+	public add_framescript(value:string, keyframe_index:number)
+	{
+		this._framescripts[keyframe_index] = value;
+	}
+
+	private regexIndexOf(str : string, regex : RegExp, startpos : number) {
+		var indexOf = str.substring(startpos || 0).search(regex);
+		return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+	}
+
+
+	public add_script_for_postcontruct(target_mc:MovieClip, keyframe_idx:number) : void
+	{
+		if(this._framescripts[keyframe_idx]!=null){
+			if(this._framescripts_translated[keyframe_idx]==null){
+				this.translateScript(target_mc.adapter.classReplacements,this._framescripts[keyframe_idx], keyframe_idx);
+			}
+			target_mc.addScriptForExecution(this._framescripts[keyframe_idx]);
+		}
+	}
+	// TODO: handle this in the exporter so it's safe!
+	public translateScript(classReplacements, frame_script_in:string, keyframe_idx:number)
+	{
+		var replaced = frame_script_in.replace(/(\\n|\r)/g, "");
+		var replacementPreface = "";
+		var replacementPostface = "";
+
+		// where "this" is a single word
+		//replaced = replaced.replace(/\bthis\./, "___scoped_this___.");
+
+		for (var srcName in classReplacements) {
+			var dstName = classReplacements[srcName];
+			// where class name is a single word
+			//var regex = "\b" + srcName + "\b";
+			//replaced = replaced.replace(new RegExp(regex, "g"), dstName);
+
+			// store old references to stuff in a temporary var to be reset after script execution;
+			// make sure a definition exists, even if it's undefined
+			replacementPreface += "var __OLD_" + srcName + " = typeof " + srcName + " == 'function'? " + srcName + " : undefined;\n";
+			replacementPreface += srcName + " = require(\"" + dstName + "\");\n";
+			replacementPreface += "function int(value) { return value | 0; }\n";
+			replacementPostface += srcName + " = __OLD_" + srcName + ";\n";
+		}
+
+		// make sure we don't use "this", since Actionscript's "this" has the same scope rules as a variable
+		var str =   replacementPreface +
+				//"var ___scoped_this___ = this;" +
+				//"with(___scoped_this___) { \n" +
+			replaced +
+				//"}\n" +
+			replacementPostface;
+
+		//console.log(str);
+
+		this._framescripts_translated[keyframe_idx]=true;
+		try {
+			this._framescripts[keyframe_idx] = new Function(str);
+		}
+		catch(err)
+		{
+			console.log("Syntax error in script:\n", str);
+			console.log(err.message);
+			throw err;
 		}
 	}
 	public set keyframe_durations(value:ArrayBufferView)
@@ -207,13 +283,6 @@ class Timeline
 		var id = this._potentialPrototypes.length;
 		this._potentialPrototypes[id] = prototype;
 	}
-
-	public executeScriptIfAvailable(target_mc:MovieClip, frameIndex:number) : void
-	{
-		if(this._framescripts[frameIndex]!=null){
-			target_mc.addScriptForExecution(this._framescripts[frameIndex]);
-		}
-	}
 	public jumpToLabel(target_mc:MovieClip, label:string) : void
 	{
 		var key_frame_index:number = this._labels[label];
@@ -239,7 +308,7 @@ class Timeline
 		//console.log("gotoframe 2");
 		if(firstframe==value){
 			//frame changed. and firstframe of keyframe. execute framescript if available
-			this.executeScriptIfAvailable(target_mc, target_keyframe_idx);
+			this.add_script_for_postcontruct(target_mc, target_keyframe_idx);
 		}
 
 		if(current_keyframe_idx==target_keyframe_idx) {
@@ -404,7 +473,7 @@ class Timeline
 
 		}
 		if(this._keyframe_firstframes[new_keyFrameIndex]==frameIndex){
-			this.executeScriptIfAvailable(target_mc, new_keyFrameIndex);
+			this.add_script_for_postcontruct(target_mc, new_keyFrameIndex);
 		}
 
 	}
@@ -445,9 +514,9 @@ class Timeline
 				if(childrenArray[c].__AS2Depth==remove_depth){
 					var target = childrenArray[c];
 					sourceMovieClip.removeChild(target);
-					//sourceMovieClip.adapter.unregisterScriptObject(target);
-					//if(target.isAsset(MovieClip) && (<MovieClip>target).adapter)
-					//	(<MovieClip>target).adapter.freeFromScript();
+					sourceMovieClip.adapter.unregisterScriptObject(target);
+					if(target.isAsset(MovieClip) && (<MovieClip>target).adapter)
+						(<MovieClip>target).adapter.freeFromScript();
 					break;
 				}
 			}
@@ -478,9 +547,11 @@ class Timeline
 			target["__AS2Depth"]  = this._add_child_stream[(start_index*2)+(i*2)+1]-16383;
 			target["__sessionID"] = start_index+i;
 
-			if(target.isAsset(MovieClip)){
-				if((<MovieClip>target).adapter && !(<MovieClip>target).adapter.isBlockedByScript())
+			if(target.isAsset(MovieClip)) {
+				if ((<MovieClip>target).adapter && !(<MovieClip>target).adapter.isBlockedByScript()) {
 					(<MovieClip>target).reset();
+					target.reset_to_init_state();
+				}
 			}
 			else{
 				target.reset_to_init_state();
@@ -513,124 +584,134 @@ class Timeline
 						doit = false;
 					}
 				}
-				if (doit) {
-					props_start_idx=this._update_child_props_indices_stream[start_index+i];
-					props_cnt=this._update_child_props_length_stream[start_index+i];
+				props_start_idx=this._update_child_props_indices_stream[start_index+i];
+				props_cnt=this._update_child_props_length_stream[start_index+i];
 
-					//console.log("	props_cnt = "+props_cnt);
-					for(pc=0; pc<props_cnt;pc++) {
-						props_type = this._property_type_stream[props_start_idx+pc];
-						value_start_index = this._property_index_stream[props_start_idx+pc];
-						//console.log("	props_id = "+props_id);
-						//console.log("	value_start_index = "+value_start_index);
-						switch(props_type){
-							case 0:
-								break;
+				//console.log("	props_cnt = "+props_cnt);
+				for(pc=0; pc<props_cnt;pc++) {
+					props_type = this._property_type_stream[props_start_idx+pc];
+					value_start_index = this._property_index_stream[props_start_idx+pc];
+					//console.log("	props_id = "+props_id);
+					//console.log("	value_start_index = "+value_start_index);
+					switch(props_type){
+						case 0:
+							break;
 
-							case 1:// displaytransform
+						case 1:// displaytransform
+							if (doit) {
 								var new_matrix:Matrix3D = target["_iMatrix3D"];
-								if(new_matrix==null){
+								if (new_matrix == null) {
 									new_matrix = new Matrix3D();
 								}
-								new_matrix.rawData[0] = this._properties_stream_f32_mtx_all[(value_start_index*6)];
-								new_matrix.rawData[1] = this._properties_stream_f32_mtx_all[(value_start_index*6)+1];
-								new_matrix.rawData[4] = this._properties_stream_f32_mtx_all[(value_start_index*6)+2];
-								new_matrix.rawData[5] = this._properties_stream_f32_mtx_all[(value_start_index*6)+3];
-								new_matrix.rawData[12] = this._properties_stream_f32_mtx_all[(value_start_index*6)+4];
-								new_matrix.rawData[13] = this._properties_stream_f32_mtx_all[(value_start_index*6)+5];
-								target["_iMatrix3D"]=new_matrix;
+								new_matrix.rawData[0] = this._properties_stream_f32_mtx_all[(value_start_index * 6)];
+								new_matrix.rawData[1] = this._properties_stream_f32_mtx_all[(value_start_index * 6) + 1];
+								new_matrix.rawData[4] = this._properties_stream_f32_mtx_all[(value_start_index * 6) + 2];
+								new_matrix.rawData[5] = this._properties_stream_f32_mtx_all[(value_start_index * 6) + 3];
+								new_matrix.rawData[12] = this._properties_stream_f32_mtx_all[(value_start_index * 6) + 4];
+								new_matrix.rawData[13] = this._properties_stream_f32_mtx_all[(value_start_index * 6) + 5];
+								target["_iMatrix3D"] = new_matrix;
 								//console.log("displaytransform  ");
-								break;
+							}
+							break;
 
-							case 2:// colormatrix
+						case 2:// colormatrix
+							if (doit) {
 								var new_ct:ColorTransform = target["colorTransform"];
-								if(new_ct==null){
+								if (new_ct == null) {
 									new_ct = new ColorTransform();
 								}
-								new_ct.redMultiplier = this._properties_stream_f32_ct[(value_start_index*8)];
-								new_ct.greenMultiplier = this._properties_stream_f32_ct[(value_start_index*8)+1];
-								new_ct.blueMultiplier = this._properties_stream_f32_ct[(value_start_index*8)+2];
-								new_ct.alphaMultiplier = this._properties_stream_f32_ct[(value_start_index*8)+3];
-								new_ct.redOffset = this._properties_stream_f32_ct[(value_start_index*8)+4];
-								new_ct.greenOffset = this._properties_stream_f32_ct[(value_start_index*8)+5];
-								new_ct.blueOffset = this._properties_stream_f32_ct[(value_start_index*8)+6];
-								new_ct.alphaOffset = this._properties_stream_f32_ct[(value_start_index*8)+7];
-								target["colorTransform"]=new_ct;
-								break;
+								new_ct.redMultiplier = this._properties_stream_f32_ct[(value_start_index * 8)];
+								new_ct.greenMultiplier = this._properties_stream_f32_ct[(value_start_index * 8) + 1];
+								new_ct.blueMultiplier = this._properties_stream_f32_ct[(value_start_index * 8) + 2];
+								new_ct.alphaMultiplier = this._properties_stream_f32_ct[(value_start_index * 8) + 3];
+								new_ct.redOffset = this._properties_stream_f32_ct[(value_start_index * 8) + 4];
+								new_ct.greenOffset = this._properties_stream_f32_ct[(value_start_index * 8) + 5];
+								new_ct.blueOffset = this._properties_stream_f32_ct[(value_start_index * 8) + 6];
+								new_ct.alphaOffset = this._properties_stream_f32_ct[(value_start_index * 8) + 7];
+								target["colorTransform"] = new_ct;
+							}
+							break;
 
-							case 3:// masks
-								var mask_length:number=this._properties_stream_int[value_start_index];
-								var firstMaskID:number=this._properties_stream_int[value_start_index+1] -1;
-								//console.log("mask length "+mask_length);
-								if ((mask_length == 1) && (firstMaskID == -1)) {
-									target["_iMaskID"] = childID;
-									//console.log("set masks = "+childID);
+						case 3:// masks
+							var mask_length:number=this._properties_stream_int[value_start_index];
+							var firstMaskID:number=this._properties_stream_int[value_start_index+1] -1;
+							//console.log("mask length "+mask_length);
+							if ((mask_length == 1) && (firstMaskID == -1)) {
+								target["_iMaskID"] = childID;
+								//console.log("set masks = "+childID);
+							}
+							else{
+								var mc:number=0;
+								var mc2:number=0;
+								var masks = new Array<DisplayObject>();
+								for(mc=1; mc<=mask_length; mc++){
+									masks[mc2] = sourceMovieClip.getPotentialChildInstance(this._properties_stream_int[value_start_index+mc]-1);
+									(<DisplayObject>masks[mc2]).mouseEnabled=false;
+									if(masks[mc2].isAsset(MovieClip))
+										(<MovieClip>masks[mc2]).mouseChildren=false;
+									mc2++;
+									//console.log("set mask2 = "+this._update_props_ints[value_start_index+mc]);
 								}
-								else{
-									var mc:number=0;
-									var mc2:number=0;
-									var masks = new Array<DisplayObject>();
-									for(mc=1; mc<=mask_length; mc++){
-										masks[mc2] = sourceMovieClip.getPotentialChildInstance(this._properties_stream_int[value_start_index+mc]-1);
-										(<DisplayObject>masks[mc2]).mouseEnabled=false;
-										if(masks[mc2].isAsset(MovieClip))
-											(<MovieClip>masks[mc2]).mouseChildren=false;
-										mc2++;
-										//console.log("set mask2 = "+this._update_props_ints[value_start_index+mc]);
-									}
-									target._iMasks = masks;
-								}
-								break;
+								target._iMasks = masks;
+							}
+							break;
 
-							case 4:// instance name movieclip instance
-								target.name = this._properties_stream_strings[value_start_index];
-								sourceMovieClip.adapter.registerScriptObject(target);
-								//console.log("registered object = "+target.name);
-								break;
-							case 5:// instance name button instance
-								target.name = this._properties_stream_strings[value_start_index];
-								sourceMovieClip.adapter.registerScriptObject(target);
-								//console.log("registered button = "+target.name);
-								(<MovieClip>target).makeButton();
-								break;
+						case 4:// instance name movieclip instance
+							target.name = this._properties_stream_strings[value_start_index];
+							sourceMovieClip.adapter.registerScriptObject(target);
+							//console.log("registered object = "+target.name);
+							break;
+						case 5:// instance name button instance
+							target.name = this._properties_stream_strings[value_start_index];
+							sourceMovieClip.adapter.registerScriptObject(target);
+							//console.log("registered button = "+target.name);
+							(<MovieClip>target).makeButton();
+							break;
 
-							case 6://visible
-								if(value_start_index==0)
-									target.visible=false;
+						case 6://visible
+							if (doit) {
+								if (value_start_index == 0)
+									target.visible = false;
 								else
-									target.visible=true;
-								break;
-							case 11:// displaytransform
+									target.visible = true;
+							}
+							break;
+						case 11:// displaytransform
+							if (doit) {
 								var new_matrix:Matrix3D = target["_iMatrix3D"];
-								if(new_matrix==null){
+								if (new_matrix == null) {
 									new_matrix = new Matrix3D();
 								}
-								new_matrix.rawData[0] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)];
-								new_matrix.rawData[1] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)+1];
-								new_matrix.rawData[4] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)+2];
-								new_matrix.rawData[5] = this._properties_stream_f32_mtx_scale_rot[(value_start_index*4)+3];
-								target["_iMatrix3D"]=new_matrix;
+								new_matrix.rawData[0] = this._properties_stream_f32_mtx_scale_rot[(value_start_index * 4)];
+								new_matrix.rawData[1] = this._properties_stream_f32_mtx_scale_rot[(value_start_index * 4) + 1];
+								new_matrix.rawData[4] = this._properties_stream_f32_mtx_scale_rot[(value_start_index * 4) + 2];
+								new_matrix.rawData[5] = this._properties_stream_f32_mtx_scale_rot[(value_start_index * 4) + 3];
+								target["_iMatrix3D"] = new_matrix;
 								//console.log("displaytransform  rot/scale");
-								break;
-							case 12:// displaytransform
+							}
+							break;
+						case 12:// displaytransform
+							if (doit) {
 								var new_matrix:Matrix3D = target["_iMatrix3D"];
-								if(new_matrix==null){
+								if (new_matrix == null) {
 									new_matrix = new Matrix3D();
 								}
-								new_matrix.rawData[12] = this._properties_stream_f32_mtx_pos[(value_start_index*2)];
-								new_matrix.rawData[13] = this._properties_stream_f32_mtx_pos[(value_start_index*2)+1];
-								target["_iMatrix3D"]=new_matrix;
+								new_matrix.rawData[12] = this._properties_stream_f32_mtx_pos[(value_start_index * 2)];
+								new_matrix.rawData[13] = this._properties_stream_f32_mtx_pos[(value_start_index * 2) + 1];
+								target["_iMatrix3D"] = new_matrix;
 
 								//console.log("displaytransform2  pos "+this._properties_stream_f32_mtx_pos[(value_start_index*2)]+" "+this._properties_stream_f32_mtx_pos[(value_start_index*2)+1]);
 								//console.log("displaytransform  pos "+new_matrix.rawData[4]+" "+new_matrix.rawData[5]);
-								break;
-							default:
-								break;
 
-						}
+							}
+							break;
+						default:
+							break;
+
 					}
-
 				}
+
+
 				//else
 				//	console.log("skip kid 2");
 			}

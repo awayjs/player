@@ -14,7 +14,6 @@ import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter")
 import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
 import Timeline = require("awayjs-player/lib/timeline/Timeline");
 import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-import ExecuteScriptCommand             = require("awayjs-player/lib/timeline/commands/ExecuteScriptCommand");
 
 class MovieClip extends DisplayObjectContainer
 {
@@ -45,7 +44,7 @@ class MovieClip extends DisplayObjectContainer
     private _adapter:MovieClipAdapter;
 
     private _potentialInstances:Array<DisplayObject>;
-    private _keyFramesWaitingForPostConstruct:Array<ExecuteScriptCommand>;
+    private _framescripts_to_execute:Array<Function>;
 
     constructor()
     {
@@ -55,7 +54,7 @@ class MovieClip extends DisplayObjectContainer
         this._currentFrameIndex = -1;
         this._constructedKeyFrameIndex = -1;
         this._isInit=true;
-        this._keyFramesWaitingForPostConstruct=[];
+        this._framescripts_to_execute=[];
         this._isPlaying = true; // auto-play
         this._isButton=false;
 
@@ -126,7 +125,7 @@ class MovieClip extends DisplayObjectContainer
     public reset():void
     {
         //if(this.adapter && this.adapter.isBlockedByScript()){
-        this._keyFramesWaitingForPostConstruct = [];
+        this._framescripts_to_execute=[];
         this._isPlaying = true;
         this._time = 0;
         this._currentFrameIndex = -1;
@@ -317,9 +316,9 @@ class MovieClip extends DisplayObjectContainer
         return this._potentialInstances[id];
     }
 
-    public addScriptForExecution(value:ExecuteScriptCommand)
+    public addScriptForExecution(value:Function)
     {
-        this._keyFramesWaitingForPostConstruct.push(value);
+        this._framescripts_to_execute.push(value);
     }
     public activateChild(id:number)
     {
@@ -450,10 +449,20 @@ class MovieClip extends DisplayObjectContainer
         // in this function, we postcontruct all those scripts
         var has_script_executed:boolean=false;
         if(this.timeline) {
-            if(this._keyFramesWaitingForPostConstruct.length>0){
+            if(this._framescripts_to_execute.length>0){
                 has_script_executed=true;
-                this._keyFramesWaitingForPostConstruct[0].execute(this);
-                this._keyFramesWaitingForPostConstruct.shift();
+                var caller = this.adapter? this.adapter : this;
+
+                try {
+                    this._framescripts_to_execute[0].call(caller);
+                }
+                catch(err)
+                {
+                    console.log("Script error in " + this.name + "\n", this._framescripts_to_execute[0]);
+                    console.log(err.message);
+                    throw err;
+                }
+                this._framescripts_to_execute.shift();
             }
         }
 

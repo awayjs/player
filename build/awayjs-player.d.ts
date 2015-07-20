@@ -379,7 +379,6 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
 	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
 	import Timeline = require("awayjs-player/lib/timeline/Timeline");
-	import ExecuteScriptCommand = require("awayjs-player/lib/timeline/commands/ExecuteScriptCommand");
 	class MovieClip extends DisplayObjectContainer {
 	    static assetType: string;
 	    private _timeline;
@@ -400,7 +399,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	    private _isInit;
 	    private _adapter;
 	    private _potentialInstances;
-	    private _keyFramesWaitingForPostConstruct;
+	    private _framescripts_to_execute;
 	    constructor();
 	    isInit: boolean;
 	    timeline: Timeline;
@@ -427,7 +426,7 @@ declare module "awayjs-player/lib/display/MovieClip" {
 	     */
 	    update(timeDelta: number): void;
 	    getPotentialChildInstance(id: number): DisplayObject;
-	    addScriptForExecution(value: ExecuteScriptCommand): void;
+	    addScriptForExecution(value: Function): void;
 	    activateChild(id: number): void;
 	    deactivateChild(id: number): void;
 	    /**
@@ -599,6 +598,7 @@ declare module "awayjs-player/lib/timeline/Timeline" {
 	    private _keyframe_durations;
 	    _labels: Object;
 	    _framescripts: Object;
+	    _framescripts_translated: Object;
 	    private _frame_command_indices;
 	    private _frame_recipe;
 	    private _command_index_stream;
@@ -620,6 +620,11 @@ declare module "awayjs-player/lib/timeline/Timeline" {
 	    numKeyFrames: number;
 	    constructor();
 	    init(): void;
+	    get_framescript(keyframe_index: number): string;
+	    add_framescript(value: string, keyframe_index: number): void;
+	    private regexIndexOf(str, regex, startpos);
+	    add_script_for_postcontruct(target_mc: MovieClip, keyframe_idx: number): void;
+	    translateScript(classReplacements: any, frame_script_in: string, keyframe_idx: number): void;
 	    keyframe_durations: ArrayBufferView;
 	    frame_command_indices: ArrayBufferView;
 	    frame_recipe: ArrayBufferView;
@@ -647,7 +652,6 @@ declare module "awayjs-player/lib/timeline/Timeline" {
 	    getPotentialChilds(): Array<DisplayObject>;
 	    getPotentialChildInstance(id: number): DisplayObject;
 	    registerPotentialChild(prototype: DisplayObject): void;
-	    executeScriptIfAvailable(target_mc: MovieClip, frameIndex: number): void;
 	    jumpToLabel(target_mc: MovieClip, label: string): void;
 	    gotoFrame(target_mc: MovieClip, value: number): void;
 	    constructNextFrame(target_mc: MovieClip): void;
@@ -658,36 +662,6 @@ declare module "awayjs-player/lib/timeline/Timeline" {
 	    update_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
 	}
 	export = Timeline;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/ButtonListenerHolder" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class ButtonListenerHolder {
-	    private _target_mc;
-	    private _onMouseOver;
-	    private _onMouseOut;
-	    private _onMouseDown;
-	    private _onMouseUp;
-	    private _onRemovedFromScene;
-	    constructor(target: MovieClip);
-	}
-	export = ButtonListenerHolder;
-	
-}
-
-declare module "awayjs-player/lib/timeline/commands/ExecuteScriptCommand" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	class ExecuteScriptCommand {
-	    private _script;
-	    private _translatedScript;
-	    constructor(script: Function);
-	    constructor(script: string);
-	    execute(sourceMovieClip: MovieClip): void;
-	    private regexIndexOf(str, regex, startpos);
-	    translateScript(classReplacements: any): void;
-	}
-	export = ExecuteScriptCommand;
 	
 }
 
