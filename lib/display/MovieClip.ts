@@ -197,10 +197,11 @@ class MovieClip extends DisplayObjectContainer
     {
         this._isButton=true;
         this.stop();
-        this._onMouseOver = function() { this.currentFrameIndex = 1; };
-        this._onMouseOut = function() { this.currentFrameIndex = 0; };
-        this._onMouseDown = function() { this.currentFrameIndex = 2; };
-        this._onMouseUp = function() { this.currentFrameIndex = this.currentFrameIndex == 0? 0 : 1; };
+
+        this._onMouseOver = function(evt:MouseEvent) {(<MovieClip>evt.target).currentFrameIndex = 1; };
+        this._onMouseOut = function(evt:MouseEvent) { (<MovieClip>evt.target).currentFrameIndex = 0; };
+        this._onMouseDown = function(evt:MouseEvent) { (<MovieClip>evt.target).currentFrameIndex = 2; };
+        this._onMouseUp = function(evt:MouseEvent) { (<MovieClip>evt.target).currentFrameIndex = this.currentFrameIndex == 0? 0 : 1; };
 
         this.addEventListener(MouseEvent.MOUSE_OVER, this._onMouseOver);
         this.addEventListener(MouseEvent.MOUSE_OUT, this._onMouseOut);
