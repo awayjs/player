@@ -564,15 +564,28 @@ module.exports = AS2MovieClipAdapter;
 
 },{"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/display/MovieClip":"awayjs-player/lib/display/MovieClip","awayjs-player/lib/events/MovieClipEvent":"awayjs-player/lib/events/MovieClipEvent"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
-    function AS2SharedObjectAdapter() {
-        this.data = {};
+    function AS2SharedObjectAdapter(localPath) {
+        this._object_name = localPath;
+        if (typeof (Storage) !== "undefined") {
+            this.data = JSON.parse(localStorage.getItem(localPath));
+        }
+        if (this.data == null) {
+            console.log("no shared object found");
+            this.data = {};
+        }
     }
     // should become a static
     AS2SharedObjectAdapter.getLocal = function (name, localPath, secure) {
-        return new AS2SharedObjectAdapter();
+        return new AS2SharedObjectAdapter(localPath);
     };
     // needs to stay as it is
     AS2SharedObjectAdapter.prototype.flush = function () {
+        if (typeof (Storage) !== "undefined") {
+            localStorage.setItem(this._object_name, JSON.stringify(this.data));
+        }
+        else {
+            console.log("no local storage available");
+        }
         // save all local data to wherever it needs to go
     };
     return AS2SharedObjectAdapter;
@@ -1352,17 +1365,17 @@ var MovieClip = (function (_super) {
     MovieClip.prototype.makeButton = function () {
         this._isButton = true;
         this.stop();
-        this._onMouseOver = function () {
-            this.currentFrameIndex = 1;
+        this._onMouseOver = function (evt) {
+            evt.target.currentFrameIndex = 1;
         };
-        this._onMouseOut = function () {
-            this.currentFrameIndex = 0;
+        this._onMouseOut = function (evt) {
+            evt.target.currentFrameIndex = 0;
         };
-        this._onMouseDown = function () {
-            this.currentFrameIndex = 2;
+        this._onMouseDown = function (evt) {
+            evt.target.currentFrameIndex = 2;
         };
-        this._onMouseUp = function () {
-            this.currentFrameIndex = this.currentFrameIndex == 0 ? 0 : 1;
+        this._onMouseUp = function (evt) {
+            evt.target.currentFrameIndex = this.currentFrameIndex == 0 ? 0 : 1;
         };
         this.addEventListener(MouseEvent.MOUSE_OVER, this._onMouseOver);
         this.addEventListener(MouseEvent.MOUSE_OUT, this._onMouseOut);
