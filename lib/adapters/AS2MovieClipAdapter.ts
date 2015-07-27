@@ -80,10 +80,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     var cloned_mc:MovieClip = <MovieClip> attached_mc.clone();
     var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
     adapter.adaptee.name = name;
-    adapter.adaptee["__AS2Depth"] = depth;
-    this.adaptee.addChild(adapter.adaptee);
+    this.adaptee.addChildAtDepth(adapter.adaptee, depth);
     this.registerScriptObject(adapter.adaptee);
-    this._updateDepths(<MovieClip>this.adaptee);
     return attached_mc;
     // todo: apply object from initObject to attached_mc
 
@@ -101,10 +99,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
   {
     var adapter = new AS2MovieClipAdapter(null, this._view);
     adapter.adaptee.name = name;
-    adapter.adaptee["__AS2Depth"] = depth;
-    this.adaptee.addChild(adapter.adaptee);
+    this.adaptee.addChildAtDepth(adapter.adaptee, depth);
     this.registerScriptObject(adapter.adaptee);
-    this._updateDepths(<MovieClip>this.adaptee);
     return adapter;
   }
 
@@ -116,16 +112,15 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
   {
     var duplicate = <MovieClip>(this.adaptee.clone());
     duplicate.name = name;
-    duplicate["__AS2Depth"] = depth;
 
     if (initObject) {
       for (var key in initObject) {
-        if (initObject.hasOwnProperty(key))
-          duplicate.adapter[key] = initObject;
+        if (duplicate.adapter.hasOwnProperty(key))
+          duplicate.adapter[key] = initObject[key];
       }
     }
 
-    this._updateDepths(<MovieClip>this.adaptee.parent);
+    this.adaptee.parent.addChildAtDepth(duplicate, depth);
     return duplicate;
   }
 
@@ -141,29 +136,12 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
   getInstanceAtDepth(depth: number) : MovieClip
   {
-    var adaptee = this.adaptee;
-    var len = adaptee.numChildren;
-    for (var i = 0; i < len; ++i) {
-      var child = adaptee.getChildAt(i);
-      if (child["__AS2Depth"] === depth)
-        return <MovieClip>child;
-    }
-    return null;
+    return <MovieClip> this.adaptee.getChildAtDepth(depth);
   }
 
   getNextHighestDepth() : number
   {
-    var maxDepth = 0;
-    var adaptee = this.adaptee;
-    var len = adaptee.numChildren;
-    for (var i = 0; i < len; ++i) {
-      var child = adaptee.getChildAt(i);
-      var depth = child["__AS2Depth"];
-      if (depth > maxDepth)
-        maxDepth = depth;
-    }
-
-    return maxDepth + 1;
+    return this.adaptee.getNextHighestDepth();
   }
 
   //getRect(bounds: Object) : Object { return null; }
@@ -256,11 +234,11 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
   swapDepths(target: DisplayObject) : void
   {
-    var adaptee = this.adaptee;
-    var tmp = adaptee["__AS2Depth"];
-    this["__AS2Depth"] = target["__AS2Depth"];
-    adaptee["__AS2Depth"] = tmp;
-    this._updateDepths(<MovieClip>this.adaptee.parent);
+    var parent:DisplayObjectContainer = this.adaptee.parent;
+
+    if (parent != null && target.parent == parent)
+      parent.swapChildren(this.adaptee, target)
+
   }
 
   //unloadMovie() : void {}
@@ -354,26 +332,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
       mc.jumpToLabel(<string>frame);
     else
       mc.currentFrameIndex = (<number>frame) - 1;
-  }
-
-  private _updateDepths(target:MovieClip)
-  {
-    var childrenArray = target["_children"];
-    childrenArray.sort(this.sortChildrenByDepth);
-  }
-
-  public updateDepths()
-  {
-    var childrenArray = this.adaptee["_children"];
-    childrenArray.sort(this.sortChildrenByDepth);
-  }
-  private sortChildrenByDepth(a:DisplayObject, b:DisplayObject) : number
-  {
-    var da = <number>(a["__AS2Depth"]);
-    var db = <number>(b["__AS2Depth"]);
-    if (da === undefined) da = 0;
-    if (db === undefined) db = 0;
-    return da - db;
   }
 
   private _replaceEventListener(eventType:string, currentListener:Function, newListener:Function)

@@ -8,7 +8,6 @@ interface MovieClipAdapter
     freeFromScript():void;
     registerScriptObject(child : DisplayObject):void;
     unregisterScriptObject(child : DisplayObject):void;
-    updateDepths():void;
 
     // Lists a bunch of class names which need to be replaced with adapter types
     classReplacements:Object;

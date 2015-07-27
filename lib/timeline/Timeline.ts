@@ -372,26 +372,20 @@ class Timeline
 		//  pass1: only apply add/remove commands.
 		var update_indices:Array<number>=[];// store a list of updatecommand_indices, so we dont have to read frame_recipe again
 		var update_cnt=0;
-		var added_new_child:boolean=false;
 		for(k=start_construct_idx;k<=target_keyframe_idx; k++){
 
 			var frame_command_idx:number=this._frame_command_indices[k];
 			var frame_recipe:number=this._frame_recipe[k];
 
-			if ((frame_recipe & 2)==2) {
+			if ((frame_recipe & 2)==2)
 				this.remove_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
-			}
-			if((frame_recipe & 4)==4) {
-				added_new_child=true;
-				this.add_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
-			}
-			if((frame_recipe & 8)==8) {
-				update_indices[update_cnt++]=frame_command_idx;// execute update command later
-			}
 
+			if((frame_recipe & 4)==4)
+				this.add_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
+
+			if((frame_recipe & 8)==8)
+				update_indices[update_cnt++]=frame_command_idx;// execute update command later
 		}
-		if(added_new_child)
-			target_mc.adapter.updateDepths();
 
 		session_cnt=0;
 		var target_sessions:Array<number> = [];
@@ -450,26 +444,20 @@ class Timeline
 			var frame_command_idx=this._frame_command_indices[new_keyFrameIndex];
 			var frame_recipe=this._frame_recipe[new_keyFrameIndex];
 
-			if((frame_recipe & 1)==1){
-				var i;
-				for (i=target_mc.numChildren-1; i>=0; i--) {
-					var target=target_mc.getChildAt(i);
+			if((frame_recipe & 1)==1) {
+				var i:number = target_mc.numChildren;
+				while (i--)
 					target_mc.removeChildAt(i);
-					//target_mc.adapter.unregisterScriptObject(target);
-					//if(target.isAsset(MovieClip) && (<MovieClip>target).adapter)
-					//	(<MovieClip>target).adapter.freeFromScript();
-				}
-			}
-			else if ((frame_recipe & 2)==2) {
+
+			} else if ((frame_recipe & 2)==2) {
 				this.remove_childs_continous(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
 			}
-			if((frame_recipe & 4)==4) {
+
+			if((frame_recipe & 4)==4)
 				this.add_childs_continous(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
-				target_mc.adapter.updateDepths();
-			}
-			if((frame_recipe & 8)==8) {
+
+			if((frame_recipe & 8)==8)
 				this.update_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++] );
-			}
 
 		}
 		if(this._keyframe_firstframes[new_keyFrameIndex]==frameIndex){
@@ -481,82 +469,48 @@ class Timeline
 
 	public remove_childs(sourceMovieClip:MovieClip, start_index:number, len:number)
 	{
-
-		//console.log("remove_childs "+len);
-		// remove objects by depth
-		var i:number;
-		var c:number;
-		var childrenArray = sourceMovieClip["_children"];
-		for(i=0; i<len;i++){
-			var remove_depth:number=this._remove_child_stream[start_index+i]-16383;
-			//console.log("	remove_depth "+remove_depth);
-			for(c=0; c<childrenArray.length;c++){
-				if(childrenArray[c].__AS2Depth==remove_depth){
-					sourceMovieClip.removeChild(childrenArray[c]);
-					break;
-				}
-			}
-		}
+		for(var i:number = 0; i < len; i++)
+			sourceMovieClip.removeChildAtDepth(this._remove_child_stream[start_index+i] - 16383);
 	}
 
 	public remove_childs_continous(sourceMovieClip:MovieClip, start_index:number, len:number)
 	{
+		for(var i:number = 0; i < len; i++) {
+			var target:DisplayObject = sourceMovieClip.removeChildAtDepth(this._remove_child_stream[start_index+i] - 16383);
 
-		//console.log("remove_childs "+len);
-		// remove objects by depth
-		var i:number;
-		var c:number;
-		var childrenArray = sourceMovieClip["_children"];
-		for(i=0; i<len;i++){
-			var remove_depth:number=this._remove_child_stream[start_index+i]-16383;
-			//console.log("	remove_depth "+remove_depth);
-			for(c=0; c<childrenArray.length;c++){
-				if(childrenArray[c].__AS2Depth==remove_depth){
-					var target = childrenArray[c];
-					sourceMovieClip.removeChild(target);
-					sourceMovieClip.adapter.unregisterScriptObject(target);
-					if(target.isAsset(MovieClip) && (<MovieClip>target).adapter)
-						(<MovieClip>target).adapter.freeFromScript();
-					break;
-				}
-			}
+			sourceMovieClip.adapter.unregisterScriptObject(target);
+			if(target.isAsset(MovieClip) && (<MovieClip> target).adapter)
+				(<MovieClip> target).adapter.freeFromScript();
 		}
 	}
+
 	// used to add childs when jumping between frames
 	public add_childs(sourceMovieClip:MovieClip, start_index:number, len:number)
 	{
-		//console.log("add_childs "+len);
-		var i:number;
-		for(i=0; i<len;i++){
+		for(var i:number = 0; i < len; i++){
 			var target = sourceMovieClip.getPotentialChildInstance(this._add_child_stream[(start_index*2)+(i*2)]);
-			//console.log("	add child "+this._add_childs_stream[start_index+(i*3)]);
-			target["__AS2Depth"]  = this._add_child_stream[(start_index*2)+(i*2)+1]-16383;
-			target["__sessionID"] = start_index+i;
-			sourceMovieClip.addChild(target);
+			target["__sessionID"] = start_index + i;
+			sourceMovieClip.addChildAtDepth(target, this._add_child_stream[(start_index*2)+(i*2)+1] - 16383);
 		}
 	}
 
 	// used to add childs when jumping between frames
 	public add_childs_continous(sourceMovieClip:MovieClip, start_index:number, len:number)
 	{
-		//console.log("add_childs "+len);
-		var i:number;
-		for(i=0; i<len;i++){
+		for(var i:number = 0; i < len; i++){
 			var target = sourceMovieClip.getPotentialChildInstance(this._add_child_stream[(start_index*2)+(i*2)]);
-			//console.log("	add child "+this._add_childs_stream[start_index+(i*3)]);
-			target["__AS2Depth"]  = this._add_child_stream[(start_index*2)+(i*2)+1]-16383;
-			target["__sessionID"] = start_index+i;
+			target["__sessionID"] = start_index + i;
 
 			if(target.isAsset(MovieClip)) {
 				if ((<MovieClip>target).adapter && !(<MovieClip>target).adapter.isBlockedByScript()) {
 					(<MovieClip>target).reset();
 					target.reset_to_init_state();
 				}
-			}
-			else{
+			} else {
 				target.reset_to_init_state();
 			}
-			sourceMovieClip.addChild(target);
+
+			sourceMovieClip.addChildAtDepth(target, this._add_child_stream[(start_index*2)+(i*2)+1] - 16383);
 		}
 	}
 
