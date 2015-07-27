@@ -185,9 +185,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _pOnChildRemoved(event);
 	    private _pOnChildNameChanged(event);
 	    private _gotoFrame(frame);
-	    private _updateDepths(target);
-	    updateDepths(): void;
-	    private sortChildrenByDepth(a, b);
 	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
 	export = AS2MovieClipAdapter;
@@ -336,7 +333,6 @@ declare module "awayjs-player/lib/adapters/MovieClipAdapter" {
 	    freeFromScript(): void;
 	    registerScriptObject(child: DisplayObject): void;
 	    unregisterScriptObject(child: DisplayObject): void;
-	    updateDepths(): void;
 	    classReplacements: Object;
 	}
 	export = MovieClipAdapter;
@@ -576,6 +572,7 @@ declare module "awayjs-player/lib/renderer/RenderableSort2D" {
 
 declare module "awayjs-player/lib/renderer/Renderer2D" {
 	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
+	import IRenderableOwner = require("awayjs-display/lib/base/IRenderableOwner");
 	import Stage = require("awayjs-stagegl/lib/base/Stage");
 	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
 	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
@@ -583,7 +580,7 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	    private _mask;
 	    constructor(stage?: Stage);
 	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
-	    applyRenderable(renderable: RenderableBase): void;
+	    _iApplyRenderableOwner(renderableOwner: IRenderableOwner): void;
 	}
 	export = Renderer2D;
 	

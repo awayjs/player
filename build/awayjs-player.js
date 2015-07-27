@@ -323,10 +323,8 @@ var AS2MovieClipAdapter = (function (_super) {
         var cloned_mc = attached_mc.clone();
         var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
         adapter.adaptee.name = name;
-        adapter.adaptee["__AS2Depth"] = depth;
-        this.adaptee.addChild(adapter.adaptee);
+        this.adaptee.addChildAtDepth(adapter.adaptee, depth);
         this.registerScriptObject(adapter.adaptee);
-        this._updateDepths(this.adaptee);
         return attached_mc;
         // todo: apply object from initObject to attached_mc
     };
@@ -337,10 +335,8 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.createEmptyMovieClip = function (name, depth) {
         var adapter = new AS2MovieClipAdapter(null, this._view);
         adapter.adaptee.name = name;
-        adapter.adaptee["__AS2Depth"] = depth;
-        this.adaptee.addChild(adapter.adaptee);
+        this.adaptee.addChildAtDepth(adapter.adaptee, depth);
         this.registerScriptObject(adapter.adaptee);
-        this._updateDepths(this.adaptee);
         return adapter;
     };
     //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
@@ -348,14 +344,13 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.duplicateMovieClip = function (name, depth, initObject) {
         var duplicate = (this.adaptee.clone());
         duplicate.name = name;
-        duplicate["__AS2Depth"] = depth;
         if (initObject) {
             for (var key in initObject) {
-                if (initObject.hasOwnProperty(key))
-                    duplicate.adapter[key] = initObject;
+                if (duplicate.adapter.hasOwnProperty(key))
+                    duplicate.adapter[key] = initObject[key];
             }
         }
-        this._updateDepths(this.adaptee.parent);
+        this.adaptee.parent.addChildAtDepth(duplicate, depth);
         return duplicate;
     };
     //endFill() : void {}
@@ -369,26 +364,10 @@ var AS2MovieClipAdapter = (function (_super) {
         return 1;
     };
     AS2MovieClipAdapter.prototype.getInstanceAtDepth = function (depth) {
-        var adaptee = this.adaptee;
-        var len = adaptee.numChildren;
-        for (var i = 0; i < len; ++i) {
-            var child = adaptee.getChildAt(i);
-            if (child["__AS2Depth"] === depth)
-                return child;
-        }
-        return null;
+        return this.adaptee.getChildAtDepth(depth);
     };
     AS2MovieClipAdapter.prototype.getNextHighestDepth = function () {
-        var maxDepth = 0;
-        var adaptee = this.adaptee;
-        var len = adaptee.numChildren;
-        for (var i = 0; i < len; ++i) {
-            var child = adaptee.getChildAt(i);
-            var depth = child["__AS2Depth"];
-            if (depth > maxDepth)
-                maxDepth = depth;
-        }
-        return maxDepth + 1;
+        return this.adaptee.getNextHighestDepth();
     };
     //getRect(bounds: Object) : Object { return null; }
     //getSWFVersion() : number { return 0; }
@@ -445,11 +424,9 @@ var AS2MovieClipAdapter = (function (_super) {
     //startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
     //stopDrag() : void {}
     AS2MovieClipAdapter.prototype.swapDepths = function (target) {
-        var adaptee = this.adaptee;
-        var tmp = adaptee["__AS2Depth"];
-        this["__AS2Depth"] = target["__AS2Depth"];
-        adaptee["__AS2Depth"] = tmp;
-        this._updateDepths(this.adaptee.parent);
+        var parent = this.adaptee.parent;
+        if (parent != null && target.parent == parent)
+            parent.swapChildren(this.adaptee, target);
     };
     //unloadMovie() : void {}
     AS2MovieClipAdapter.prototype.clone = function (newAdaptee) {
@@ -527,23 +504,6 @@ var AS2MovieClipAdapter = (function (_super) {
             mc.jumpToLabel(frame);
         else
             mc.currentFrameIndex = frame - 1;
-    };
-    AS2MovieClipAdapter.prototype._updateDepths = function (target) {
-        var childrenArray = target["_children"];
-        childrenArray.sort(this.sortChildrenByDepth);
-    };
-    AS2MovieClipAdapter.prototype.updateDepths = function () {
-        var childrenArray = this.adaptee["_children"];
-        childrenArray.sort(this.sortChildrenByDepth);
-    };
-    AS2MovieClipAdapter.prototype.sortChildrenByDepth = function (a, b) {
-        var da = (a["__AS2Depth"]);
-        var db = (b["__AS2Depth"]);
-        if (da === undefined)
-            da = 0;
-        if (db === undefined)
-            db = 0;
-        return da - db;
     };
     AS2MovieClipAdapter.prototype._replaceEventListener = function (eventType, currentListener, newListener) {
         var mc = this.adaptee;
@@ -2036,9 +1996,10 @@ var Renderer2D = (function (_super) {
             renderable = renderable2;
         }
     };
-    Renderer2D.prototype.applyRenderable = function (renderable) {
+    Renderer2D.prototype._iApplyRenderableOwner = function (renderableOwner) {
+        var renderable = this._pRenderablePool.getItem(renderableOwner);
         //set local vars for faster referencing
-        var render = this._pRenderablePool.getRenderPool(renderable.renderableOwner).getItem(renderable.renderOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        var render = this._pRenderablePool.getRenderPool(renderableOwner).getItem(renderable.renderOwner || DefaultMaterialManager.getDefaultMaterial(renderableOwner));
         renderable.render = render;
         renderable.renderId = render.renderId;
         renderable.renderOrderId = render.renderOrderId;
@@ -2055,7 +2016,7 @@ var Renderer2D = (function (_super) {
             renderable.next = this._pOpaqueRenderableHead;
             this._pOpaqueRenderableHead = renderable;
         }
-        this._pNumElements += renderable.subGeometryVO.numElements;
+        this._pNumElements += renderable.subGeometryVO.subGeometry.numElements;
     };
     return Renderer2D;
 })(DefaultRenderer);
@@ -2389,23 +2350,16 @@ var Timeline = (function () {
         //  pass1: only apply add/remove commands.
         var update_indices = []; // store a list of updatecommand_indices, so we dont have to read frame_recipe again
         var update_cnt = 0;
-        var added_new_child = false;
         for (k = start_construct_idx; k <= target_keyframe_idx; k++) {
             var frame_command_idx = this._frame_command_indices[k];
             var frame_recipe = this._frame_recipe[k];
-            if ((frame_recipe & 2) == 2) {
+            if ((frame_recipe & 2) == 2)
                 this.remove_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++]);
-            }
-            if ((frame_recipe & 4) == 4) {
-                added_new_child = true;
+            if ((frame_recipe & 4) == 4)
                 this.add_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++]);
-            }
-            if ((frame_recipe & 8) == 8) {
+            if ((frame_recipe & 8) == 8)
                 update_indices[update_cnt++] = frame_command_idx; // execute update command later
-            }
         }
-        if (added_new_child)
-            target_mc.adapter.updateDepths();
         session_cnt = 0;
         var target_sessions = [];
         for (i = 0; i < target_mc.numChildren; ++i) {
@@ -2452,83 +2406,46 @@ var Timeline = (function () {
             var frame_command_idx = this._frame_command_indices[new_keyFrameIndex];
             var frame_recipe = this._frame_recipe[new_keyFrameIndex];
             if ((frame_recipe & 1) == 1) {
-                var i;
-                for (i = target_mc.numChildren - 1; i >= 0; i--) {
-                    var target = target_mc.getChildAt(i);
+                var i = target_mc.numChildren;
+                while (i--)
                     target_mc.removeChildAt(i);
-                }
             }
             else if ((frame_recipe & 2) == 2) {
                 this.remove_childs_continous(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++]);
             }
-            if ((frame_recipe & 4) == 4) {
+            if ((frame_recipe & 4) == 4)
                 this.add_childs_continous(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++]);
-                target_mc.adapter.updateDepths();
-            }
-            if ((frame_recipe & 8) == 8) {
+            if ((frame_recipe & 8) == 8)
                 this.update_childs(target_mc, this._command_index_stream[frame_command_idx], this._command_length_stream[frame_command_idx++]);
-            }
         }
         if (this._keyframe_firstframes[new_keyFrameIndex] == frameIndex) {
             this.add_script_for_postcontruct(target_mc, new_keyFrameIndex);
         }
     };
     Timeline.prototype.remove_childs = function (sourceMovieClip, start_index, len) {
-        //console.log("remove_childs "+len);
-        // remove objects by depth
-        var i;
-        var c;
-        var childrenArray = sourceMovieClip["_children"];
-        for (i = 0; i < len; i++) {
-            var remove_depth = this._remove_child_stream[start_index + i] - 16383;
-            for (c = 0; c < childrenArray.length; c++) {
-                if (childrenArray[c].__AS2Depth == remove_depth) {
-                    sourceMovieClip.removeChild(childrenArray[c]);
-                    break;
-                }
-            }
-        }
+        for (var i = 0; i < len; i++)
+            sourceMovieClip.removeChildAtDepth(this._remove_child_stream[start_index + i] - 16383);
     };
     Timeline.prototype.remove_childs_continous = function (sourceMovieClip, start_index, len) {
-        //console.log("remove_childs "+len);
-        // remove objects by depth
-        var i;
-        var c;
-        var childrenArray = sourceMovieClip["_children"];
-        for (i = 0; i < len; i++) {
-            var remove_depth = this._remove_child_stream[start_index + i] - 16383;
-            for (c = 0; c < childrenArray.length; c++) {
-                if (childrenArray[c].__AS2Depth == remove_depth) {
-                    var target = childrenArray[c];
-                    sourceMovieClip.removeChild(target);
-                    sourceMovieClip.adapter.unregisterScriptObject(target);
-                    if (target.isAsset(MovieClip) && target.adapter)
-                        target.adapter.freeFromScript();
-                    break;
-                }
-            }
+        for (var i = 0; i < len; i++) {
+            var target = sourceMovieClip.removeChildAtDepth(this._remove_child_stream[start_index + i] - 16383);
+            sourceMovieClip.adapter.unregisterScriptObject(target);
+            if (target.isAsset(MovieClip) && target.adapter)
+                target.adapter.freeFromScript();
         }
     };
     // used to add childs when jumping between frames
     Timeline.prototype.add_childs = function (sourceMovieClip, start_index, len) {
-        //console.log("add_childs "+len);
-        var i;
-        for (i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             var target = sourceMovieClip.getPotentialChildInstance(this._add_child_stream[(start_index * 2) + (i * 2)]);
-            //console.log("	add child "+this._add_childs_stream[start_index+(i*3)]);
-            target["__AS2Depth"] = this._add_child_stream[(start_index * 2) + (i * 2) + 1] - 16383;
             target["__sessionID"] = start_index + i;
-            sourceMovieClip.addChild(target);
+            sourceMovieClip.addChildAtDepth(target, this._add_child_stream[(start_index * 2) + (i * 2) + 1] - 16383);
         }
     };
     // used to add childs when jumping between frames
     Timeline.prototype.add_childs_continous = function (sourceMovieClip, start_index, len) {
-        //console.log("add_childs "+len);
-        var i;
-        for (i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             var target = sourceMovieClip.getPotentialChildInstance(this._add_child_stream[(start_index * 2) + (i * 2)]);
-            //console.log("	add child "+this._add_childs_stream[start_index+(i*3)]);
-            target["__AS2Depth"] = this._add_child_stream[(start_index * 2) + (i * 2) + 1] - 16383;
             target["__sessionID"] = start_index + i;
             if (target.isAsset(MovieClip)) {
                 if (target.adapter && !target.adapter.isBlockedByScript()) {
@@ -2539,7 +2456,7 @@ var Timeline = (function () {
             else {
                 target.reset_to_init_state();
             }
-            sourceMovieClip.addChild(target);
+            sourceMovieClip.addChildAtDepth(target, this._add_child_stream[(start_index * 2) + (i * 2) + 1] - 16383);
         }
     };
     Timeline.prototype.update_childs = function (sourceMovieClip, start_index, len) {
