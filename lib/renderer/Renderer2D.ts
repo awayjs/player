@@ -3,6 +3,7 @@ import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
 import DefaultMaterialManager = require("awayjs-display/lib/managers/DefaultMaterialManager");
 import IEntity = require("awayjs-display/lib/entities/IEntity");
 import RenderableNullSort = require("awayjs-display/lib/sort/RenderableNullSort");
+import IRenderableOwner				= require("awayjs-display/lib/base/IRenderableOwner");
 import Stage = require("awayjs-stagegl/lib/base/Stage");
 import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
 import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
@@ -109,10 +110,12 @@ class Renderer2D extends DefaultRenderer
         }
     }
 
-    public applyRenderable(renderable:RenderableBase)
+    public _iApplyRenderableOwner(renderableOwner:IRenderableOwner)
     {
+        var renderable:RenderableBase = this._pRenderablePool.getItem(renderableOwner);
+
         //set local vars for faster referencing
-        var render:RenderBase = this._pRenderablePool.getRenderPool(renderable.renderableOwner).getItem(renderable.renderOwner || DefaultMaterialManager.getDefaultMaterial(renderable.renderableOwner));
+        var render:RenderBase = this._pRenderablePool.getRenderPool(renderableOwner).getItem(renderable.renderOwner || DefaultMaterialManager.getDefaultMaterial(renderableOwner));
 
         renderable.render = render;
         renderable.renderId = render.renderId;
@@ -134,7 +137,7 @@ class Renderer2D extends DefaultRenderer
             this._pOpaqueRenderableHead = renderable;
         }
 
-        this._pNumElements += renderable.subGeometryVO.numElements;
+        this._pNumElements += renderable.subGeometryVO.subGeometry.numElements;
     }
 
     /*public dispose()
