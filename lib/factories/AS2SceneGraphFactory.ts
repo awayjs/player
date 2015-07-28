@@ -1,12 +1,12 @@
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 import AS2TextFieldAdapter = require("awayjs-player/lib/adapters/AS2TextFieldAdapter");
-import MovieClip = require("awayjs-player/lib/display/MovieClip");
-import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
+import TextField = require("awayjs-display/lib/entities/TextField");
+import MovieClip = require("awayjs-display/lib/entities/MovieClip");
+import ITimelineSceneGraphFactory = require("awayjs-display/lib/factories/ITimelineSceneGraphFactory");
 import View			= require("awayjs-display/lib/containers/View");
 
 
-class AS2SceneGraphFactory implements TimelineSceneGraphFactory
+class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
 {
     private _view:View;
 
@@ -21,9 +21,9 @@ class AS2SceneGraphFactory implements TimelineSceneGraphFactory
         return mc;
     }
 
-    createTextField():AdaptedTextField
+    createTextField():TextField
     {
-        var tf = new AdaptedTextField();
+        var tf = new TextField();
         tf.adapter = new AS2TextFieldAdapter(tf, this._view);
         return tf;
     }

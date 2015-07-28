@@ -1,19 +1,20 @@
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
-import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+
+import IDisplayObjectAdapter		= require("awayjs-display/lib/adapters/IDisplayObjectAdapter");
+import TextField = require("awayjs-display/lib/entities/TextField");
 import View			= require("awayjs-display/lib/containers/View");
 
-class AS2TextFieldAdapter extends AS2SymbolAdapter implements TextFieldAdapter
+class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter
 {
     private _embedFonts : boolean;
 
-    constructor(adaptee : AdaptedTextField, view:View)
+    constructor(adaptee : TextField, view:View)
     {
         // create an empty text field if none is passed
-        super(adaptee || new AdaptedTextField(), view);
+        super(adaptee || new TextField(), view);
     }
 
-    clone(newAdaptee:AdaptedTextField):TextFieldAdapter
+    clone(newAdaptee:TextField):AS2TextFieldAdapter
     {
         return new AS2TextFieldAdapter(newAdaptee, this._view);
     }
@@ -30,12 +31,12 @@ class AS2TextFieldAdapter extends AS2SymbolAdapter implements TextFieldAdapter
 
     get text():string
     {
-        return (<AdaptedTextField>this.adaptee).text;
+        return (<TextField>this.adaptee).text;
     }
 
     set text(value:string)
     {
-        (<AdaptedTextField>this.adaptee).text = value;
+        (<TextField>this.adaptee).text = value;
     }
 }
 export = AS2TextFieldAdapter;

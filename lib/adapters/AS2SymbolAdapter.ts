@@ -8,7 +8,6 @@ import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAda
 import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
 import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
-import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
 import View			= require("awayjs-display/lib/containers/View");
 
@@ -303,8 +302,9 @@ class AS2SymbolAdapter
 
     public get _parent() : AS2MovieClipAdapter
     {
-        var parent = <MovieClip>this.adaptee.parent;
-        return parent? <AS2MovieClipAdapter>(parent.adapter) : null;
+        var parent = this.adaptee.parent;
+
+        return parent? <AS2MovieClipAdapter> parent.adapter : null;
     }
 }
 

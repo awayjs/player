@@ -5,16 +5,15 @@ import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayOb
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 import AS2SoundAdapter = require("awayjs-player/lib/adapters/AS2SoundAdapter");
 import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
-import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
-import MovieClip = require("awayjs-player/lib/display/MovieClip");
-import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+import IMovieClipAdapter		= require("awayjs-display/lib/adapters/IMovieClipAdapter");
+import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
-import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
+import Event = require("awayjs-core/lib/events/Event");
 import Point = require("awayjs-core/lib/geom/Point");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 import View			= require("awayjs-display/lib/containers/View");
 
-class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
+class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 {
   // _droptarget [read-only]
   // focusEnabled: Boolean
@@ -27,27 +26,19 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
   // transform: Transform		// contains matrix + color matrix
 
   public __pSoundProps : AS2MCSoundProps;
-  private _nameChangeCallback : Function;
   // translate to scripts:
   private _onEnterFrame: Function;
   private _onRelease: Function;
   private _onMouseDown: Function;
   private _onMouseUp: Function;
 
-  constructor(adaptee : DisplayObjectContainer, view:View)
+  constructor(adaptee : MovieClip, view:View)
   {
     adaptee = adaptee || new MovieClip();
     // create an empty MovieClip if none is passed
     super(adaptee, view);
 
     this.__pSoundProps = new AS2MCSoundProps();
-    var self = this;
-    adaptee.addEventListener(MovieClipEvent.CHILD_ADDED,
-        function(event:MovieClipEvent) { self._pOnChildAdded.call(self, event); }
-    );
-    adaptee.addEventListener(MovieClipEvent.CHILD_REMOVED,
-        function(event:MovieClipEvent) { self._pOnChildRemoved.call(self, event); }
-    );
   }
 
   get _framesloaded() : number
@@ -108,19 +99,18 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
   //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
 
-  duplicateMovieClip(name: string, depth: number, initObject: Object) : MovieClip
+  duplicateMovieClip(name: string, depth: number, initObject: Object) : AS2MovieClipAdapter
   {
-    var duplicate = <MovieClip>(this.adaptee.clone());
-    duplicate.name = name;
+    var duplicate:AS2MovieClipAdapter = <AS2MovieClipAdapter> this.adaptee.clone().adapter;
+    duplicate.adaptee.name = name;
 
-    if (initObject) {
-      for (var key in initObject) {
-        if (duplicate.adapter.hasOwnProperty(key))
-          duplicate.adapter[key] = initObject[key];
-      }
-    }
+    if (initObject)
+      for (var key in initObject)
+        if (duplicate.hasOwnProperty(key))
+          duplicate[key] = initObject[key];
 
-    this.adaptee.parent.addChildAtDepth(duplicate, depth);
+    this.adaptee.parent.addChildAtDepth(duplicate.adaptee, depth);
+
     return duplicate;
   }
 
@@ -243,7 +233,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
   //unloadMovie() : void {}
 
-  clone(newAdaptee:DisplayObjectContainer):MovieClipAdapter
+  clone(newAdaptee:MovieClip):AS2MovieClipAdapter
   {
     return new AS2MovieClipAdapter(newAdaptee, this._view);
   }
@@ -255,7 +245,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
 
   public set onEnterFrame(value : Function)
   {
-    this._onEnterFrame = this._replaceEventListener(MovieClipEvent.ENTER_FRAME, this._onEnterFrame, value);
+    this._onEnterFrame = this._replaceEventListener(Event.ENTER_FRAME, this._onEnterFrame, value);
   }
 
   public get onRelease(): Function
@@ -300,29 +290,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter
     if(child.isAsset(MovieClip)){
       (<MovieClip>child).removeButtonListener();
     }
-  }
-
-  public _pOnChildAdded(event:MovieClipEvent)
-  {
-    //var child = event.displayObject;
-    //var self = this;
-
-    // scope is broken, so fix it
-    //this._nameChangeCallback = function(event:MovieClipEvent) { self._pOnChildNameChanged.call(self, event); }
-    //child.addEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback );
-  }
-
-  private _pOnChildRemoved(event:MovieClipEvent)
-  {
-    //var child = event.displayObject;
-    //child.removeEventListener(MovieClipEvent.NAME_CHANGED, this._nameChangeCallback);
-    //if (child.name) this._pUnregisterChild(child);
-  }
-
-  private _pOnChildNameChanged(event:MovieClipEvent)
-  {
-    var child = event.displayObject;
-    this.registerScriptObject(child);
   }
 
   private _gotoFrame(frame:any)

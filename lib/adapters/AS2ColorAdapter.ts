@@ -3,7 +3,6 @@ import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-import MovieClip = require("awayjs-player/lib/display/MovieClip");
 
 // also contains global AS2 functions
 class AS2ColorAdapter
