@@ -137,28 +137,25 @@ declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
-	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import MovieClipEvent = require("awayjs-player/lib/events/MovieClipEvent");
+	import IMovieClipAdapter = require("awayjs-display/lib/adapters/IMovieClipAdapter");
+	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 	import View = require("awayjs-display/lib/containers/View");
-	class AS2MovieClipAdapter extends AS2SymbolAdapter implements MovieClipAdapter {
+	class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter {
 	    __pSoundProps: AS2MCSoundProps;
-	    private _nameChangeCallback;
 	    private _onEnterFrame;
 	    private _onRelease;
 	    private _onMouseDown;
 	    private _onMouseUp;
-	    constructor(adaptee: DisplayObjectContainer, view: View);
+	    constructor(adaptee: MovieClip, view: View);
 	    _framesloaded: number;
 	    _currentframe: number;
 	    _totalframes: number;
 	    enabled: boolean;
 	    attachMovie(id: string, name: string, depth: number, initObject?: Object): MovieClip;
 	    createEmptyMovieClip(name: string, depth: number): AS2MovieClipAdapter;
-	    duplicateMovieClip(name: string, depth: number, initObject: Object): MovieClip;
+	    duplicateMovieClip(name: string, depth: number, initObject: Object): AS2MovieClipAdapter;
 	    getBytesLoaded(): number;
 	    getBytesTotal(): number;
 	    getInstanceAtDepth(depth: number): MovieClip;
@@ -174,16 +171,13 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    prevFrame(): void;
 	    setMask(mc: DisplayObject): void;
 	    swapDepths(target: DisplayObject): void;
-	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
+	    clone(newAdaptee: MovieClip): AS2MovieClipAdapter;
 	    onEnterFrame: Function;
 	    onRelease: Function;
 	    onMouseDown: Function;
 	    onMouseUp: Function;
 	    registerScriptObject(child: DisplayObject): void;
 	    unregisterScriptObject(child: DisplayObject): void;
-	    _pOnChildAdded(event: MovieClipEvent): void;
-	    private _pOnChildRemoved(event);
-	    private _pOnChildNameChanged(event);
 	    private _gotoFrame(frame);
 	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
@@ -309,44 +303,17 @@ declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
-	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
+	import IDisplayObjectAdapter = require("awayjs-display/lib/adapters/IDisplayObjectAdapter");
+	import TextField = require("awayjs-display/lib/entities/TextField");
 	import View = require("awayjs-display/lib/containers/View");
-	class AS2TextFieldAdapter extends AS2SymbolAdapter implements TextFieldAdapter {
+	class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter {
 	    private _embedFonts;
-	    constructor(adaptee: AdaptedTextField, view: View);
-	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
+	    constructor(adaptee: TextField, view: View);
+	    clone(newAdaptee: TextField): AS2TextFieldAdapter;
 	    embedFonts: boolean;
 	    text: string;
 	}
 	export = AS2TextFieldAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/MovieClipAdapter" {
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	interface MovieClipAdapter {
-	    adaptee: DisplayObjectContainer;
-	    clone(newAdaptee: DisplayObjectContainer): MovieClipAdapter;
-	    isBlockedByScript(): boolean;
-	    freeFromScript(): void;
-	    registerScriptObject(child: DisplayObject): void;
-	    unregisterScriptObject(child: DisplayObject): void;
-	    classReplacements: Object;
-	}
-	export = MovieClipAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/TextFieldAdapter" {
-	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	interface TextFieldAdapter {
-	    adaptee: DisplayObjectContainer;
-	    clone(newAdaptee: AdaptedTextField): TextFieldAdapter;
-	}
-	export = TextFieldAdapter;
 	
 }
 
@@ -356,128 +323,18 @@ declare module "awayjs-player/lib/bounds/AxisAlignedBoundingBox2D" {
 	
 }
 
-declare module "awayjs-player/lib/display/AdaptedTextField" {
-	import TextField = require("awayjs-display/lib/entities/TextField");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import TextFieldAdapter = require("awayjs-player/lib/adapters/TextFieldAdapter");
-	class AdaptedTextField extends TextField {
-	    private _adapter;
-	    constructor();
-	    adapter: TextFieldAdapter;
-	    clone(): DisplayObject;
-	    name: string;
-	}
-	export = AdaptedTextField;
-	
-}
-
-declare module "awayjs-player/lib/display/MovieClip" {
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import MovieClipAdapter = require("awayjs-player/lib/adapters/MovieClipAdapter");
-	import Timeline = require("awayjs-player/lib/timeline/Timeline");
-	class MovieClip extends DisplayObjectContainer {
-	    static assetType: string;
-	    private _timeline;
-	    private _isButton;
-	    private _onMouseOver;
-	    private _onMouseOut;
-	    private _onMouseDown;
-	    private _onMouseUp;
-	    private _time;
-	    private _currentFrameIndex;
-	    private _constructedKeyFrameIndex;
-	    private _fps;
-	    private _isPlaying;
-	    private _loop;
-	    private _prototype;
-	    private _enterFrame;
-	    private _skipAdvance;
-	    private _isInit;
-	    private _adapter;
-	    private _potentialInstances;
-	    private _framescripts_to_execute;
-	    constructor();
-	    isInit: boolean;
-	    timeline: Timeline;
-	    loop: boolean;
-	    numFrames: number;
-	    jumpToLabel(label: string): void;
-	    currentFrameIndex: number;
-	    constructedKeyFrameIndex: number;
-	    reset(): void;
-	    adapter: MovieClipAdapter;
-	    makeButton(): void;
-	    removeButtonListener(): void;
-	    name: string;
-	    addChild(child: DisplayObject): DisplayObject;
-	    removeChild(child: DisplayObject): DisplayObject;
-	    fps: number;
-	    assetType: string;
-	    /**
-	     * Starts playback of animation from current position
-	     */
-	    play(): void;
-	    /**
-	     * should be called right before the call to away3d-render.
-	     */
-	    update(timeDelta: number): void;
-	    getPotentialChildInstance(id: number): DisplayObject;
-	    addScriptForExecution(value: Function): void;
-	    activateChild(id: number): void;
-	    deactivateChild(id: number): void;
-	    /**
-	     * Stop playback of animation and hold current position
-	     */
-	    stop(): void;
-	    clone(): DisplayObject;
-	    advanceFrame(skipChildren?: boolean): void;
-	    private advanceChildren();
-	    logHierarchy(depth?: number): void;
-	    printHierarchyName(depth: number, target: DisplayObject): void;
-	    executePostConstructCommands(): boolean;
-	}
-	export = MovieClip;
-	
-}
-
-declare module "awayjs-player/lib/events/MovieClipEvent" {
-	import Event = require("awayjs-core/lib/events/Event");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	class MovieClipEvent extends Event {
-	    static NAME_CHANGED: string;
-	    static CHILD_ADDED: string;
-	    static CHILD_REMOVED: string;
-	    displayObject: DisplayObject;
-	    constructor(type: string, displayObject: DisplayObject);
-	}
-	export = MovieClipEvent;
-	
-}
-
 declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import AdaptedTextField = require("awayjs-player/lib/display/AdaptedTextField");
-	import TimelineSceneGraphFactory = require("awayjs-player/lib/factories/TimelineSceneGraphFactory");
+	import TextField = require("awayjs-display/lib/entities/TextField");
+	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
+	import ITimelineSceneGraphFactory = require("awayjs-display/lib/factories/ITimelineSceneGraphFactory");
 	import View = require("awayjs-display/lib/containers/View");
-	class AS2SceneGraphFactory implements TimelineSceneGraphFactory {
+	class AS2SceneGraphFactory implements ITimelineSceneGraphFactory {
 	    private _view;
 	    constructor(view: View);
 	    createMovieClip(): MovieClip;
-	    createTextField(): AdaptedTextField;
-	}
-	export = AS2SceneGraphFactory;
-	
-}
-
-declare module "awayjs-player/lib/factories/TimelineSceneGraphFactory" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import TextField = require("awayjs-display/lib/entities/TextField");
-	interface TimelineSceneGraphFactory {
-	    createMovieClip(): MovieClip;
 	    createTextField(): TextField;
 	}
-	export = TimelineSceneGraphFactory;
+	export = AS2SceneGraphFactory;
 	
 }
 
@@ -583,83 +440,6 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	    _iApplyRenderableOwner(renderableOwner: IRenderableOwner): void;
 	}
 	export = Renderer2D;
-	
-}
-
-declare module "awayjs-player/lib/timeline/Timeline" {
-	import MovieClip = require("awayjs-player/lib/display/MovieClip");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	class Timeline {
-	    private _keyframe_indices;
-	    private _keyframe_firstframes;
-	    private _keyframe_constructframes;
-	    private _keyframe_durations;
-	    _labels: Object;
-	    _framescripts: Object;
-	    _framescripts_translated: Object;
-	    private _frame_command_indices;
-	    private _frame_recipe;
-	    private _command_index_stream;
-	    private _command_length_stream;
-	    private _add_child_stream;
-	    private _remove_child_stream;
-	    private _update_child_stream;
-	    private _update_child_props_length_stream;
-	    private _update_child_props_indices_stream;
-	    private _property_index_stream;
-	    private _property_type_stream;
-	    private _properties_stream_int;
-	    private _properties_stream_f32_mtx_all;
-	    private _properties_stream_f32_mtx_scale_rot;
-	    private _properties_stream_f32_mtx_pos;
-	    private _properties_stream_f32_ct;
-	    private _properties_stream_strings;
-	    private _potentialPrototypes;
-	    numKeyFrames: number;
-	    constructor();
-	    init(): void;
-	    get_framescript(keyframe_index: number): string;
-	    add_framescript(value: string, keyframe_index: number): void;
-	    private regexIndexOf(str, regex, startpos);
-	    add_script_for_postcontruct(target_mc: MovieClip, keyframe_idx: number): void;
-	    translateScript(classReplacements: any, frame_script_in: string, keyframe_idx: number): void;
-	    keyframe_durations: ArrayBufferView;
-	    frame_command_indices: ArrayBufferView;
-	    frame_recipe: ArrayBufferView;
-	    command_index_stream: ArrayBufferView;
-	    command_length_stream: ArrayBufferView;
-	    add_child_stream: ArrayBufferView;
-	    remove_child_stream: ArrayBufferView;
-	    update_child_stream: ArrayBufferView;
-	    update_child_props_indices_stream: ArrayBufferView;
-	    update_child_props_length_stream: ArrayBufferView;
-	    property_index_stream: ArrayBufferView;
-	    property_type_stream: ArrayBufferView;
-	    properties_stream_f32_mtx_all: Float32Array;
-	    properties_stream_f32_mtx_scale_rot: Float32Array;
-	    properties_stream_f32_mtx_pos: Float32Array;
-	    properties_stream_f32_ct: Float32Array;
-	    properties_stream_int: ArrayBufferView;
-	    properties_stream_strings: Array<string>;
-	    keyframe_indices: Array<number>;
-	    keyframe_firstframes: Array<number>;
-	    keyframe_constructframes: Array<number>;
-	    numFrames(): number;
-	    getPotentialChildPrototype(id: number): DisplayObject;
-	    getKeyframeIndexForFrameIndex(frame_index: number): number;
-	    getPotentialChilds(): Array<DisplayObject>;
-	    getPotentialChildInstance(id: number): DisplayObject;
-	    registerPotentialChild(prototype: DisplayObject): void;
-	    jumpToLabel(target_mc: MovieClip, label: string): void;
-	    gotoFrame(target_mc: MovieClip, value: number): void;
-	    constructNextFrame(target_mc: MovieClip): void;
-	    remove_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
-	    remove_childs_continous(sourceMovieClip: MovieClip, start_index: number, len: number): void;
-	    add_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
-	    add_childs_continous(sourceMovieClip: MovieClip, start_index: number, len: number): void;
-	    update_childs(sourceMovieClip: MovieClip, start_index: number, len: number): void;
-	}
-	export = Timeline;
 	
 }
 
