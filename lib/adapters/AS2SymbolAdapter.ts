@@ -268,9 +268,26 @@ class AS2SymbolAdapter
         clearInterval(handle);
     }
 
-    setInterval(handler:any, timeout:number)
+    setInterval(handler:Function, timeout:number, ...args:any[]):number;
+    setInterval(scope:any, handler:string, timeout:number, ...args:any[]):number;
+    setInterval(...args:any[])
     {
-        setInterval(handler, timeout)
+        var scope:any;
+
+        if (typeof(args[0]) == "function") {
+            scope = this;
+        } else {
+            //remove scope variable from args
+            scope = args.shift();
+
+            //reformat function string to actual function variable in the scope
+            args[0] = scope[args[0]];
+        }
+
+        //wrap function to maintain scope
+        args[0] = () => args[0].apply(scope, arguments);
+
+        return setInterval.apply(this, args);
     }
 
     // temporary:
