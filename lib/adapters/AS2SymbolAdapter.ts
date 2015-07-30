@@ -270,24 +270,26 @@ class AS2SymbolAdapter
 
     setInterval(handler:Function, timeout:number, ...args:any[]):number;
     setInterval(scope:any, handler:string, timeout:number, ...args:any[]):number;
-    setInterval(...args:any[])
+    setInterval()
     {
         var scope:any;
+        var func:any;
 
-        if (typeof(args[0]) == "function") {
+        if (typeof(arguments[0]) == "function") {
             scope = this;
+            func = arguments[0];
         } else {
             //remove scope variable from args
-            scope = args.shift();
+            scope = Array.prototype.shift.call(arguments);
 
             //reformat function string to actual function variable in the scope
-            args[0] = scope[args[0]];
+            func = scope[arguments[0]];
         }
 
         //wrap function to maintain scope
-        args[0] = () => args[0].apply(scope, arguments);
+        arguments[0] = () => func.apply(scope, arguments);
 
-        return setInterval.apply(this, args);
+        return setInterval.apply(this, arguments);
     }
 
     // temporary:
