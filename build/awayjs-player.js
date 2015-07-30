@@ -923,23 +923,21 @@ var AS2SymbolAdapter = (function () {
         clearInterval(handle);
     };
     AS2SymbolAdapter.prototype.setInterval = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i - 0] = arguments[_i];
-        }
         var scope;
-        if (typeof (args[0]) == "function") {
+        var func;
+        if (typeof (arguments[0]) == "function") {
             scope = this;
+            func = arguments[0];
         }
         else {
             //remove scope variable from args
-            scope = args.shift();
+            scope = Array.prototype.shift.call(arguments);
             //reformat function string to actual function variable in the scope
-            args[0] = scope[args[0]];
+            func = scope[arguments[0]];
         }
         //wrap function to maintain scope
-        args[0] = function () { return args[0].apply(scope, arguments); };
-        return setInterval.apply(this, args);
+        arguments[0] = function () { return func.apply(scope, arguments); };
+        return setInterval.apply(this, arguments);
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_level10301", {
         // temporary:

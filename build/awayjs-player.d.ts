@@ -14,6 +14,27 @@ declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
+	import WaveAudio = require("awayjs-core/lib/data/WaveAudio");
+	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+	class AS2MCSoundProps extends EventDispatcher {
+	    private _volume;
+	    private _pan;
+	    private _changeEvent;
+	    private _loops;
+	    private _audio;
+	    private _onEndedDelegate;
+	    constructor();
+	    volume: number;
+	    pan: number;
+	    loops: number;
+	    audio: WaveAudio;
+	    private onEnded(event);
+	}
+	export = AS2MCSoundProps;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2KeyAdapter" {
 	class AS2KeyAdapter {
 	    private static _keys;
@@ -102,27 +123,6 @@ declare module "awayjs-player/lib/adapters/AS2KeyAdapter" {
 	    private static _onKeyUp(event);
 	}
 	export = AS2KeyAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
-	import WaveAudio = require("awayjs-core/lib/data/WaveAudio");
-	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
-	class AS2MCSoundProps extends EventDispatcher {
-	    private _volume;
-	    private _pan;
-	    private _changeEvent;
-	    private _loops;
-	    private _audio;
-	    private _onEndedDelegate;
-	    constructor();
-	    volume: number;
-	    pan: number;
-	    loops: number;
-	    audio: WaveAudio;
-	    private onEnded(event);
-	}
-	export = AS2MCSoundProps;
 	
 }
 
