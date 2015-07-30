@@ -922,8 +922,24 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.clearInterval = function (handle) {
         clearInterval(handle);
     };
-    AS2SymbolAdapter.prototype.setInterval = function (handler, timeout) {
-        setInterval(handler, timeout);
+    AS2SymbolAdapter.prototype.setInterval = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
+        var scope;
+        if (typeof (args[0]) == "function") {
+            scope = this;
+        }
+        else {
+            //remove scope variable from args
+            scope = args.shift();
+            //reformat function string to actual function variable in the scope
+            args[0] = scope[args[0]];
+        }
+        //wrap function to maintain scope
+        args[0] = function () { return args[0].apply(scope, arguments); };
+        return setInterval.apply(this, args);
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_level10301", {
         // temporary:

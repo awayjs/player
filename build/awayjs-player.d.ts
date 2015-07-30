@@ -281,7 +281,8 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _global: AS2MovieClipAdapter;
 	    _level0: AS2SymbolAdapter;
 	    clearInterval(handle: number): void;
-	    setInterval(handler: any, timeout: number): void;
+	    setInterval(handler: Function, timeout: number, ...args: any[]): number;
+	    setInterval(scope: any, handler: string, timeout: number, ...args: any[]): number;
 	    _level10301: AS2SymbolAdapter;
 	    _root: AS2SymbolAdapter;
 	    random(range: number): number;
