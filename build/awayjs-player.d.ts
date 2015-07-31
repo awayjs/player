@@ -14,27 +14,6 @@ declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
-	import WaveAudio = require("awayjs-core/lib/data/WaveAudio");
-	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
-	class AS2MCSoundProps extends EventDispatcher {
-	    private _volume;
-	    private _pan;
-	    private _changeEvent;
-	    private _loops;
-	    private _audio;
-	    private _onEndedDelegate;
-	    constructor();
-	    volume: number;
-	    pan: number;
-	    loops: number;
-	    audio: WaveAudio;
-	    private onEnded(event);
-	}
-	export = AS2MCSoundProps;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2KeyAdapter" {
 	class AS2KeyAdapter {
 	    private static _keys;
@@ -126,6 +105,27 @@ declare module "awayjs-player/lib/adapters/AS2KeyAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
+	import WaveAudio = require("awayjs-core/lib/data/WaveAudio");
+	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+	class AS2MCSoundProps extends EventDispatcher {
+	    private _volume;
+	    private _pan;
+	    private _changeEvent;
+	    private _loops;
+	    private _audio;
+	    private _onEndedDelegate;
+	    constructor();
+	    volume: number;
+	    pan: number;
+	    loops: number;
+	    audio: WaveAudio;
+	    private onEnded(event);
+	}
+	export = AS2MCSoundProps;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 	class AS2MouseAdapter {
 	    private static _globalListeners;
@@ -143,6 +143,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter {
+	    private _framescript_vars;
 	    __pSoundProps: AS2MCSoundProps;
 	    private _onEnterFrame;
 	    private _onRelease;
@@ -153,6 +154,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    _currentframe: number;
 	    _totalframes: number;
 	    enabled: boolean;
+	    evalScript(str: string): Function;
 	    attachMovie(id: string, name: string, depth: number, initObject?: Object): MovieClip;
 	    createEmptyMovieClip(name: string, depth: number): AS2MovieClipAdapter;
 	    duplicateMovieClip(name: string, depth: number, initObject: Object): AS2MovieClipAdapter;
@@ -255,7 +257,6 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    private __quality;
 	    _blockedByScript: boolean;
 	    private static REFERENCE_TIME;
-	    private static CLASS_REPLACEMENTS;
 	    constructor(adaptee: DisplayObjectContainer, view: View);
 	    getVersion(): number;
 	    adaptee: DisplayObjectContainer;
@@ -280,13 +281,9 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _url: string;
 	    _global: AS2MovieClipAdapter;
 	    _level0: AS2SymbolAdapter;
-	    clearInterval(handle: number): void;
-	    setInterval(handler: Function, timeout: number, ...args: any[]): number;
-	    setInterval(scope: any, handler: string, timeout: number, ...args: any[]): number;
 	    _level10301: AS2SymbolAdapter;
 	    _root: AS2SymbolAdapter;
 	    random(range: number): number;
-	    classReplacements: Object;
 	    _parent: AS2MovieClipAdapter;
 	}
 	export = AS2SymbolAdapter;
@@ -363,6 +360,7 @@ declare module "awayjs-player/lib/partition/Partition2D" {
 	import Partition = require("awayjs-display/lib/partition/Partition");
 	class Partition2D extends Partition {
 	    private _entity2DNodePool;
+	    private _sceneGraphNodePool;
 	    constructor(root: DisplayObject);
 	    /**
 	     * @internal
