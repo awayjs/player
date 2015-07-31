@@ -68,7 +68,6 @@ class AS2SymbolAdapter
     public _blockedByScript:boolean;
 
     private static REFERENCE_TIME : number = -1;
-    private static CLASS_REPLACEMENTS : Object;
 
     constructor(adaptee : DisplayObjectContainer, view:View)
     {
@@ -78,13 +77,6 @@ class AS2SymbolAdapter
         this._blockedByScript=false;
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
-
-        if (!AS2SymbolAdapter.CLASS_REPLACEMENTS) {
-            AS2SymbolAdapter.CLASS_REPLACEMENTS = {};
-            AS2SymbolAdapter.CLASS_REPLACEMENTS["Color"] = "awayjs-player/lib/adapters/AS2ColorAdapter";
-            AS2SymbolAdapter.CLASS_REPLACEMENTS["System"] = "awayjs-player/lib/adapters/AS2SystemAdapter";
-            AS2SymbolAdapter.CLASS_REPLACEMENTS["Sound"] = "awayjs-player/lib/adapters/AS2SoundAdapter";
-        }
     }
 
 
@@ -263,35 +255,6 @@ class AS2SymbolAdapter
         return this._root;
     }
 
-    clearInterval(handle:number)
-    {
-        clearInterval(handle);
-    }
-
-    setInterval(handler:Function, timeout:number, ...args:any[]):number;
-    setInterval(scope:any, handler:string, timeout:number, ...args:any[]):number;
-    setInterval()
-    {
-        var scope:any;
-        var func:any;
-
-        if (typeof(arguments[0]) == "function") {
-            scope = this;
-            func = arguments[0];
-        } else {
-            //remove scope variable from args
-            scope = Array.prototype.shift.call(arguments);
-
-            //reformat function string to actual function variable in the scope
-            func = scope[arguments[0]];
-        }
-
-        //wrap function to maintain scope
-        arguments[0] = () => func.apply(scope, arguments);
-
-        return setInterval.apply(this, arguments);
-    }
-
     // temporary:
     get _level10301() : AS2SymbolAdapter
     {
@@ -312,11 +275,6 @@ class AS2SymbolAdapter
     random(range:number)
     {
         return Math.random() * range;
-    }
-
-    get classReplacements():Object
-    {
-        return AS2SymbolAdapter.CLASS_REPLACEMENTS;
     }
 
     public get _parent() : AS2MovieClipAdapter

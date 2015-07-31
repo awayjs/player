@@ -4,19 +4,23 @@ import IEntity = require("awayjs-display/lib/entities/IEntity");
 import Partition = require("awayjs-display/lib/partition/Partition");
 
 import Entity2DNode					= require("awayjs-player/lib/partition/Entity2DNode");
+import SceneGraphNode				= require("awayjs-player/lib/partition/SceneGraphNode");
 import Partition2DNode = require("awayjs-player/lib/partition/Partition2DNode");
 import EntityNodePool = require("awayjs-display/lib/pool/EntityNodePool");
+import SceneGraphNodePool = require("awayjs-display/lib/pool/SceneGraphNodePool");
 
 
 class Partition2D extends Partition
 {
     private _entity2DNodePool:EntityNodePool;
+    private _sceneGraphNodePool:SceneGraphNodePool;
 
     constructor(root:DisplayObject)
     {
         super(new Partition2DNode(root));
 
         this._entity2DNodePool = new EntityNodePool(Entity2DNode, this);
+        this._sceneGraphNodePool = new SceneGraphNodePool(SceneGraphNode, this);
     }
 
     /**

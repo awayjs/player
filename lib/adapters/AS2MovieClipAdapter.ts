@@ -13,8 +13,23 @@ import Point = require("awayjs-core/lib/geom/Point");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 import View			= require("awayjs-display/lib/containers/View");
 
+import Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");
+import System			= require("awayjs-player/lib/adapters/AS2SystemAdapter");
+import Sound			= require("awayjs-player/lib/adapters/AS2SoundAdapter");
+import Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");
+import Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");
+import Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");
+
+var int = (value) => value | 0;
+var String = (value) => value.toString();
+var string = (value) => value.toString();
+var getURL = (value) => value;
+var clearInterval = (handle:number) => window.clearInterval(handle);
+var setInterval = () => { var scope:any; var func:any; if (typeof(arguments[0]) == "function") { scope = this; func = arguments[0]; } else { scope = Array.prototype.shift.call(arguments); func = scope[arguments[0]]; } arguments[0] = () => func.apply(scope, arguments); return window.setInterval.apply(window, arguments); };
+
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 {
+  private _framescript_vars:Array<Object> = [Color, System, Sound, Key, Mouse, Stage];
   // _droptarget [read-only]
   // focusEnabled: Boolean
   // forceSmoothing: Boolean
@@ -34,9 +49,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
   constructor(adaptee : MovieClip, view:View)
   {
-    adaptee = adaptee || new MovieClip();
     // create an empty MovieClip if none is passed
-    super(adaptee, view);
+    super(adaptee || new MovieClip(), view);
 
     this.__pSoundProps = new AS2MCSoundProps();
   }
@@ -60,6 +74,20 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   get enabled() : boolean
   {
     return (<MovieClip>this.adaptee).mouseEnabled;
+  }
+
+  evalScript(str:string):Function
+  {
+    try {
+      var script =  (function() { eval(str) });
+    }
+    catch(err)
+    {
+      console.log("Syntax error in script:\n", str);
+      console.log(err.message);
+      throw err;
+    }
+    return script;
   }
 
   //attachAudio(id: AS2SoundAdapter) : void {	}
@@ -281,14 +309,14 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   public registerScriptObject(child : DisplayObject)
   {
     if (child.name)
-      this[child.name] = child["adapter"] ? child["adapter"] : child;
+      this[child.name] = child.adapter ? child.adapter : child;
   }
 
   public unregisterScriptObject(child : DisplayObject)
   {
     delete this[child.name];
     if(child.isAsset(MovieClip)){
-      (<MovieClip>child).removeButtonListener();
+      (<MovieClip>child).removeButtonListeners();
     }
   }
 
