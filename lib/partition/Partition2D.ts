@@ -4,7 +4,7 @@ import IEntity = require("awayjs-display/lib/entities/IEntity");
 import Partition = require("awayjs-display/lib/partition/Partition");
 
 import Entity2DNode					= require("awayjs-player/lib/partition/Entity2DNode");
-import SceneGraphNode				= require("awayjs-player/lib/partition/SceneGraphNode");
+import SceneGraphNode				= require("awayjs-display/lib/partition/SceneGraphNode");
 import Partition2DNode = require("awayjs-player/lib/partition/Partition2DNode");
 import EntityNodePool = require("awayjs-display/lib/pool/EntityNodePool");
 import SceneGraphNodePool = require("awayjs-display/lib/pool/SceneGraphNodePool");
