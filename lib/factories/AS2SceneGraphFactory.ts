@@ -1,6 +1,7 @@
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 import AS2TextFieldAdapter = require("awayjs-player/lib/adapters/AS2TextFieldAdapter");
 import TextField = require("awayjs-display/lib/entities/TextField");
+import Timeline = require("awayjs-display/lib/base/Timeline");
 import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 import ITimelineSceneGraphFactory = require("awayjs-display/lib/factories/ITimelineSceneGraphFactory");
 import View			= require("awayjs-display/lib/containers/View");
@@ -14,9 +15,9 @@ class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
     {
         this._view = view;
     }
-    createMovieClip():MovieClip
+    createMovieClip(timeline:Timeline):MovieClip
     {
-        var mc = new MovieClip();
+        var mc = new MovieClip(timeline);
         mc.adapter = new AS2MovieClipAdapter(mc, this._view);
         return mc;
     }
