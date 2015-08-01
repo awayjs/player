@@ -179,7 +179,7 @@ class AS2SymbolAdapter
     set _visible(value : boolean)
     {
         this._adaptee.visible = value;
-        //this._blockedByScript=true;
+        this._blockedByScript=true;
     }
 
     get _width():number
