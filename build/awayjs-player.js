@@ -873,7 +873,7 @@ var AS2SymbolAdapter = (function () {
         },
         set: function (value) {
             this._adaptee.visible = value;
-            //this._blockedByScript=true;
+            this._blockedByScript = true;
         },
         enumerable: true,
         configurable: true
