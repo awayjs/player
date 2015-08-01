@@ -323,13 +323,14 @@ declare module "awayjs-player/lib/bounds/AxisAlignedBoundingBox2D" {
 
 declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	import TextField = require("awayjs-display/lib/entities/TextField");
+	import Timeline = require("awayjs-display/lib/base/Timeline");
 	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 	import ITimelineSceneGraphFactory = require("awayjs-display/lib/factories/ITimelineSceneGraphFactory");
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2SceneGraphFactory implements ITimelineSceneGraphFactory {
 	    private _view;
 	    constructor(view: View);
-	    createMovieClip(): MovieClip;
+	    createMovieClip(timeline: Timeline): MovieClip;
 	    createTextField(): TextField;
 	}
 	export = AS2SceneGraphFactory;

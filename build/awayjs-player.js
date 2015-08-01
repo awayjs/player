@@ -1119,8 +1119,8 @@ var AS2SceneGraphFactory = (function () {
     function AS2SceneGraphFactory(view) {
         this._view = view;
     }
-    AS2SceneGraphFactory.prototype.createMovieClip = function () {
-        var mc = new MovieClip();
+    AS2SceneGraphFactory.prototype.createMovieClip = function (timeline) {
+        var mc = new MovieClip(timeline);
         mc.adapter = new AS2MovieClipAdapter(mc, this._view);
         return mc;
     };
