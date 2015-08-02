@@ -710,7 +710,6 @@ var AS2StageAdapter = (function () {
 module.exports = AS2StageAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
-var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 var AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 var AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
 var AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
@@ -923,9 +922,7 @@ var AS2SymbolAdapter = (function () {
             return this.adaptee.transform.colorTransform ? this.adaptee.transform.colorTransform.alphaMultiplier : 1;
         },
         set: function (value) {
-            if (!this.adaptee.transform.colorTransform)
-                this.adaptee.transform.colorTransform = new ColorTransform();
-            this.adaptee.transform.colorTransform.alphaMultiplier = value;
+            this.adaptee.colorTransform.alphaMultiplier = value;
             this._blockedByScript = true;
         },
         enumerable: true,
@@ -988,7 +985,7 @@ var AS2SymbolAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-player/lib/adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+},{"awayjs-player/lib/adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 // also contains global AS2 functions
 var AS2SystemAdapter = (function () {
     function AS2SystemAdapter() {
