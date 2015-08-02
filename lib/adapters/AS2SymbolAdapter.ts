@@ -28,7 +28,7 @@ class AS2SymbolAdapter
     public getURL(value:string) { return value; }
 
     public isBlockedByScript():boolean { return this._blockedByScript;}
-    public isVisibilityByScript():boolean { return this._blockedByScript;}
+    public isVisibilityByScript():boolean { return this._visibilityByScript;}
     public freeFromScript():void { this._blockedByScript=false; this._visibilityByScript=false;}
 
     // blendMode

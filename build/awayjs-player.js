@@ -767,7 +767,7 @@ var AS2SymbolAdapter = (function () {
         return this._blockedByScript;
     };
     AS2SymbolAdapter.prototype.isVisibilityByScript = function () {
-        return this._blockedByScript;
+        return this._visibilityByScript;
     };
     AS2SymbolAdapter.prototype.freeFromScript = function () {
         this._blockedByScript = false;
