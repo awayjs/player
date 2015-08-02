@@ -233,10 +233,7 @@ class AS2SymbolAdapter
 
     set _alpha(value: number)
     {
-        if (!this.adaptee.transform.colorTransform)
-            this.adaptee.transform.colorTransform = new ColorTransform();
-
-        this.adaptee.transform.colorTransform.alphaMultiplier = value;
+        this.adaptee.colorTransform.alphaMultiplier = value;
         this._blockedByScript=true;
     }
 
