@@ -19,6 +19,7 @@ import Sound			= require("awayjs-player/lib/adapters/AS2SoundAdapter");
 import Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");
 import Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");
+import SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 
 var int = (value) => value | 0;
 var String = (value) => value.toString();
@@ -27,7 +28,7 @@ var getURL = (value) => value;
 
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 {
-  private _framescript_vars:Array<Object> = [Color, System, Sound, Key, Mouse, Stage];
+  private _framescript_vars:Array<Object> = [Color, System, Sound, Key, Mouse, Stage, SharedObject];
   // _droptarget [read-only]
   // focusEnabled: Boolean
   // forceSmoothing: Boolean
