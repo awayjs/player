@@ -24,8 +24,6 @@ var int = (value) => value | 0;
 var String = (value) => value.toString();
 var string = (value) => value.toString();
 var getURL = (value) => value;
-var clearInterval = (handle:number) => window.clearInterval(handle);
-var setInterval = () => { var scope:any; var func:any; if (typeof(arguments[0]) == "function") { scope = this; func = arguments[0]; } else { scope = Array.prototype.shift.call(arguments); func = scope[arguments[0]]; } arguments[0] = () => func.apply(scope, arguments); return window.setInterval.apply(window, arguments); };
 
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 {

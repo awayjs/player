@@ -254,6 +254,35 @@ class AS2SymbolAdapter
         return this._root;
     }
 
+    clearInterval(handle:number)
+    {
+        return window.clearInterval(handle);
+    }
+
+    setInterval(handler:Function, timeout:number, ...args:any[]):number;
+    setInterval(scope:any, handler:string, timeout:number, ...args:any[]):number;
+    setInterval(...args:any[])
+    {
+        var scope:any;
+        var func:any;
+
+        if (typeof(args[0]) == "function") {
+            scope = this;
+            func = args[0];
+        } else {
+            //remove scope variable from args
+            scope = args.shift();
+
+            //reformat function string to actual function variable in the scope
+            func = scope[args[0]];
+        }
+
+        //wrap function to maintain scope
+        args[0] = () => func.apply(scope, arguments);
+
+        return window.setInterval.apply(window, args);
+    }
+
     // temporary:
     get _level10301() : AS2SymbolAdapter
     {
