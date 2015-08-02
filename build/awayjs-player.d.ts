@@ -339,24 +339,6 @@ declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	
 }
 
-declare module "awayjs-player/lib/partition/Entity2DNode" {
-	import Vector3D = require("awayjs-core/lib/geom/Vector3D");
-	import EntityNode = require("awayjs-display/lib/partition/EntityNode");
-	/**
-	 * @class away.partition.EntityNode
-	 */
-	class Entity2DNode extends EntityNode {
-	    static id: string;
-	    /**
-	     * @inheritDoc
-	     */
-	    isIntersectingRay(rayPosition: Vector3D, rayDirection: Vector3D): boolean;
-	    updateBounds(): void;
-	}
-	export = Entity2DNode;
-	
-}
-
 declare module "awayjs-player/lib/partition/Partition2D" {
 	import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import IEntity = require("awayjs-display/lib/entities/IEntity");
@@ -442,6 +424,24 @@ declare module "awayjs-player/lib/renderer/Renderer2D" {
 	    _iApplyRenderableOwner(renderableOwner: IRenderableOwner): void;
 	}
 	export = Renderer2D;
+	
+}
+
+declare module "awayjs-player/lib/partition/Entity2DNode" {
+	import Vector3D = require("awayjs-core/lib/geom/Vector3D");
+	import EntityNode = require("awayjs-display/lib/partition/EntityNode");
+	/**
+	 * @class away.partition.EntityNode
+	 */
+	class Entity2DNode extends EntityNode {
+	    static id: string;
+	    /**
+	     * @inheritDoc
+	     */
+	    isIntersectingRay(rayPosition: Vector3D, rayDirection: Vector3D): boolean;
+	    updateBounds(): void;
+	}
+	export = Entity2DNode;
 	
 }
 
