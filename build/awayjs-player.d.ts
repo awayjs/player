@@ -251,11 +251,13 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    string(value: any): any;
 	    getURL(value: string): string;
 	    isBlockedByScript(): boolean;
+	    isVisibilityByScript(): boolean;
 	    freeFromScript(): void;
 	    private __root;
 	    private _adaptee;
 	    private __quality;
 	    _blockedByScript: boolean;
+	    _visibilityByScript: boolean;
 	    private static REFERENCE_TIME;
 	    constructor(adaptee: DisplayObjectContainer, view: View);
 	    getVersion(): number;

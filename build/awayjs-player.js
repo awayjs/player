@@ -766,8 +766,12 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.isBlockedByScript = function () {
         return this._blockedByScript;
     };
+    AS2SymbolAdapter.prototype.isVisibilityByScript = function () {
+        return this._blockedByScript;
+    };
     AS2SymbolAdapter.prototype.freeFromScript = function () {
         this._blockedByScript = false;
+        this._visibilityByScript = false;
     };
     AS2SymbolAdapter.prototype.getVersion = function () {
         return 0;
@@ -872,7 +876,7 @@ var AS2SymbolAdapter = (function () {
         },
         set: function (value) {
             this._adaptee.visible = value;
-            this._blockedByScript = true;
+            this._visibilityByScript = true;
         },
         enumerable: true,
         configurable: true

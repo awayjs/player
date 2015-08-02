@@ -28,7 +28,8 @@ class AS2SymbolAdapter
     public getURL(value:string) { return value; }
 
     public isBlockedByScript():boolean { return this._blockedByScript;}
-    public freeFromScript():void { this._blockedByScript=false;}
+    public isVisibilityByScript():boolean { return this._blockedByScript;}
+    public freeFromScript():void { this._blockedByScript=false; this._visibilityByScript=false;}
 
     // blendMode
     // cacheAsBitmap
@@ -66,6 +67,7 @@ class AS2SymbolAdapter
     private __quality : string = "high";
 
     public _blockedByScript:boolean;
+    public _visibilityByScript:boolean;
 
     private static REFERENCE_TIME : number = -1;
 
@@ -179,7 +181,7 @@ class AS2SymbolAdapter
     set _visible(value : boolean)
     {
         this._adaptee.visible = value;
-        this._blockedByScript=true;
+        this._visibilityByScript=true;
     }
 
     get _width():number
