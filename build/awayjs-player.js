@@ -264,7 +264,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var _this = this;
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var MovieClip = require("awayjs-display/lib/entities/MovieClip");
@@ -282,21 +281,6 @@ var int = function (value) { return value | 0; };
 var String = function (value) { return value.toString(); };
 var string = function (value) { return value.toString(); };
 var getURL = function (value) { return value; };
-var clearInterval = function (handle) { return window.clearInterval(handle); };
-var setInterval = function () {
-    var scope;
-    var func;
-    if (typeof (arguments[0]) == "function") {
-        scope = _this;
-        func = arguments[0];
-    }
-    else {
-        scope = Array.prototype.shift.call(arguments);
-        func = scope[arguments[0]];
-    }
-    arguments[0] = function () { return func.apply(scope, arguments); };
-    return window.setInterval.apply(window, arguments);
-};
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
     function AS2MovieClipAdapter(adaptee, view) {
@@ -953,6 +937,30 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    AS2SymbolAdapter.prototype.clearInterval = function (handle) {
+        return window.clearInterval(handle);
+    };
+    AS2SymbolAdapter.prototype.setInterval = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
+        var scope;
+        var func;
+        if (typeof (args[0]) == "function") {
+            scope = this;
+            func = args[0];
+        }
+        else {
+            //remove scope variable from args
+            scope = args.shift();
+            //reformat function string to actual function variable in the scope
+            func = scope[args[0]];
+        }
+        //wrap function to maintain scope
+        args[0] = function () { return func.apply(scope, arguments); };
+        return window.setInterval.apply(window, args);
+    };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_level10301", {
         // temporary:
         get: function () {
