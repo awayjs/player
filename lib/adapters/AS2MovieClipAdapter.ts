@@ -21,7 +21,7 @@ import Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");
 import SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 
-var int = (value) => Math.floor(value);
+var int = (value) => Math.floor(value) | 0;
 var String = (value) => value.toString();
 var string = (value) => value.toString();
 var getURL = (value) => value;
