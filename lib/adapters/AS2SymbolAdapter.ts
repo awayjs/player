@@ -8,6 +8,7 @@ import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAda
 import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
 import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
+import FrameScriptManager = require("awayjs-display/lib/managers/FrameScriptManager");
 
 import View			= require("awayjs-display/lib/containers/View");
 
@@ -257,7 +258,8 @@ class AS2SymbolAdapter
 
     clearInterval(handle:number)
     {
-        return window.clearInterval(handle);
+        FrameScriptManager.clearInterval(handle);//window.clearInterval(handle);
+        return;
     }
 
     setInterval(handler:Function, timeout:number, ...args:any[]):number;
@@ -281,7 +283,7 @@ class AS2SymbolAdapter
         //wrap function to maintain scope
         args[0] = () => func.apply(scope, arguments);
 
-        return window.setInterval.apply(window, args);
+        return FrameScriptManager.setInterval(args[0]);// window.setInterval.apply(window, args);
     }
 
     // temporary:
