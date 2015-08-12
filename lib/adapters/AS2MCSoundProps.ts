@@ -45,11 +45,13 @@ class AS2MCSoundProps extends EventDispatcher
 
     public get loops()
     {
+        // for now looping works like a boolean. if this._loops is > 0, looping is true
         return this._loops;
     }
 
     public set loops(value:number)
     {
+        // for now looping works like a boolean. if this._loops is > 0, looping is true
         this._loops = value;
     }
 
@@ -77,7 +79,8 @@ class AS2MCSoundProps extends EventDispatcher
 
     private onEnded(event:any):void
     {
-        if (--this._loops > 0) {
+        //if (--this._loops > 0) { // for now looping works like a boolean. if this._loops is > 0, looping is true
+        if (this._loops > 0) {
             this._audio.currentTime = 0;
             this._audio.play();
         } else {

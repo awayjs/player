@@ -12,6 +12,8 @@ class AS2SoundAdapter
     private _target : AS2MovieClipAdapter;
     private _soundProps : AS2MCSoundProps;
 
+    private  _vol=0; // uses this vol property on sound.
+
     private static _globalSoundProps : AS2MCSoundProps = new AS2MCSoundProps();
 
     private _onGlobalChangeDelegate:(event:Event) => void;
@@ -26,6 +28,16 @@ class AS2SoundAdapter
         this._onGlobalChangeDelegate = (event:Event) => this.onGlobalChange(event);
 
         AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
+    }
+
+    get vol()
+    {
+        return this._vol;
+    }
+
+    set vol(value:number)
+    {
+        this._vol = value;
     }
 
     get looping()
