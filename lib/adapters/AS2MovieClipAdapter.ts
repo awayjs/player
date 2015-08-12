@@ -180,7 +180,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   {
     if (frame == null)
       return;
-
+    if (this._name == "smash")
+      console.log("Smash gotoAndPlay");
     this.play();
     this._gotoFrame(frame);
   }
@@ -201,6 +202,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
   stop() : void
   {
+    if (this._name == "smash")
+      console.log("Smash stop");
     (<MovieClip>this.adaptee).stop();
   }
 
@@ -242,7 +245,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
   setMask(mc: DisplayObject) : void
   {
-    (<MovieClip>this.adaptee)._iMasks = [ mc ];
+    (<MovieClip>this.adaptee).masks = [mc];
   }
 
   //startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
