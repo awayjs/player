@@ -187,6 +187,18 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    data: Object;
+	    private _object_name;
+	    constructor(name: string);
+	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SoundAdapter {
@@ -210,18 +222,6 @@ declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	    private updateVolume();
 	}
 	export = AS2SoundAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
-	class AS2SharedObjectAdapter {
-	    data: Object;
-	    private _object_name;
-	    constructor(name: string);
-	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
-	    flush(): void;
-	}
-	export = AS2SharedObjectAdapter;
 	
 }
 
@@ -326,24 +326,6 @@ declare module "awayjs-player/lib/bounds/AxisAlignedBoundingBox2D" {
 	
 }
 
-declare module "awayjs-player/lib/partition/Entity2DNode" {
-	import Vector3D = require("awayjs-core/lib/geom/Vector3D");
-	import EntityNode = require("awayjs-display/lib/partition/EntityNode");
-	/**
-	 * @class away.partition.EntityNode
-	 */
-	class Entity2DNode extends EntityNode {
-	    static id: string;
-	    /**
-	     * @inheritDoc
-	     */
-	    isIntersectingRay(rayPosition: Vector3D, rayDirection: Vector3D): boolean;
-	    updateBounds(): void;
-	}
-	export = Entity2DNode;
-	
-}
-
 declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	import TextField = require("awayjs-display/lib/entities/TextField");
 	import Timeline = require("awayjs-display/lib/base/Timeline");
@@ -357,94 +339,6 @@ declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
 	    createTextField(): TextField;
 	}
 	export = AS2SceneGraphFactory;
-	
-}
-
-declare module "awayjs-player/lib/renderer/Mask" {
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
-	import Stage = require("awayjs-stagegl/lib/base/Stage");
-	import Renderer2D = require("awayjs-player/lib/renderer/Renderer2D");
-	class Mask {
-	    private _stage;
-	    private _renderer;
-	    private _registeredMasks;
-	    constructor(stage: Stage, renderer: Renderer2D);
-	    registerMask(obj: RenderableBase): void;
-	    renderMasks(masks: DisplayObject[]): void;
-	    reset(): void;
-	    private _draw(renderable);
-	}
-	export = Mask;
-	
-}
-
-declare module "awayjs-player/lib/renderer/RenderableSort2D" {
-	import IRenderable = require("awayjs-display/lib/pool/IRenderable");
-	import IEntitySorter = require("awayjs-display/lib/sort/IEntitySorter");
-	/**
-	 * @class away.sort.RenderableMergeSort
-	 */
-	class RenderableMergeSort implements IEntitySorter {
-	    sortBlendedRenderables(head: IRenderable): IRenderable;
-	    sortOpaqueRenderables(head: IRenderable): IRenderable;
-	}
-	export = RenderableMergeSort;
-	
-}
-
-declare module "awayjs-player/lib/renderer/Renderer2D" {
-	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
-	import IRenderableOwner = require("awayjs-display/lib/base/IRenderableOwner");
-	import Stage = require("awayjs-stagegl/lib/base/Stage");
-	import DefaultRenderer = require("awayjs-renderergl/lib/DefaultRenderer");
-	import RenderableBase = require("awayjs-renderergl/lib/renderables/RenderableBase");
-	class Renderer2D extends DefaultRenderer {
-	    private _mask;
-	    constructor(stage?: Stage);
-	    drawRenderables(renderable: RenderableBase, entityCollector: CollectorBase): void;
-	    _iApplyRenderableOwner(renderableOwner: IRenderableOwner): void;
-	}
-	export = Renderer2D;
-	
-}
-
-declare module "awayjs-player/lib/partition/Partition2DNode" {
-	import CollectorBase = require("awayjs-display/lib/traverse/CollectorBase");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import NodeBase = require("awayjs-display/lib/partition/NodeBase");
-	class Partition2DNode extends NodeBase {
-	    private _root;
-	    private _maskConfigID;
-	    private _index;
-	    constructor(root: DisplayObject);
-	    acceptTraverser(traverser: CollectorBase): void;
-	    traverseSceneGraph(displayObject: any, traverser: CollectorBase, maskID?: number, appliedMasks?: DisplayObject[]): void;
-	    private traverseChildren(container, traverser, maskID, appliedMasks);
-	    iAddNode(node: NodeBase): void;
-	}
-	export = Partition2DNode;
-	
-}
-
-declare module "awayjs-player/lib/partition/Partition2D" {
-	import DisplayObject = require("awayjs-display/lib/containers/DisplayObjectContainer");
-	import IEntity = require("awayjs-display/lib/entities/IEntity");
-	import Partition = require("awayjs-display/lib/partition/Partition");
-	class Partition2D extends Partition {
-	    private _entity2DNodePool;
-	    private _sceneGraphNodePool;
-	    constructor(root: DisplayObject);
-	    /**
-	     * @internal
-	     */
-	    _iRegisterEntity(entity: IEntity): void;
-	    /**
-	     * @internal
-	     */
-	    _iUnregisterEntity(entity: IEntity): void;
-	}
-	export = Partition2D;
 	
 }
 
