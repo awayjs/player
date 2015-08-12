@@ -204,9 +204,11 @@ var AS2MCSoundProps = (function (_super) {
     });
     Object.defineProperty(AS2MCSoundProps.prototype, "loops", {
         get: function () {
+            // for now looping works like a boolean. if this._loops is > 0, looping is true
             return this._loops;
         },
         set: function (value) {
+            // for now looping works like a boolean. if this._loops is > 0, looping is true
             this._loops = value;
         },
         enumerable: true,
@@ -231,7 +233,8 @@ var AS2MCSoundProps = (function (_super) {
         configurable: true
     });
     AS2MCSoundProps.prototype.onEnded = function (event) {
-        if (--this._loops > 0) {
+        //if (--this._loops > 0) { // for now looping works like a boolean. if this._loops is > 0, looping is true
+        if (this._loops > 0) {
             this._audio.currentTime = 0;
             this._audio.play();
         }
@@ -564,12 +567,23 @@ var AS2SoundAdapter = (function () {
     // TODO: Any real Sound stuff should be externalized for AwayJS use. For now use internally since it's only 2D.
     function AS2SoundAdapter(target) {
         var _this = this;
+        this._vol = 0; // uses this vol property on sound.
         // not sure how to handle target yet
         this._target = target;
         this._soundProps = (target != null && target.__pSoundProps) ? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
         this._onGlobalChangeDelegate = function (event) { return _this.onGlobalChange(event); };
         AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
     }
+    Object.defineProperty(AS2SoundAdapter.prototype, "vol", {
+        get: function () {
+            return this._vol;
+        },
+        set: function (value) {
+            this._vol = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2SoundAdapter.prototype, "looping", {
         get: function () {
             return this._soundProps.loops;
