@@ -308,7 +308,7 @@ class AS2SymbolAdapter
 
     random(range:number)
     {
-        return Math.random() * range;
+        return Math.floor(Math.random() * range);
     }
 
     public get _parent() : AS2MovieClipAdapter
