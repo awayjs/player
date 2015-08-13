@@ -18,6 +18,7 @@ class AS2SymbolAdapter
 {
     public _view:View;
 
+    private alpha:number=100;
     // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
     // And then change properties to statics
     public get Key() { return AS2KeyAdapter; }
@@ -231,13 +232,15 @@ class AS2SymbolAdapter
 
     get _alpha() : number
     {
-        return this.adaptee.transform.colorTransform? this.adaptee.transform.colorTransform.alphaMultiplier : 1;
+
+        return this.alpha;
     }
 
     set _alpha(value: number)
     {
+        this.alpha=value;
         if(!this.adaptee.colorTransform)this.adaptee.colorTransform = new ColorTransform();
-        this.adaptee.colorTransform.alphaMultiplier = value;
+        this.adaptee.colorTransform.alphaMultiplier = value/100;
         this._blockedByScript=true;
     }
 
