@@ -227,14 +227,6 @@ declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
-	class AS2StageAdapter {
-	    static showMenu: boolean;
-	}
-	export = AS2StageAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
@@ -245,6 +237,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2SymbolAdapter {
 	    _view: View;
+	    private alpha;
 	    Key: typeof AS2KeyAdapter;
 	    Mouse: typeof AS2MouseAdapter;
 	    Stage: typeof AS2StageAdapter;
@@ -294,6 +287,14 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _parent: AS2MovieClipAdapter;
 	}
 	export = AS2SymbolAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
+	class AS2StageAdapter {
+	    static showMenu: boolean;
+	}
+	export = AS2StageAdapter;
 	
 }
 

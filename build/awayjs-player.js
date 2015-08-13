@@ -722,6 +722,7 @@ var FrameScriptManager = require("awayjs-display/lib/managers/FrameScriptManager
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
     function AS2SymbolAdapter(adaptee, view) {
+        this.alpha = 100;
         this.__quality = "high";
         this._adaptee = adaptee;
         this._view = view;
@@ -928,12 +929,13 @@ var AS2SymbolAdapter = (function () {
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
         get: function () {
-            return this.adaptee.transform.colorTransform ? this.adaptee.transform.colorTransform.alphaMultiplier : 1;
+            return this.alpha;
         },
         set: function (value) {
+            this.alpha = value;
             if (!this.adaptee.colorTransform)
                 this.adaptee.colorTransform = new ColorTransform();
-            this.adaptee.colorTransform.alphaMultiplier = value;
+            this.adaptee.colorTransform.alphaMultiplier = value / 100;
             this._blockedByScript = true;
         },
         enumerable: true,
