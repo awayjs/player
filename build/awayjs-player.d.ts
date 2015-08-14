@@ -199,6 +199,42 @@ declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
+	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+	class AS2SoundAdapter {
+	    private _target;
+	    private _soundProps;
+	    private _vol;
+	    private static _globalSoundProps;
+	    private _onGlobalChangeDelegate;
+	    constructor(target: AS2MovieClipAdapter);
+	    vol: number;
+	    looping: number;
+	    attachSound(id: string): void;
+	    getPan(): number;
+	    setPan(value: number): void;
+	    getVolume(): number;
+	    setVolume(value: number): void;
+	    start(offsetInSeconds?: number, loops?: number): void;
+	    stop(linkageID?: string): void;
+	    position: number;
+	    duration: number;
+	    id3: Object;
+	    private onGlobalChange(event);
+	    private updateVolume();
+	}
+	export = AS2SoundAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
+	class AS2StageAdapter {
+	    static showMenu: boolean;
+	}
+	export = AS2StageAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
@@ -259,42 +295,6 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _parent: AS2MovieClipAdapter;
 	}
 	export = AS2SymbolAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
-	class AS2StageAdapter {
-	    static showMenu: boolean;
-	}
-	export = AS2StageAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
-	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-	class AS2SoundAdapter {
-	    private _target;
-	    private _soundProps;
-	    private _vol;
-	    private static _globalSoundProps;
-	    private _onGlobalChangeDelegate;
-	    constructor(target: AS2MovieClipAdapter);
-	    vol: number;
-	    looping: number;
-	    attachSound(id: string): void;
-	    getPan(): number;
-	    setPan(value: number): void;
-	    getVolume(): number;
-	    setVolume(value: number): void;
-	    start(offsetInSeconds?: number, loops?: number): void;
-	    stop(linkageID?: string): void;
-	    position: number;
-	    duration: number;
-	    id3: Object;
-	    private onGlobalChange(event);
-	    private updateVolume();
-	}
-	export = AS2SoundAdapter;
 	
 }
 

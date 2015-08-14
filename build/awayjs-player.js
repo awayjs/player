@@ -5,7 +5,7 @@ var AS2ColorAdapter = (function () {
     function AS2ColorAdapter(target) {
         this._rgb = 0xffffff;
         target._blockedByScript = true;
-        this._target = target.adaptee.transform.colorTransform || (target.adaptee.transform.colorTransform = new ColorTransform());
+        this._target = target.adaptee.colorTransform || (target.adaptee.colorTransform = new ColorTransform());
         this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
     }
     AS2ColorAdapter.prototype.getRGB = function () {
