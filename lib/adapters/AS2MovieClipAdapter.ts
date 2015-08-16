@@ -40,9 +40,13 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   // transform: Transform		// contains matrix + color matrix
 
   public __pSoundProps : AS2MCSoundProps;
+
   // translate to scripts:
   private _onEnterFrame: Function;
   private _onRelease: Function;
+  private _onRollOver:Function;
+  private _onRollOut:Function;
+  private _onPress: Function;
   private _onMouseDown: Function;
   private _onMouseUp: Function;
 
@@ -50,7 +54,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   {
     // create an empty MovieClip if none is passed
     super(adaptee || new MovieClip(), view);
-
     this.__pSoundProps = new AS2MCSoundProps();
   }
 
@@ -97,8 +100,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
     var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
     var cloned_mc:MovieClip = <MovieClip> attached_mc.clone();
     var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
-    adapter.adaptee.name = name;
     this.adaptee.addChildAtDepth(adapter.adaptee, depth);
+    adapter.adaptee.name = name;
     this.registerScriptObject(adapter.adaptee);
     return attached_mc;
     // todo: apply object from initObject to attached_mc
@@ -278,14 +281,39 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
     this._onEnterFrame = this._replaceEventListener(Event.ENTER_FRAME, this._onEnterFrame, value);
   }
 
+  public get onRollOut(): Function
+  {
+    return this._onRollOut;
+  }
+  public set onRollOut(value : Function)
+  {
+    this._onRollOut = this._replaceEventListener(MouseEvent.MOUSE_OUT, this._onRollOut, value);
+  }
+  public get onRollOver(): Function
+  {
+    return this._onRollOver;
+  }
+  public set onRollOver(value : Function)
+  {
+    this._onRollOver = this._replaceEventListener(MouseEvent.MOUSE_OVER, this._onRollOver, value);
+  }
   public get onRelease(): Function
   {
     return this._onRelease;
   }
-
   public set onRelease(value : Function)
   {
     this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
+  }
+
+  public get onPress(): Function
+  {
+    return this._onPress;
+  }
+
+  public set onPress(value : Function)
+  {
+    this._onPress = this._replaceEventListener(MouseEvent.MOUSE_DOWN, this._onPress, value);
   }
 
   public get onMouseDown(): Function

@@ -55,7 +55,7 @@ class AS2SymbolAdapter
     public onKeyUp : Function;
     public onKillFocus : Function;
     public onPress : Function;
-    public onRelease : Function;
+        public onRelease : Function;
     public onReleaseOutside : Function;
     public onRollOut : Function;
     public onRollOver : Function;
@@ -70,7 +70,7 @@ class AS2SymbolAdapter
     public _blockedByScript:boolean;
     public _visibilityByScript:boolean;
 
-    private static REFERENCE_TIME : number = -1;
+    public static REFERENCE_TIME : number = -1;
 
     constructor(adaptee : DisplayObjectContainer, view:View)
     {
