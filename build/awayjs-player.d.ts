@@ -245,7 +245,6 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2SymbolAdapter {
 	    _view: View;
-	    private alpha;
 	    Key: typeof AS2KeyAdapter;
 	    Mouse: typeof AS2MouseAdapter;
 	    Stage: typeof AS2StageAdapter;
