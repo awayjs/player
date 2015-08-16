@@ -343,8 +343,8 @@ var AS2MovieClipAdapter = (function (_super) {
         var attached_mc = AssetLibrary.getAsset(id);
         var cloned_mc = attached_mc.clone();
         var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
-        adapter.adaptee.name = name;
         this.adaptee.addChildAtDepth(adapter.adaptee, depth);
+        adapter.adaptee.name = name;
         this.registerScriptObject(adapter.adaptee);
         return attached_mc;
         // todo: apply object from initObject to attached_mc
@@ -465,12 +465,42 @@ var AS2MovieClipAdapter = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onRollOut", {
+        get: function () {
+            return this._onRollOut;
+        },
+        set: function (value) {
+            this._onRollOut = this._replaceEventListener(MouseEvent.MOUSE_OUT, this._onRollOut, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onRollOver", {
+        get: function () {
+            return this._onRollOver;
+        },
+        set: function (value) {
+            this._onRollOver = this._replaceEventListener(MouseEvent.MOUSE_OVER, this._onRollOver, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onRelease", {
         get: function () {
             return this._onRelease;
         },
         set: function (value) {
             this._onRelease = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onRelease, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AS2MovieClipAdapter.prototype, "onPress", {
+        get: function () {
+            return this._onPress;
+        },
+        set: function (value) {
+            this._onPress = this._replaceEventListener(MouseEvent.MOUSE_DOWN, this._onPress, value);
         },
         enumerable: true,
         configurable: true

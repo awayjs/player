@@ -147,6 +147,9 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    __pSoundProps: AS2MCSoundProps;
 	    private _onEnterFrame;
 	    private _onRelease;
+	    private _onRollOver;
+	    private _onRollOut;
+	    private _onPress;
 	    private _onMouseDown;
 	    private _onMouseUp;
 	    constructor(adaptee: MovieClip, view: View);
@@ -175,7 +178,10 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    swapDepths(target: DisplayObject): void;
 	    clone(newAdaptee: MovieClip): AS2MovieClipAdapter;
 	    onEnterFrame: Function;
+	    onRollOut: Function;
+	    onRollOver: Function;
 	    onRelease: Function;
+	    onPress: Function;
 	    onMouseDown: Function;
 	    onMouseUp: Function;
 	    registerScriptObject(child: DisplayObject): void;
@@ -260,7 +266,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    private __quality;
 	    _blockedByScript: boolean;
 	    _visibilityByScript: boolean;
-	    private static REFERENCE_TIME;
+	    static REFERENCE_TIME: number;
 	    constructor(adaptee: DisplayObjectContainer, view: View);
 	    getVersion(): number;
 	    adaptee: DisplayObjectContainer;
