@@ -5,7 +5,7 @@ var AS2ColorAdapter = (function () {
     function AS2ColorAdapter(target) {
         this._rgb = 0xffffff;
         target._blockedByScript = true;
-        this._target = target.adaptee.colorTransform || (target.adaptee.colorTransform = new ColorTransform());
+        this._target = target.adaptee._iColorTransform || (target.adaptee._iColorTransform = new ColorTransform());
         this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
     }
     AS2ColorAdapter.prototype.getRGB = function () {
@@ -959,12 +959,12 @@ var AS2SymbolAdapter = (function () {
     };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
         get: function () {
-            return this.adaptee.colorTransform ? (this.adaptee.colorTransform.alphaMultiplier * 100) : 100;
+            return this.adaptee._iColorTransform ? (this.adaptee._iColorTransform.alphaMultiplier * 100) : 100;
         },
         set: function (value) {
-            if (!this.adaptee.colorTransform)
-                this.adaptee.colorTransform = new ColorTransform();
-            this.adaptee.colorTransform.alphaMultiplier = value / 100;
+            if (!this.adaptee._iColorTransform)
+                this.adaptee._iColorTransform = new ColorTransform();
+            this.adaptee._iColorTransform.alphaMultiplier = value / 100;
             this._blockedByScript = true;
         },
         enumerable: true,
