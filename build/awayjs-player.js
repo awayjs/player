@@ -1,11 +1,13 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"awayjs-player/lib/adapters/AS2ColorAdapter":[function(require,module,exports){
+var HierarchicalProperties = require("awayjs-display/lib/base/HierarchicalProperties");
 var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 // also contains global AS2 functions
 var AS2ColorAdapter = (function () {
-    function AS2ColorAdapter(target) {
+    function AS2ColorAdapter(symbol) {
         this._rgb = 0xffffff;
-        target._blockedByScript = true;
-        this._target = target.adaptee._iColorTransform || (target.adaptee._iColorTransform = new ColorTransform());
+        this._symbol = symbol;
+        this._symbol._blockedByScript = true;
+        this._target = symbol.adaptee._iColorTransform || (symbol.adaptee._iColorTransform = new ColorTransform());
         this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
     }
     AS2ColorAdapter.prototype.getRGB = function () {
@@ -32,12 +34,13 @@ var AS2ColorAdapter = (function () {
         ct.greenOffset = value.gb || 0;
         ct.blueOffset = value.bb || 0;
         ct.alphaOffset = value.ab || 0;
+        this._symbol.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
     };
     return AS2ColorAdapter;
 })();
 module.exports = AS2ColorAdapter;
 
-},{"awayjs-core/lib/geom/ColorTransform":undefined}],"awayjs-player/lib/adapters/AS2KeyAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/base/HierarchicalProperties":undefined}],"awayjs-player/lib/adapters/AS2KeyAdapter":[function(require,module,exports){
 var AS2KeyAdapter = (function () {
     function AS2KeyAdapter() {
     }
@@ -745,6 +748,7 @@ module.exports = AS2StageAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
 var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
+var HierarchicalProperties = require("awayjs-display/lib/base/HierarchicalProperties");
 var AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 var AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
 var AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
@@ -965,6 +969,7 @@ var AS2SymbolAdapter = (function () {
             if (!this.adaptee._iColorTransform)
                 this.adaptee._iColorTransform = new ColorTransform();
             this.adaptee._iColorTransform.alphaMultiplier = value / 100;
+            this.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
             this._blockedByScript = true;
         },
         enumerable: true,
@@ -1052,7 +1057,7 @@ var AS2SymbolAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/managers/FrameScriptManager":undefined,"awayjs-player/lib/adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/base/HierarchicalProperties":undefined,"awayjs-display/lib/managers/FrameScriptManager":undefined,"awayjs-player/lib/adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 // also contains global AS2 functions
 var AS2SystemAdapter = (function () {
     function AS2SystemAdapter() {

@@ -1,10 +1,11 @@
 declare module "awayjs-player/lib/adapters/AS2ColorAdapter" {
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	class AS2ColorAdapter {
+	    private _symbol;
 	    private _target;
 	    private _rgb;
 	    private _transform;
-	    constructor(target: AS2SymbolAdapter);
+	    constructor(symbol: AS2SymbolAdapter);
 	    getRGB(): number;
 	    setRGB(value: number): void;
 	    getTransform(): any;
