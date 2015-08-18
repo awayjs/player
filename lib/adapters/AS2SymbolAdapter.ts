@@ -2,6 +2,7 @@ import ColorTransform			= require("awayjs-core/lib/geom/ColorTransform");
 import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+import HierarchicalProperties		= require("awayjs-display/lib/base/HierarchicalProperties");
 
 import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
@@ -231,7 +232,6 @@ class AS2SymbolAdapter
 
     get _alpha() : number
     {
-
         return this.adaptee._iColorTransform? (this.adaptee._iColorTransform.alphaMultiplier*100) : 100;
     }
 
@@ -241,6 +241,8 @@ class AS2SymbolAdapter
             this.adaptee._iColorTransform = new ColorTransform();
 
         this.adaptee._iColorTransform.alphaMultiplier = value/100;
+
+        this.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
 
         this._blockedByScript = true;
     }

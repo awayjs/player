@@ -1,3 +1,4 @@
+import HierarchicalProperties		= require("awayjs-display/lib/base/HierarchicalProperties");
 import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
@@ -7,15 +8,17 @@ import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter")
 // also contains global AS2 functions
 class AS2ColorAdapter
 {
+    private _symbol : AS2SymbolAdapter
     private _target : ColorTransform;
     private _rgb : number = 0xffffff;
     private _transform : any;
 
-    constructor(target:AS2SymbolAdapter)
+    constructor(symbol:AS2SymbolAdapter)
     {
-        target._blockedByScript = true;
+        this._symbol = symbol;
+        this._symbol._blockedByScript = true;
 
-        this._target = target.adaptee._iColorTransform || (target.adaptee._iColorTransform = new ColorTransform());
+        this._target = symbol.adaptee._iColorTransform || (symbol.adaptee._iColorTransform = new ColorTransform());
         this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
     }
 
@@ -52,6 +55,8 @@ class AS2ColorAdapter
         ct.greenOffset = value.gb || 0;
         ct.blueOffset = value.bb || 0;
         ct.alphaOffset = value.ab || 0;
+
+        this._symbol.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
     }
 }
 
