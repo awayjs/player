@@ -244,6 +244,7 @@ declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import TouchPoint = require("awayjs-display/lib/base/TouchPoint");
 	import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
@@ -282,6 +283,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _yscale: number;
 	    _visible: boolean;
 	    _width: number;
+	    _touchpoints: Array<TouchPoint>;
 	    getDepth(): number;
 	    _quality: string;
 	    quality: string;

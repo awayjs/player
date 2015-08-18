@@ -932,6 +932,13 @@ var AS2SymbolAdapter = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AS2SymbolAdapter.prototype, "_touchpoints", {
+        get: function () {
+            return this._view.getLocalTouchPoints(this._adaptee);
+        },
+        enumerable: true,
+        configurable: true
+    });
     AS2SymbolAdapter.prototype.getDepth = function () {
         return this._adaptee.z;
     };
