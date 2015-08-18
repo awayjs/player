@@ -3,6 +3,7 @@ import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
 import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 import HierarchicalProperties		= require("awayjs-display/lib/base/HierarchicalProperties");
+import TouchPoint					= require("awayjs-display/lib/base/TouchPoint");
 
 import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
@@ -195,6 +196,11 @@ class AS2SymbolAdapter
     {
         this._adaptee.width = value;
         this._blockedByScript=true;
+    }
+
+    get _touchpoints() : Array<TouchPoint>
+    {
+        return this._view.getLocalTouchPoints(this._adaptee);
     }
 
     getDepth() : number
