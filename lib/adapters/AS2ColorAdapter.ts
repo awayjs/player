@@ -13,8 +13,9 @@ class AS2ColorAdapter
 
     constructor(target:AS2SymbolAdapter)
     {
-        target._blockedByScript=true;
-        this._target = target.adaptee.colorTransform || (target.adaptee.colorTransform = new ColorTransform());
+        target._blockedByScript = true;
+
+        this._target = target.adaptee._iColorTransform || (target.adaptee._iColorTransform = new ColorTransform());
         this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
     }
 

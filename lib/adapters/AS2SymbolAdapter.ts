@@ -232,14 +232,17 @@ class AS2SymbolAdapter
     get _alpha() : number
     {
 
-        return this.adaptee.colorTransform? (this.adaptee.colorTransform.alphaMultiplier*100) : 100;
+        return this.adaptee._iColorTransform? (this.adaptee._iColorTransform.alphaMultiplier*100) : 100;
     }
 
     set _alpha(value: number)
     {
-        if(!this.adaptee.colorTransform)this.adaptee.colorTransform = new ColorTransform();
-        this.adaptee.colorTransform.alphaMultiplier = value/100;
-        this._blockedByScript=true;
+        if(!this.adaptee._iColorTransform)
+            this.adaptee._iColorTransform = new ColorTransform();
+
+        this.adaptee._iColorTransform.alphaMultiplier = value/100;
+
+        this._blockedByScript = true;
     }
 
     get _url() : string
