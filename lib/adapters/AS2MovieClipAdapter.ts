@@ -118,11 +118,12 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
   createEmptyMovieClip(name: string, depth: number) : AS2MovieClipAdapter
   {
-    var adapter = new AS2MovieClipAdapter(null, this._view);
-    adapter.adaptee.name = name;
-    this.adaptee.addChildAtDepth(adapter.adaptee, depth);
-    this.registerScriptObject(adapter.adaptee);
-    return adapter;
+    var mc:MovieClip = new MovieClip();
+    mc.adapter = new AS2MovieClipAdapter(mc, this._view);
+    mc.name = name;
+    this.adaptee.addChildAtDepth(mc, depth);
+    this.registerScriptObject(mc);
+    return <AS2MovieClipAdapter> mc.adapter;
   }
 
   //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
@@ -183,8 +184,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   {
     if (frame == null)
       return;
-    if (this._name == "smash")
-      console.log("Smash gotoAndPlay");
+
     this.play();
     this._gotoFrame(frame);
   }
@@ -205,8 +205,6 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
   stop() : void
   {
-    if (this._name == "smash")
-      console.log("Smash stop");
     (<MovieClip>this.adaptee).stop();
   }
 
