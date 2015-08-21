@@ -357,11 +357,12 @@ var AS2MovieClipAdapter = (function (_super) {
     //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
     //clear() : void {}
     AS2MovieClipAdapter.prototype.createEmptyMovieClip = function (name, depth) {
-        var adapter = new AS2MovieClipAdapter(null, this._view);
-        adapter.adaptee.name = name;
-        this.adaptee.addChildAtDepth(adapter.adaptee, depth);
-        this.registerScriptObject(adapter.adaptee);
-        return adapter;
+        var mc = new MovieClip();
+        mc.adapter = new AS2MovieClipAdapter(mc, this._view);
+        mc.name = name;
+        this.adaptee.addChildAtDepth(mc, depth);
+        this.registerScriptObject(mc);
+        return mc.adapter;
     };
     //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
     //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
@@ -403,8 +404,6 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.gotoAndPlay = function (frame) {
         if (frame == null)
             return;
-        if (this._name == "smash")
-            console.log("Smash gotoAndPlay");
         this.play();
         this._gotoFrame(frame);
     };
@@ -418,8 +417,6 @@ var AS2MovieClipAdapter = (function (_super) {
         this.adaptee.play();
     };
     AS2MovieClipAdapter.prototype.stop = function () {
-        if (this._name == "smash")
-            console.log("Smash stop");
         this.adaptee.stop();
     };
     AS2MovieClipAdapter.prototype.hitTest = function (x, y, shapeFlag) {
