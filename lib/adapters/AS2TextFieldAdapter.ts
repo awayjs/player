@@ -19,6 +19,15 @@ class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdap
         return new AS2TextFieldAdapter(newAdaptee, this._view);
     }
 
+    get textColor() : number
+    {
+        return (<TextField>this.adaptee).textColor;
+    }
+
+    set textColor(value:number)
+    {
+        (<TextField>this.adaptee).textColor = value;
+    }
     get embedFonts() : boolean
     {
         return this._embedFonts;
