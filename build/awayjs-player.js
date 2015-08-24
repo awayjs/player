@@ -1090,6 +1090,16 @@ var AS2TextFieldAdapter = (function (_super) {
     AS2TextFieldAdapter.prototype.clone = function (newAdaptee) {
         return new AS2TextFieldAdapter(newAdaptee, this._view);
     };
+    Object.defineProperty(AS2TextFieldAdapter.prototype, "textColor", {
+        get: function () {
+            return this.adaptee.textColor;
+        },
+        set: function (value) {
+            this.adaptee.textColor = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AS2TextFieldAdapter.prototype, "embedFonts", {
         get: function () {
             return this._embedFonts;

@@ -324,6 +324,7 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	    private _embedFonts;
 	    constructor(adaptee: TextField, view: View);
 	    clone(newAdaptee: TextField): AS2TextFieldAdapter;
+	    textColor: number;
 	    embedFonts: boolean;
 	    text: string;
 	}
