@@ -40,16 +40,6 @@ class AS2SoundAdapter
         this._vol = value;
     }
 
-    get looping()
-    {
-        return this._soundProps.loops;
-    }
-
-    set looping(value:number)
-    {
-        this._soundProps.loops = value;
-    }
-
     attachSound(id:string)
     {
         // TODO: This will be AudioAsset or something
@@ -114,11 +104,8 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
-        if(this._soundProps.audio) {
-            this._soundProps.audio.currentTime = offsetInSeconds;
-            this._soundProps.loops = loops;
-            this._soundProps.audio.play();
-        }
+        if(this._soundProps.audio)
+            this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
     }
 
     stop(linkageID:string = null)
@@ -132,12 +119,6 @@ class AS2SoundAdapter
         if(this._soundProps.audio)
             return this._soundProps.audio.currentTime;
         return 0;
-    }
-
-    set position(value : number)
-    {
-        if(this._soundProps.audio)
-            this._soundProps.audio.currentTime = value;
     }
 
     get duration() : number
