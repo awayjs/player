@@ -113,15 +113,11 @@ declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
 	    private _volume;
 	    private _pan;
 	    private _changeEvent;
-	    private _loops;
 	    private _audio;
-	    private _onEndedDelegate;
 	    constructor();
 	    volume: number;
 	    pan: number;
-	    loops: number;
 	    audio: WaveAudio;
-	    private onEnded(event);
 	}
 	export = AS2MCSoundProps;
 	
@@ -216,7 +212,6 @@ declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	    private _onGlobalChangeDelegate;
 	    constructor(target: AS2MovieClipAdapter);
 	    vol: number;
-	    looping: number;
 	    attachSound(id: string): void;
 	    getPan(): number;
 	    setPan(value: number): void;

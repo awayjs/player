@@ -172,13 +172,10 @@ var EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 var AS2MCSoundProps = (function (_super) {
     __extends(AS2MCSoundProps, _super);
     function AS2MCSoundProps() {
-        var _this = this;
         _super.call(this);
         this._volume = 1;
         this._pan = 1;
         this._changeEvent = new Event(Event.CHANGE);
-        this._loops = 0;
-        this._onEndedDelegate = function (event) { return _this.onEnded(event); };
     }
     Object.defineProperty(AS2MCSoundProps.prototype, "volume", {
         get: function () {
@@ -206,46 +203,18 @@ var AS2MCSoundProps = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AS2MCSoundProps.prototype, "loops", {
-        get: function () {
-            // for now looping works like a boolean. if this._loops is > 0, looping is true
-            return this._loops;
-        },
-        set: function (value) {
-            // for now looping works like a boolean. if this._loops is > 0, looping is true
-            this._loops = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(AS2MCSoundProps.prototype, "audio", {
         get: function () {
             return this._audio;
         },
         set: function (value) {
-            if (this._audio) {
-                this._audio.removeEventListener('ended', this._onEndedDelegate);
+            if (this._audio)
                 this._audio.stop();
-            }
             this._audio = value;
-            this._loops = 0;
-            if (value)
-                value.loop = false;
-            this._audio.addEventListener('ended', this._onEndedDelegate);
         },
         enumerable: true,
         configurable: true
     });
-    AS2MCSoundProps.prototype.onEnded = function (event) {
-        //if (--this._loops > 0) { // for now looping works like a boolean. if this._loops is > 0, looping is true
-        if (this._loops > 0) {
-            this._audio.currentTime = 0;
-            this._audio.play();
-        }
-        else {
-            this._loops = 0;
-        }
-    };
     return AS2MCSoundProps;
 })(EventDispatcher);
 module.exports = AS2MCSoundProps;
@@ -615,16 +584,6 @@ var AS2SoundAdapter = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AS2SoundAdapter.prototype, "looping", {
-        get: function () {
-            return this._soundProps.loops;
-        },
-        set: function (value) {
-            this._soundProps.loops = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
     AS2SoundAdapter.prototype.attachSound = function (id) {
         // TODO: This will be AudioAsset or something
         var asset = AssetLibrary.getAsset(id);
@@ -675,11 +634,8 @@ var AS2SoundAdapter = (function () {
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
         if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
-        if (this._soundProps.audio) {
-            this._soundProps.audio.currentTime = offsetInSeconds;
-            this._soundProps.loops = loops;
-            this._soundProps.audio.play();
-        }
+        if (this._soundProps.audio)
+            this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
@@ -691,10 +647,6 @@ var AS2SoundAdapter = (function () {
             if (this._soundProps.audio)
                 return this._soundProps.audio.currentTime;
             return 0;
-        },
-        set: function (value) {
-            if (this._soundProps.audio)
-                this._soundProps.audio.currentTime = value;
         },
         enumerable: true,
         configurable: true
