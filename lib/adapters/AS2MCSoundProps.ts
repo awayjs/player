@@ -52,6 +52,7 @@ class AS2MCSoundProps extends EventDispatcher
 
         this._audio = value;
     }
+
 }
 
 export = AS2MCSoundProps;

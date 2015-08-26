@@ -4,6 +4,8 @@ import Event = require("awayjs-core/lib/events/Event");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
+import AS2AudioDispatcher   = require("awayjs-player/lib/audio_events/AS2AudioDispatcher");
+import AudioEvent			= require("awayjs-player/lib/audio_events/AudioEvent");
 
 // also contains global AS2 functions
 class AS2SoundAdapter
@@ -12,8 +14,11 @@ class AS2SoundAdapter
     private _target : AS2MovieClipAdapter;
     private _soundProps : AS2MCSoundProps;
 
+    private _loop : boolean=false;
+    private _name : string="";
     private  _vol=0; // uses this vol property on sound.
 
+    public static audioDispatcher: AS2AudioDispatcher = new AS2AudioDispatcher();
     private static _globalSoundProps : AS2MCSoundProps = new AS2MCSoundProps();
 
     private _onGlobalChangeDelegate:(event:Event) => void;
@@ -42,6 +47,7 @@ class AS2SoundAdapter
 
     attachSound(id:string)
     {
+        this._name=id;
         // TODO: This will be AudioAsset or something
         var asset = <WaveAudio> AssetLibrary.getAsset(id);
 
@@ -104,14 +110,19 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
-        if(this._soundProps.audio)
-            this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
+        //if(this._soundProps.audio)
+        //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
+        this._loop=(loops>0);
+        // todo volume hardcoded to 1
+        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_START, this._name, 1, this._loop));
     }
 
     stop(linkageID:string = null)
     {
-        if(this._soundProps.audio)
-            this._soundProps.audio.stop();
+        // if(this._soundProps.audio)
+        //   this._soundProps.audio.stop();
+        // todo volume hardcoded to 1
+        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_STOP, this._name, 1, this._loop));
     }
 
     get position() : number
@@ -148,6 +159,8 @@ class AS2SoundAdapter
             if(vol<0)
                 vol=0;
             this._soundProps.audio.volume = vol;
+            AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_UPDATE, this._name, this._soundProps.audio.volume, this._loop));
+
         }
     }
 }

@@ -55,6 +55,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
     // create an empty MovieClip if none is passed
     super(adaptee || new MovieClip(), view);
     this.__pSoundProps = new AS2MCSoundProps();
+
   }
 
   get _framesloaded() : number
