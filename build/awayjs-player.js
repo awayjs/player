@@ -562,11 +562,15 @@ module.exports = AS2SharedObjectAdapter;
 var Event = require("awayjs-core/lib/events/Event");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
+var AS2AudioDispatcher = require("awayjs-player/lib/audio_events/AS2AudioDispatcher");
+var AudioEvent = require("awayjs-player/lib/audio_events/AudioEvent");
 // also contains global AS2 functions
 var AS2SoundAdapter = (function () {
     // TODO: Any real Sound stuff should be externalized for AwayJS use. For now use internally since it's only 2D.
     function AS2SoundAdapter(target) {
         var _this = this;
+        this._loop = false;
+        this._name = "";
         this._vol = 0; // uses this vol property on sound.
         // not sure how to handle target yet
         this._target = target;
@@ -585,6 +589,7 @@ var AS2SoundAdapter = (function () {
         configurable: true
     });
     AS2SoundAdapter.prototype.attachSound = function (id) {
+        this._name = id;
         // TODO: This will be AudioAsset or something
         var asset = AssetLibrary.getAsset(id);
         if (asset)
@@ -634,13 +639,18 @@ var AS2SoundAdapter = (function () {
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
         if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
-        if (this._soundProps.audio)
-            this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
+        //if(this._soundProps.audio)
+        //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
+        this._loop = (loops > 0);
+        // todo volume hardcoded to 1
+        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_START, this._name, 1, this._loop));
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
-        if (this._soundProps.audio)
-            this._soundProps.audio.stop();
+        // if(this._soundProps.audio)
+        //   this._soundProps.audio.stop();
+        // todo volume hardcoded to 1
+        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_STOP, this._name, 1, this._loop));
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
@@ -678,14 +688,16 @@ var AS2SoundAdapter = (function () {
             if (vol < 0)
                 vol = 0;
             this._soundProps.audio.volume = vol;
+            AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_UPDATE, this._name, this._soundProps.audio.volume, this._loop));
         }
     };
+    AS2SoundAdapter.audioDispatcher = new AS2AudioDispatcher();
     AS2SoundAdapter._globalSoundProps = new AS2MCSoundProps();
     return AS2SoundAdapter;
 })();
 module.exports = AS2SoundAdapter;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/audio_events/AS2AudioDispatcher":"awayjs-player/lib/audio_events/AS2AudioDispatcher","awayjs-player/lib/audio_events/AudioEvent":"awayjs-player/lib/audio_events/AudioEvent"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
 var AS2StageAdapter = (function () {
     function AS2StageAdapter() {
     }
@@ -1076,7 +1088,92 @@ var AS2TextFieldAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2TextFieldAdapter;
 
-},{"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
+},{"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/audio_events/AS2AudioDispatcher":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+var AS2AudioDispatcher = (function (_super) {
+    __extends(AS2AudioDispatcher, _super);
+    function AS2AudioDispatcher() {
+        _super.call(this);
+    }
+    return AS2AudioDispatcher;
+})(EventDispatcher);
+module.exports = AS2AudioDispatcher;
+
+},{"awayjs-core/lib/events/EventDispatcher":undefined}],"awayjs-player/lib/audio_events/AudioEvent":[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Event = require("awayjs-core/lib/events/Event");
+/**
+ * @class away.events.AudioEvent
+ */
+var AudioEvent = (function (_super) {
+    __extends(AudioEvent, _super);
+    /**
+     *
+     */
+    function AudioEvent(type, sound_name, volume, loop) {
+        _super.call(this, type);
+        this._sound_name = sound_name;
+        this._volume = volume;
+        this._loop = loop;
+    }
+    Object.defineProperty(AudioEvent.prototype, "sound_name", {
+        /**
+         *
+         */
+        get: function () {
+            return this._sound_name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AudioEvent.prototype, "volume", {
+        get: function () {
+            return this._volume;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AudioEvent.prototype, "loop", {
+        get: function () {
+            return this._loop;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     *
+     */
+    AudioEvent.prototype.clone = function () {
+        return new AudioEvent(this.type, this._sound_name, this._volume, this._loop);
+    };
+    /**
+     *
+     */
+    AudioEvent.AUDIO_START = "audioStart";
+    /**
+     *
+     */
+    AudioEvent.AUDIO_STOP = 'audioStop';
+    /**
+     *
+     */
+    AudioEvent.AUDIO_UPDATE = 'audioUpdate';
+    return AudioEvent;
+})(Event);
+module.exports = AudioEvent;
+
+},{"awayjs-core/lib/events/Event":undefined}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }

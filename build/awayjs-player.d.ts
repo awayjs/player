@@ -204,10 +204,14 @@ declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
+	import AS2AudioDispatcher = require("awayjs-player/lib/audio_events/AS2AudioDispatcher");
 	class AS2SoundAdapter {
 	    private _target;
 	    private _soundProps;
+	    private _loop;
+	    private _name;
 	    private _vol;
+	    static audioDispatcher: AS2AudioDispatcher;
 	    private static _globalSoundProps;
 	    private _onGlobalChangeDelegate;
 	    constructor(target: AS2MovieClipAdapter);
@@ -324,6 +328,55 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	    text: string;
 	}
 	export = AS2TextFieldAdapter;
+	
+}
+
+declare module "awayjs-player/lib/audio_events/AS2AudioDispatcher" {
+	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+	class AS2AudioDispatcher extends EventDispatcher {
+	    constructor();
+	}
+	export = AS2AudioDispatcher;
+	
+}
+
+declare module "awayjs-player/lib/audio_events/AudioEvent" {
+	import Event = require("awayjs-core/lib/events/Event");
+	/**
+	 * @class away.events.AudioEvent
+	 */
+	class AudioEvent extends Event {
+	    /**
+	     *
+	     */
+	    static AUDIO_START: string;
+	    /**
+	     *
+	     */
+	    static AUDIO_STOP: string;
+	    /**
+	     *
+	     */
+	    static AUDIO_UPDATE: string;
+	    private _sound_name;
+	    private _volume;
+	    private _loop;
+	    /**
+	     *
+	     */
+	    constructor(type: string, sound_name: string, volume: number, loop: boolean);
+	    /**
+	     *
+	     */
+	    sound_name: string;
+	    volume: number;
+	    loop: boolean;
+	    /**
+	     *
+	     */
+	    clone(): Event;
+	}
+	export = AudioEvent;
 	
 }
 
