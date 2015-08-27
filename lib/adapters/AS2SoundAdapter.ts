@@ -18,7 +18,6 @@ class AS2SoundAdapter
     private _name : string="";
     private  _vol=0; // uses this vol property on sound.
 
-    public static audioDispatcher: AS2AudioDispatcher = new AS2AudioDispatcher();
     private static _globalSoundProps : AS2MCSoundProps = new AS2MCSoundProps();
 
     private _onGlobalChangeDelegate:(event:Event) => void;
@@ -114,7 +113,9 @@ class AS2SoundAdapter
         //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
         this._loop=(loops>0);
         // todo volume hardcoded to 1
-        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_START, this._name, 1, this._loop));
+        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].start_sound !== "undefined")
+            window["mainApplication"].start_sound(this._name, 1, this._loop);
+
     }
 
     stop(linkageID:string = null)
@@ -122,7 +123,8 @@ class AS2SoundAdapter
         // if(this._soundProps.audio)
         //   this._soundProps.audio.stop();
         // todo volume hardcoded to 1
-        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_STOP, this._name, 1, this._loop));
+        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stop_sound !== "undefined")
+            window["mainApplication"].stop_sound(this._name);
     }
 
     get position() : number
@@ -159,8 +161,8 @@ class AS2SoundAdapter
             if(vol<0)
                 vol=0;
             this._soundProps.audio.volume = vol;
-            AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_UPDATE, this._name, this._soundProps.audio.volume, this._loop));
-
+            if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].update_sound !== "undefined")
+                window["mainApplication"].update_sound(this._name, this._soundProps.audio.volume, this._loop);
         }
     }
 }
