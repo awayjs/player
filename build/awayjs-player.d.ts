@@ -204,14 +204,12 @@ declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
 
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-	import AS2AudioDispatcher = require("awayjs-player/lib/audio_events/AS2AudioDispatcher");
 	class AS2SoundAdapter {
 	    private _target;
 	    private _soundProps;
 	    private _loop;
 	    private _name;
 	    private _vol;
-	    static audioDispatcher: AS2AudioDispatcher;
 	    private static _globalSoundProps;
 	    private _onGlobalChangeDelegate;
 	    constructor(target: AS2MovieClipAdapter);

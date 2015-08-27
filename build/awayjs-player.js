@@ -562,8 +562,6 @@ module.exports = AS2SharedObjectAdapter;
 var Event = require("awayjs-core/lib/events/Event");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
-var AS2AudioDispatcher = require("awayjs-player/lib/audio_events/AS2AudioDispatcher");
-var AudioEvent = require("awayjs-player/lib/audio_events/AudioEvent");
 // also contains global AS2 functions
 var AS2SoundAdapter = (function () {
     // TODO: Any real Sound stuff should be externalized for AwayJS use. For now use internally since it's only 2D.
@@ -643,14 +641,16 @@ var AS2SoundAdapter = (function () {
         //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
         this._loop = (loops > 0);
         // todo volume hardcoded to 1
-        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_START, this._name, 1, this._loop));
+        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].start_sound !== "undefined")
+            window["mainApplication"].start_sound(this._name, 1, this._loop);
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
         // if(this._soundProps.audio)
         //   this._soundProps.audio.stop();
         // todo volume hardcoded to 1
-        AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_STOP, this._name, 1, this._loop));
+        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stop_sound !== "undefined")
+            window["mainApplication"].stop_sound(this._name);
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
@@ -688,16 +688,16 @@ var AS2SoundAdapter = (function () {
             if (vol < 0)
                 vol = 0;
             this._soundProps.audio.volume = vol;
-            AS2SoundAdapter.audioDispatcher.dispatchEvent(new AudioEvent(AudioEvent.AUDIO_UPDATE, this._name, this._soundProps.audio.volume, this._loop));
+            if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].update_sound !== "undefined")
+                window["mainApplication"].update_sound(this._name, this._soundProps.audio.volume, this._loop);
         }
     };
-    AS2SoundAdapter.audioDispatcher = new AS2AudioDispatcher();
     AS2SoundAdapter._globalSoundProps = new AS2MCSoundProps();
     return AS2SoundAdapter;
 })();
 module.exports = AS2SoundAdapter;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/audio_events/AS2AudioDispatcher":"awayjs-player/lib/audio_events/AS2AudioDispatcher","awayjs-player/lib/audio_events/AudioEvent":"awayjs-player/lib/audio_events/AudioEvent"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
 var AS2StageAdapter = (function () {
     function AS2StageAdapter() {
     }
