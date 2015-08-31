@@ -569,8 +569,11 @@ var AS2SoundAdapter = (function () {
         var _this = this;
         this._loop = false;
         this._name = "";
+        this._id = -1;
+        this._playing = false;
         this._vol = 0; // uses this vol property on sound.
         // not sure how to handle target yet
+        this._id = AS2SoundAdapter._soundIDCnt++;
         this._target = target;
         this._soundProps = (target != null && target.__pSoundProps) ? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
         this._onGlobalChangeDelegate = function (event) { return _this.onGlobalChange(event); };
@@ -637,20 +640,28 @@ var AS2SoundAdapter = (function () {
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
         if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
+        if (this._playing) {
+            return;
+        }
+        this._playing = true;
         //if(this._soundProps.audio)
         //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
         this._loop = (loops > 0);
         // todo volume hardcoded to 1
-        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].start_sound !== "undefined")
-            window["mainApplication"].start_sound(this._name, 1, this._loop);
+        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].startSound !== "undefined")
+            window["mainApplication"].startSound(this._name, this._id, this._soundProps.volume, this._loop);
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
+        if (!this._playing) {
+            return;
+        }
+        this._playing = false;
         // if(this._soundProps.audio)
         //   this._soundProps.audio.stop();
         // todo volume hardcoded to 1
-        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stop_sound !== "undefined")
-            window["mainApplication"].stop_sound(this._name);
+        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stopSound !== "undefined")
+            window["mainApplication"].stopSound(this._id);
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
@@ -688,11 +699,12 @@ var AS2SoundAdapter = (function () {
             if (vol < 0)
                 vol = 0;
             this._soundProps.audio.volume = vol;
-            if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].update_sound !== "undefined")
-                window["mainApplication"].update_sound(this._name, this._soundProps.audio.volume, this._loop);
+            if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].updateSound !== "undefined")
+                window["mainApplication"].updateSound(this._id, this._soundProps.audio.volume, this._loop);
         }
     };
     AS2SoundAdapter._globalSoundProps = new AS2MCSoundProps();
+    AS2SoundAdapter._soundIDCnt = 0;
     return AS2SoundAdapter;
 })();
 module.exports = AS2SoundAdapter;

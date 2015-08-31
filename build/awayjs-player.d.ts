@@ -209,8 +209,11 @@ declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	    private _soundProps;
 	    private _loop;
 	    private _name;
+	    private _id;
+	    private _playing;
 	    private _vol;
 	    private static _globalSoundProps;
+	    private static _soundIDCnt;
 	    private _onGlobalChangeDelegate;
 	    constructor(target: AS2MovieClipAdapter);
 	    vol: number;
