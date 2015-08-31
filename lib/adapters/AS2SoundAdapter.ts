@@ -113,9 +113,11 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
+        /*
         if(this._playing){
             return;
         }
+        */
         this._playing=true;
         //if(this._soundProps.audio)
         //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
