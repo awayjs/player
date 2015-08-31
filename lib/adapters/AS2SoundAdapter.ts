@@ -16,9 +16,12 @@ class AS2SoundAdapter
 
     private _loop : boolean=false;
     private _name : string="";
+    private _id : number=-1;
+    private _playing : boolean=false;
     private  _vol=0; // uses this vol property on sound.
 
     private static _globalSoundProps : AS2MCSoundProps = new AS2MCSoundProps();
+    private static _soundIDCnt : number = 0;
 
     private _onGlobalChangeDelegate:(event:Event) => void;
 
@@ -26,6 +29,7 @@ class AS2SoundAdapter
     constructor(target:AS2MovieClipAdapter)
     {
         // not sure how to handle target yet
+        this._id = AS2SoundAdapter._soundIDCnt++;
         this._target = target;
         this._soundProps = (target != null && target.__pSoundProps)? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
 
@@ -109,22 +113,30 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
+        if(this._playing){
+            return;
+        }
+        this._playing=true;
         //if(this._soundProps.audio)
         //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
         this._loop=(loops>0);
         // todo volume hardcoded to 1
-        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].start_sound !== "undefined")
-            window["mainApplication"].start_sound(this._name, 1, this._loop);
+        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].startSound !== "undefined")
+            window["mainApplication"].startSound(this._name, this._id, this._soundProps.volume, this._loop);
 
     }
 
     stop(linkageID:string = null)
     {
+        if(!this._playing){
+            return;
+        }
+        this._playing=false;
         // if(this._soundProps.audio)
         //   this._soundProps.audio.stop();
         // todo volume hardcoded to 1
-        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stop_sound !== "undefined")
-            window["mainApplication"].stop_sound(this._name);
+        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stopSound !== "undefined")
+            window["mainApplication"].stopSound(this._id);
     }
 
     get position() : number
@@ -161,8 +173,8 @@ class AS2SoundAdapter
             if(vol<0)
                 vol=0;
             this._soundProps.audio.volume = vol;
-            if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].update_sound !== "undefined")
-                window["mainApplication"].update_sound(this._name, this._soundProps.audio.volume, this._loop);
+            if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].updateSound !== "undefined")
+                window["mainApplication"].updateSound(this._id, this._soundProps.audio.volume, this._loop);
         }
     }
 }
