@@ -699,6 +699,9 @@ var AS2SoundAdapter = (function () {
             if (vol < 0)
                 vol = 0;
             this._soundProps.audio.volume = vol;
+            if (!this._playing) {
+                return;
+            }
             if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].updateSound !== "undefined")
                 window["mainApplication"].updateSound(this._id, this._soundProps.audio.volume, this._loop);
         }
