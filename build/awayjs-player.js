@@ -640,9 +640,11 @@ var AS2SoundAdapter = (function () {
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
         if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
-        if (this._playing) {
+        /*
+        if(this._playing){
             return;
         }
+        */
         this._playing = true;
         //if(this._soundProps.audio)
         //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
