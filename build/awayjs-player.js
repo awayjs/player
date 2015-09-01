@@ -571,7 +571,7 @@ var AS2SoundAdapter = (function () {
         this._name = "";
         this._id = -1;
         this._playing = false;
-        this._vol = 0; // uses this vol property on sound.
+        this._volume = 0; // uses this vol property on sound.
         // not sure how to handle target yet
         this._id = AS2SoundAdapter._soundIDCnt++;
         this._target = target;
@@ -579,16 +579,6 @@ var AS2SoundAdapter = (function () {
         this._onGlobalChangeDelegate = function (event) { return _this.onGlobalChange(event); };
         AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
     }
-    Object.defineProperty(AS2SoundAdapter.prototype, "vol", {
-        get: function () {
-            return this._vol;
-        },
-        set: function (value) {
-            this._vol = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
     AS2SoundAdapter.prototype.attachSound = function (id) {
         this._name = id;
         // TODO: This will be AudioAsset or something
@@ -640,30 +630,24 @@ var AS2SoundAdapter = (function () {
     AS2SoundAdapter.prototype.start = function (offsetInSeconds, loops) {
         if (offsetInSeconds === void 0) { offsetInSeconds = 0; }
         if (loops === void 0) { loops = 0; }
-        /*
-        if(this._playing){
-            return;
-        }
-        */
         this._playing = true;
-        //if(this._soundProps.audio)
-        //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
-        this._loop = (loops > 0);
+        this._loop = Boolean(loops > 0);
         // todo volume hardcoded to 1
-        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].startSound !== "undefined")
-            window["mainApplication"].startSound(this._name, this._id, this._soundProps.volume, this._loop);
+        if (typeof mainApplication !== "undefined")
+            mainApplication.startSound(this._name, this._id, this._volume, this._loop);
+        else if (this._soundProps.audio)
+            this._soundProps.audio.play(offsetInSeconds, this._loop);
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
-        if (!this._playing) {
+        if (!this._playing)
             return;
-        }
         this._playing = false;
-        // if(this._soundProps.audio)
-        //   this._soundProps.audio.stop();
         // todo volume hardcoded to 1
-        if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stopSound !== "undefined")
-            window["mainApplication"].stopSound(this._id);
+        if (typeof mainApplication !== "undefined")
+            mainApplication.stopSound(this._id);
+        else if (this._soundProps.audio)
+            this._soundProps.audio.stop();
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
@@ -694,19 +678,20 @@ var AS2SoundAdapter = (function () {
         this.updateVolume();
     };
     AS2SoundAdapter.prototype.updateVolume = function () {
-        if (this._soundProps.audio) {
-            var vol = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
-            if (vol > 1)
-                vol = 1;
-            if (vol < 0)
-                vol = 0;
-            this._soundProps.audio.volume = vol;
-            if (!this._playing) {
-                return;
-            }
-            if (typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].updateSound !== "undefined")
-                window["mainApplication"].updateSound(this._id, this._soundProps.audio.volume, this._loop);
+        var vol = this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+        if (vol > 1)
+            vol = 1;
+        if (vol < 0)
+            vol = 0;
+        if (this._volume == vol)
+            return;
+        this._volume = vol;
+        if (typeof mainApplication !== "undefined") {
+            if (this._playing)
+                mainApplication.updateSound(this._id, this._volume, this._loop);
         }
+        else if (this._soundProps.audio)
+            this._soundProps.audio.volume = this._volume;
     };
     AS2SoundAdapter._globalSoundProps = new AS2MCSoundProps();
     AS2SoundAdapter._soundIDCnt = 0;
