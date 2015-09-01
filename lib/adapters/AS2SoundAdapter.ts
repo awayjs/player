@@ -4,21 +4,21 @@ import Event = require("awayjs-core/lib/events/Event");
 import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
-import AS2AudioDispatcher   = require("awayjs-player/lib/audio_events/AS2AudioDispatcher");
-import AudioEvent			= require("awayjs-player/lib/audio_events/AudioEvent");
+
+declare var mainApplication;
 
 // also contains global AS2 functions
 class AS2SoundAdapter
 {
     //private _transform : Object;
-    private _target : AS2MovieClipAdapter;
-    private _soundProps : AS2MCSoundProps;
+    private _target:AS2MovieClipAdapter;
+    private _soundProps:AS2MCSoundProps;
 
-    private _loop : boolean=false;
-    private _name : string="";
-    private _id : number=-1;
-    private _playing : boolean=false;
-    private  _vol=0; // uses this vol property on sound.
+    private _loop:boolean = false;
+    private _name:string = "";
+    private _id:number = -1;
+    private _playing:boolean = false;
+    private  _volume:number = 0; // uses this vol property on sound.
 
     private static _globalSoundProps : AS2MCSoundProps = new AS2MCSoundProps();
     private static _soundIDCnt : number = 0;
@@ -36,16 +36,6 @@ class AS2SoundAdapter
         this._onGlobalChangeDelegate = (event:Event) => this.onGlobalChange(event);
 
         AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
-    }
-
-    get vol()
-    {
-        return this._vol;
-    }
-
-    set vol(value:number)
-    {
-        this._vol = value;
     }
 
     attachSound(id:string)
@@ -99,6 +89,7 @@ class AS2SoundAdapter
     setVolume(value : number)
     {
         this._soundProps.volume = value / 100;
+
         this.updateVolume();
     }
 
@@ -113,32 +104,29 @@ class AS2SoundAdapter
 
     start(offsetInSeconds:number = 0, loops:number = 0)
     {
-        /*
-        if(this._playing){
-            return;
-        }
-        */
-        this._playing=true;
-        //if(this._soundProps.audio)
-        //    this._soundProps.audio.play(offsetInSeconds, Boolean(loops));
-        this._loop=(loops>0);
-        // todo volume hardcoded to 1
-        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].startSound !== "undefined")
-            window["mainApplication"].startSound(this._name, this._id, this._soundProps.volume, this._loop);
+        this._playing = true;
 
+        this._loop = Boolean(loops > 0);
+
+        // todo volume hardcoded to 1
+        if(typeof mainApplication !== "undefined")
+            mainApplication.startSound(this._name, this._id, this._volume, this._loop);
+        else if(this._soundProps.audio)
+            this._soundProps.audio.play(offsetInSeconds, this._loop);
     }
 
     stop(linkageID:string = null)
     {
-        if(!this._playing){
+        if(!this._playing)
             return;
-        }
-        this._playing=false;
-        // if(this._soundProps.audio)
-        //   this._soundProps.audio.stop();
+
+        this._playing = false;
+
         // todo volume hardcoded to 1
-        if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].stopSound !== "undefined")
-            window["mainApplication"].stopSound(this._id);
+        if(typeof mainApplication !== "undefined")
+            mainApplication.stopSound(this._id);
+        else if(this._soundProps.audio)
+            this._soundProps.audio.stop();
     }
 
     get position() : number
@@ -168,19 +156,22 @@ class AS2SoundAdapter
 
     private updateVolume()
     {
-        if(this._soundProps.audio){
-            var vol:number =  this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
-            if(vol>1)
-                vol=1;
-            if(vol<0)
-                vol=0;
-            this._soundProps.audio.volume = vol;
-            if(!this._playing){
-                return;
-            }
-            if(typeof window["mainApplication"] !== "undefined" && typeof window["mainApplication"].updateSound !== "undefined")
-                window["mainApplication"].updateSound(this._id, this._soundProps.audio.volume, this._loop);
-        }
+        var vol:number =  this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
+        if(vol>1)
+            vol=1;
+        if(vol<0)
+            vol=0;
+
+        if(this._volume == vol)
+            return;
+
+        this._volume = vol;
+
+        if(typeof mainApplication !== "undefined") {
+            if (this._playing)
+                mainApplication.updateSound(this._id, this._volume, this._loop);
+        } else if (this._soundProps.audio)
+            this._soundProps.audio.volume = this._volume;
     }
 }
 export = AS2SoundAdapter;
