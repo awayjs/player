@@ -190,18 +190,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
-	class AS2SharedObjectAdapter {
-	    data: Object;
-	    private _object_name;
-	    constructor(name: string);
-	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
-	    flush(): void;
-	}
-	export = AS2SharedObjectAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SoundAdapter {
@@ -230,6 +218,18 @@ declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	    private updateVolume();
 	}
 	export = AS2SoundAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    data: Object;
+	    private _object_name;
+	    constructor(name: string);
+	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
 	
 }
 
@@ -305,15 +305,6 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
-	class AS2SystemAdapter {
-	    static security: Object;
-	    static capabilities: Object;
-	}
-	export = AS2SystemAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import IDisplayObjectAdapter = require("awayjs-display/lib/adapters/IDisplayObjectAdapter");
@@ -328,6 +319,15 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	    text: string;
 	}
 	export = AS2TextFieldAdapter;
+	
+}
+
+declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
+	class AS2SystemAdapter {
+	    static security: Object;
+	    static capabilities: Object;
+	}
+	export = AS2SystemAdapter;
 	
 }
 
