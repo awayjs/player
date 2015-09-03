@@ -110,7 +110,7 @@ class AS2SoundAdapter
 
         // todo volume hardcoded to 1
         if(typeof mainApplication !== "undefined")
-            mainApplication.startSound(this._name, this._id, this._volume, this._loop);
+            mainApplication.startSound(this._name, this._id, Math.round(this._volume*100)/100, this._loop);
         else if(this._soundProps.audio)
             this._soundProps.audio.play(offsetInSeconds, this._loop);
     }
@@ -169,7 +169,7 @@ class AS2SoundAdapter
 
         if(typeof mainApplication !== "undefined") {
             if (this._playing)
-                mainApplication.updateSound(this._id, this._volume, this._loop);
+                mainApplication.updateSound(this._id, Math.round(this._volume*100)/100, this._loop);
         } else if (this._soundProps.audio)
             this._soundProps.audio.volume = this._volume;
     }
