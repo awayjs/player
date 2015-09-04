@@ -58,6 +58,14 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
   }
 
+  public dispose()
+  {
+    super.dispose();
+
+    this.__pSoundProps.dispose();
+    this.__pSoundProps = null;
+  }
+
   get _framesloaded() : number
   {
     // not loading frame by frame?

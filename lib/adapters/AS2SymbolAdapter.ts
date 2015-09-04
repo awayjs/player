@@ -84,6 +84,11 @@ class AS2SymbolAdapter
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
     }
 
+    public dispose()
+    {
+        this._adaptee = null;
+        this._view = null;
+    }
 
     getVersion() : number
     {

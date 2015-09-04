@@ -14,6 +14,12 @@ class AS2MCSoundProps extends EventDispatcher
         super();
     }
 
+    public dispose()
+    {
+        this._audio = null;
+        this._changeEvent = null;
+    }
+
     public get volume()
     {
         return this._volume;
