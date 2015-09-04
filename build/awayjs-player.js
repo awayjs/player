@@ -692,6 +692,7 @@ var AS2SoundAdapter = (function () {
             vol = 1;
         if (vol < 0)
             vol = 0;
+        vol = Math.round(vol * 100) / 100;
         if (this._volume == vol)
             return;
         this._volume = vol;
