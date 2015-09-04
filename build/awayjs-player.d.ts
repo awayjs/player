@@ -115,6 +115,7 @@ declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
 	    private _changeEvent;
 	    private _audio;
 	    constructor();
+	    dispose(): void;
 	    volume: number;
 	    pan: number;
 	    audio: WaveAudio;
@@ -150,6 +151,7 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _onMouseDown;
 	    private _onMouseUp;
 	    constructor(adaptee: MovieClip, view: View);
+	    dispose(): void;
 	    _framesloaded: number;
 	    _currentframe: number;
 	    _totalframes: number;
@@ -269,6 +271,7 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    _visibilityByScript: boolean;
 	    static REFERENCE_TIME: number;
 	    constructor(adaptee: DisplayObjectContainer, view: View);
+	    dispose(): void;
 	    getVersion(): number;
 	    adaptee: DisplayObjectContainer;
 	    _height: number;

@@ -177,6 +177,10 @@ var AS2MCSoundProps = (function (_super) {
         this._pan = 1;
         this._changeEvent = new Event(Event.CHANGE);
     }
+    AS2MCSoundProps.prototype.dispose = function () {
+        this._audio = null;
+        this._changeEvent = null;
+    };
     Object.defineProperty(AS2MCSoundProps.prototype, "volume", {
         get: function () {
             return this._volume;
@@ -266,6 +270,11 @@ var AS2MovieClipAdapter = (function (_super) {
         this._framescript_vars = [Color, System, Sound, Key, Mouse, Stage, SharedObject];
         this.__pSoundProps = new AS2MCSoundProps();
     }
+    AS2MovieClipAdapter.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this.__pSoundProps.dispose();
+        this.__pSoundProps = null;
+    };
     Object.defineProperty(AS2MovieClipAdapter.prototype, "_framesloaded", {
         get: function () {
             // not loading frame by frame?
@@ -775,6 +784,10 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.freeFromScript = function () {
         this._blockedByScript = false;
         this._visibilityByScript = false;
+    };
+    AS2SymbolAdapter.prototype.dispose = function () {
+        this._adaptee = null;
+        this._view = null;
     };
     AS2SymbolAdapter.prototype.getVersion = function () {
         return 0;
