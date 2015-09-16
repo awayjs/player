@@ -20,16 +20,6 @@ class AS2SymbolAdapter
 {
     public _view:View;
 
-    // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
-    // And then change properties to statics
-    public get Key() { return AS2KeyAdapter; }
-    public get Mouse() { return AS2MouseAdapter; }
-    public get Stage() { return AS2StageAdapter; }
-    public get SharedObject() { return AS2SharedObjectAdapter; }
-    public String(value:any) { return value.toString(); }
-    public string(value:any) { return value.toString(); }
-    public getURL(value:string) { return value; }
-
     public isBlockedByScript():boolean { return this._blockedByScript;}
     public isVisibilityByScript():boolean { return this._visibilityByScript;}
     public freeFromScript():void { this._blockedByScript=false; this._visibilityByScript=false;}
@@ -234,11 +224,6 @@ class AS2SymbolAdapter
     getTimer() : Number
     {
         return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
-    }
-
-    int(value:any) : number
-    {
-        return value | 0;
     }
 
     get _alpha() : number
