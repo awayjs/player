@@ -20,10 +20,10 @@ var includeString:string = 'var Color			= require("awayjs-player/lib/adapters/AS
     'var Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");\n' +
     'var Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' +
     'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' +
-    'var int = (value) => Math.floor(value) | 0;\n' +
-    'var String = (value) => value.toString();\n' +
-    'var string = (value) => value.toString();\n' +
-    'var getURL = (value) => value;\n';
+    'var int = function(value) {return Math.floor(value) | 0;}\n' +
+    'var String = function(value) {return value.toString();}\n' +
+    'var string = function(value) {return value.toString();}\n' +
+    'var getURL = function(value) {return value;}\n';
 
 declare var __framescript__;
 
