@@ -251,23 +251,12 @@ var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 var Event = require("awayjs-core/lib/events/Event");
 var Point = require("awayjs-core/lib/geom/Point");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
-var Color = require("awayjs-player/lib/adapters/AS2ColorAdapter");
-var System = require("awayjs-player/lib/adapters/AS2SystemAdapter");
-var Sound = require("awayjs-player/lib/adapters/AS2SoundAdapter");
-var Key = require("awayjs-player/lib/adapters/AS2KeyAdapter");
-var Mouse = require("awayjs-player/lib/adapters/AS2MouseAdapter");
-var Stage = require("awayjs-player/lib/adapters/AS2StageAdapter");
-var SharedObject = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
-var int = function (value) { return Math.floor(value) | 0; };
-var String = function (value) { return value.toString(); };
-var string = function (value) { return value.toString(); };
-var getURL = function (value) { return value; };
+var includeString = 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");\n' + 'var System			= require("awayjs-player/lib/adapters/AS2SystemAdapter");\n' + 'var Sound			= require("awayjs-player/lib/adapters/AS2SoundAdapter");\n' + 'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");\n' + 'var Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");\n' + 'var Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' + 'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' + 'var int = (value) => Math.floor(value) | 0;\n' + 'var String = (value) => value.toString();\n' + 'var string = (value) => value.toString();\n' + 'var getURL = (value) => value;\n';
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
     function AS2MovieClipAdapter(adaptee, view) {
         // create an empty MovieClip if none is passed
         _super.call(this, adaptee || new MovieClip(), view);
-        this._framescript_vars = [Color, System, Sound, Key, Mouse, Stage, SharedObject];
         this.__pSoundProps = new AS2MCSoundProps();
     }
     AS2MovieClipAdapter.prototype.dispose = function () {
@@ -306,9 +295,13 @@ var AS2MovieClipAdapter = (function (_super) {
     });
     AS2MovieClipAdapter.prototype.evalScript = function (str) {
         try {
-            var script = (function () {
-                eval(str);
-            });
+            var tag = document.createElement('script');
+            tag.text = includeString + 'var __framescript__ = function() {\n' + str + '\n}';
+            //add and remove script tag to dom to trigger compilation
+            var sibling = document.scripts[0];
+            sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag);
+            var script = __framescript__;
+            delete window['__framescript__'];
         }
         catch (err) {
             console.log("Syntax error in script:\n", str);
@@ -537,7 +530,7 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/entities/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2ColorAdapter":"awayjs-player/lib/adapters/AS2ColorAdapter","awayjs-player/lib/adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2SoundAdapter":"awayjs-player/lib/adapters/AS2SoundAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-player/lib/adapters/AS2SystemAdapter":"awayjs-player/lib/adapters/AS2SystemAdapter"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/entities/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter(name) {
         this._object_name = name;
@@ -722,10 +715,6 @@ module.exports = AS2StageAdapter;
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
 var ColorTransform = require("awayjs-core/lib/geom/ColorTransform");
 var HierarchicalProperties = require("awayjs-display/lib/base/HierarchicalProperties");
-var AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
-var AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
-var AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
-var AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 var FrameScriptManager = require("awayjs-display/lib/managers/FrameScriptManager");
 // also contains global AS2 gunctions
 var AS2SymbolAdapter = (function () {
@@ -737,45 +726,6 @@ var AS2SymbolAdapter = (function () {
         if (AS2SymbolAdapter.REFERENCE_TIME === -1)
             AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
     }
-    Object.defineProperty(AS2SymbolAdapter.prototype, "Key", {
-        // TODO: REMOVE AND PROVIDE AS CLASS (See System) ONCE TRANSLATOR IS FIXED
-        // And then change properties to statics
-        get: function () {
-            return AS2KeyAdapter;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AS2SymbolAdapter.prototype, "Mouse", {
-        get: function () {
-            return AS2MouseAdapter;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AS2SymbolAdapter.prototype, "Stage", {
-        get: function () {
-            return AS2StageAdapter;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AS2SymbolAdapter.prototype, "SharedObject", {
-        get: function () {
-            return AS2SharedObjectAdapter;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    AS2SymbolAdapter.prototype.String = function (value) {
-        return value.toString();
-    };
-    AS2SymbolAdapter.prototype.string = function (value) {
-        return value.toString();
-    };
-    AS2SymbolAdapter.prototype.getURL = function (value) {
-        return value;
-    };
     AS2SymbolAdapter.prototype.isBlockedByScript = function () {
         return this._blockedByScript;
     };
@@ -942,9 +892,6 @@ var AS2SymbolAdapter = (function () {
     AS2SymbolAdapter.prototype.getTimer = function () {
         return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
     };
-    AS2SymbolAdapter.prototype.int = function (value) {
-        return value | 0;
-    };
     Object.defineProperty(AS2SymbolAdapter.prototype, "_alpha", {
         get: function () {
             return this.adaptee._iColorTransform ? (this.adaptee._iColorTransform.alphaMultiplier * 100) : 100;
@@ -1041,7 +988,7 @@ var AS2SymbolAdapter = (function () {
 })();
 module.exports = AS2SymbolAdapter;
 
-},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/base/HierarchicalProperties":undefined,"awayjs-display/lib/managers/FrameScriptManager":undefined,"awayjs-player/lib/adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","awayjs-player/lib/adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","awayjs-player/lib/adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","awayjs-player/lib/adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter"}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/base/HierarchicalProperties":undefined,"awayjs-display/lib/managers/FrameScriptManager":undefined}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 // also contains global AS2 functions
 var AS2SystemAdapter = (function () {
     function AS2SystemAdapter() {

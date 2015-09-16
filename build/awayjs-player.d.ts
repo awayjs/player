@@ -141,7 +141,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter {
-	    private _framescript_vars;
 	    __pSoundProps: AS2MCSoundProps;
 	    private _onEnterFrame;
 	    private _onRelease;
@@ -246,21 +245,10 @@ declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
 	import TouchPoint = require("awayjs-display/lib/base/TouchPoint");
-	import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-	import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
-	import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
-	import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2SymbolAdapter {
 	    _view: View;
-	    Key: typeof AS2KeyAdapter;
-	    Mouse: typeof AS2MouseAdapter;
-	    Stage: typeof AS2StageAdapter;
-	    SharedObject: typeof AS2SharedObjectAdapter;
-	    String(value: any): any;
-	    string(value: any): any;
-	    getURL(value: string): string;
 	    isBlockedByScript(): boolean;
 	    isVisibilityByScript(): boolean;
 	    freeFromScript(): void;
@@ -291,7 +279,6 @@ declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
 	    quality: string;
 	    trace(message: any): void;
 	    getTimer(): Number;
-	    int(value: any): number;
 	    _alpha: number;
 	    _url: string;
 	    _global: AS2MovieClipAdapter;
