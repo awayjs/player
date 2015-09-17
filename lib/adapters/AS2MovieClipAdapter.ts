@@ -21,7 +21,6 @@ var includeString:string = 'var Color			= require("awayjs-player/lib/adapters/AS
     'var Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' +
     'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' +
     'var int = function(value) {return Math.floor(value) | 0;}\n' +
-    'var String = function(value) {return value.toString();}\n' +
     'var string = function(value) {return value.toString();}\n' +
     'var getURL = function(value) {return value;}\n';
 
