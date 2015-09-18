@@ -141,7 +141,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
 	import View = require("awayjs-display/lib/containers/View");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter {
-	    private _framescript_vars;
 	    __pSoundProps: AS2MCSoundProps;
 	    private _onEnterFrame;
 	    private _onRelease;
