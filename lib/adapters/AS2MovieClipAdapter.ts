@@ -13,22 +13,21 @@ import Point = require("awayjs-core/lib/geom/Point");
 import AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 import View			= require("awayjs-display/lib/containers/View");
 
-import Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");
-import System			= require("awayjs-player/lib/adapters/AS2SystemAdapter");
-import Sound			= require("awayjs-player/lib/adapters/AS2SoundAdapter");
-import Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");
-import Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");
-import Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");
-import SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
+var includeString:string = 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");\n' +
+    'var System			= require("awayjs-player/lib/adapters/AS2SystemAdapter");\n' +
+    'var Sound			= require("awayjs-player/lib/adapters/AS2SoundAdapter");\n' +
+    'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");\n' +
+    'var Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");\n' +
+    'var Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' +
+    'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' +
+    'var int = function(value) {return Math.floor(value) | 0;}\n' +
+    'var string = function(value) {return value.toString();}\n' +
+    'var getURL = function(value) {return value;}\n';
 
-var int = (value) => Math.floor(value) | 0;
-var String = (value) => value.toString();
-var string = (value) => value.toString();
-var getURL = (value) => value;
+declare var __framescript__;
 
 class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 {
-  private _framescript_vars:Array<Object> = [Color, System, Sound, Key, Mouse, Stage, SharedObject];
   // _droptarget [read-only]
   // focusEnabled: Boolean
   // forceSmoothing: Boolean
@@ -90,7 +89,15 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
   evalScript(str:string):Function
   {
     try {
-      var script =  (function() { eval(str) });
+      var tag:HTMLScriptElement = document.createElement('script');
+      tag.text = includeString + 'var __framescript__ = function() {\n' + str + '\n}';
+
+      //add and remove script tag to dom to trigger compilation
+      var sibling = document.scripts[0];
+      sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag);
+
+      var script =  __framescript__;
+      delete window['__framescript__'];
     }
     catch(err)
     {
