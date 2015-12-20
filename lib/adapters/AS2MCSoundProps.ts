@@ -1,17 +1,19 @@
-import WaveAudio				= require("awayjs-core/lib/data/WaveAudio");
-import Event = require("awayjs-core/lib/events/Event");
-import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+import WaveAudio				= require("awayjs-core/lib/audio/WaveAudio");
+import AssetEvent				= require("awayjs-core/lib/events/AssetEvent");
+import AssetBase				= require("awayjs-core/lib/library/AssetBase");
 
-class AS2MCSoundProps extends EventDispatcher
+class AS2MCSoundProps extends AssetBase
 {
-    private _volume : number = 1;
-    private _pan : number = 1;
-    private _changeEvent : Event = new Event(Event.CHANGE);
-    private _audio : WaveAudio;
+    private _volume:number = 1;
+    private _pan:number = 1;
+    private _changeEvent:AssetEvent;
+    private _audio:WaveAudio;
 
     constructor()
     {
         super();
+		
+		this._changeEvent = new AssetEvent(AssetEvent.INVALIDATE, this);
     }
 
     public dispose()

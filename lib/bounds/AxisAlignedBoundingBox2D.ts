@@ -12,7 +12,6 @@ import IEntity						= require("awayjs-display/lib/entities/IEntity");
  */
 class AxisAlignedBoundingBox2D extends AxisAlignedBoundingBox
 {
-
 	/**
 	 * Creates a new <code>AxisAlignedBoundingBox</code> object.
 	 */
