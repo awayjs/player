@@ -107,9 +107,9 @@ declare module "awayjs-player/lib/adapters/AS2KeyAdapter" {
 }
 
 declare module "awayjs-player/lib/adapters/AS2MCSoundProps" {
-	import WaveAudio = require("awayjs-core/lib/data/WaveAudio");
-	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
-	class AS2MCSoundProps extends EventDispatcher {
+	import WaveAudio = require("awayjs-core/lib/audio/WaveAudio");
+	import AssetBase = require("awayjs-core/lib/library/AssetBase");
+	class AS2MCSoundProps extends AssetBase {
 	    private _volume;
 	    private _pan;
 	    private _changeEvent;
@@ -134,12 +134,14 @@ declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 }
 
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
+	import AssetEvent = require("awayjs-core/lib/events/AssetEvent");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
-	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-	import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 	import IMovieClipAdapter = require("awayjs-display/lib/adapters/IMovieClipAdapter");
 	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
+	import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 	import View = require("awayjs-display/lib/containers/View");
+	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+	import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter {
 	    __pSoundProps: AS2MCSoundProps;
 	    private _onEnterFrame;
@@ -175,13 +177,34 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    setMask(mc: DisplayObject): void;
 	    swapDepths(target: DisplayObject): void;
 	    clone(newAdaptee: MovieClip): AS2MovieClipAdapter;
-	    onEnterFrame: Function;
-	    onRollOut: Function;
-	    onRollOver: Function;
-	    onRelease: Function;
-	    onPress: Function;
-	    onMouseDown: Function;
-	    onMouseUp: Function;
+	    /**
+	     *
+	     */
+	    onEnterFrame: (event: AssetEvent) => void;
+	    /**
+	     *
+	     */
+	    onRollOut: (event: MouseEvent) => void;
+	    /**
+	     *
+	     */
+	    onRollOver: (event: MouseEvent) => void;
+	    /**
+	     *
+	     */
+	    onRelease: (event: MouseEvent) => void;
+	    /**
+	     *
+	     */
+	    onPress: (event: MouseEvent) => void;
+	    /**
+	     *
+	     */
+	    onMouseDown: (event: MouseEvent) => void;
+	    /**
+	     *
+	     */
+	    onMouseUp: (event: MouseEvent) => void;
 	    registerScriptObject(child: DisplayObject): void;
 	    unregisterScriptObject(child: DisplayObject): void;
 	    private _gotoFrame(frame);
@@ -318,55 +341,6 @@ declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	    text: string;
 	}
 	export = AS2TextFieldAdapter;
-	
-}
-
-declare module "awayjs-player/lib/audio_events/AS2AudioDispatcher" {
-	import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
-	class AS2AudioDispatcher extends EventDispatcher {
-	    constructor();
-	}
-	export = AS2AudioDispatcher;
-	
-}
-
-declare module "awayjs-player/lib/audio_events/AudioEvent" {
-	import Event = require("awayjs-core/lib/events/Event");
-	/**
-	 * @class away.events.AudioEvent
-	 */
-	class AudioEvent extends Event {
-	    /**
-	     *
-	     */
-	    static AUDIO_START: string;
-	    /**
-	     *
-	     */
-	    static AUDIO_STOP: string;
-	    /**
-	     *
-	     */
-	    static AUDIO_UPDATE: string;
-	    private _sound_name;
-	    private _volume;
-	    private _loop;
-	    /**
-	     *
-	     */
-	    constructor(type: string, sound_name: string, volume: number, loop: boolean);
-	    /**
-	     *
-	     */
-	    sound_name: string;
-	    volume: number;
-	    loop: boolean;
-	    /**
-	     *
-	     */
-	    clone(): Event;
-	}
-	export = AudioEvent;
 	
 }
 

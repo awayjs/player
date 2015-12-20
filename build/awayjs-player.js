@@ -167,15 +167,15 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Event = require("awayjs-core/lib/events/Event");
-var EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
+var AssetEvent = require("awayjs-core/lib/events/AssetEvent");
+var AssetBase = require("awayjs-core/lib/library/AssetBase");
 var AS2MCSoundProps = (function (_super) {
     __extends(AS2MCSoundProps, _super);
     function AS2MCSoundProps() {
         _super.call(this);
         this._volume = 1;
         this._pan = 1;
-        this._changeEvent = new Event(Event.CHANGE);
+        this._changeEvent = new AssetEvent(AssetEvent.INVALIDATE, this);
     }
     AS2MCSoundProps.prototype.dispose = function () {
         this._audio = null;
@@ -220,10 +220,10 @@ var AS2MCSoundProps = (function (_super) {
         configurable: true
     });
     return AS2MCSoundProps;
-})(EventDispatcher);
+})(AssetBase);
 module.exports = AS2MCSoundProps;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/events/EventDispatcher":undefined}],"awayjs-player/lib/adapters/AS2MouseAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/library/AssetBase":undefined}],"awayjs-player/lib/adapters/AS2MouseAdapter":[function(require,module,exports){
 var AS2MouseAdapter = (function () {
     function AS2MouseAdapter() {
     }
@@ -244,14 +244,14 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
-var MovieClip = require("awayjs-display/lib/entities/MovieClip");
-var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
-var Event = require("awayjs-core/lib/events/Event");
+var AssetEvent = require("awayjs-core/lib/events/AssetEvent");
 var Point = require("awayjs-core/lib/geom/Point");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
-var includeString = 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");\n' + 'var System			= require("awayjs-player/lib/adapters/AS2SystemAdapter");\n' + 'var Sound			= require("awayjs-player/lib/adapters/AS2SoundAdapter");\n' + 'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");\n' + 'var Mouse			= require("awayjs-player/lib/adapters/AS2MouseAdapter");\n' + 'var Stage			= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' + 'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' + 'var int = function(value) {return Math.floor(value) | 0;}\n' + 'var string = function(value) {return value.toString();}\n' + 'var getURL = function(value) {return value;}\n';
+var MovieClip = require("awayjs-display/lib/entities/MovieClip");
+var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
+var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
+var includeString = 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");\n' + 'var System				= require("awayjs-player/lib/adapters/AS2SystemAdapter");\n' + 'var Sound				= require("awayjs-player/lib/adapters/AS2SoundAdapter");\n' + 'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");\n' + 'var Mouse				= require("awayjs-player/lib/adapters/AS2MouseAdapter");\n' + 'var Stage				= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' + 'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' + 'var int = function(value) {return Math.floor(value) | 0;}\n' + 'var string = function(value) {return value.toString();}\n' + 'var getURL = function(value) {return value;}\n';
 var AS2MovieClipAdapter = (function (_super) {
     __extends(AS2MovieClipAdapter, _super);
     function AS2MovieClipAdapter(adaptee, view) {
@@ -310,8 +310,8 @@ var AS2MovieClipAdapter = (function (_super) {
         }
         return script;
     };
-    //attachAudio(id: AS2SoundAdapter) : void {	}
-    //attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false) : void { }
+    //attachAudio(id: AS2SoundAdapter):void {	}
+    //attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false):void { }
     AS2MovieClipAdapter.prototype.attachMovie = function (id, name, depth, initObject) {
         if (initObject === void 0) { initObject = null; }
         var attached_mc = AssetLibrary.getAsset(id);
@@ -323,10 +323,10 @@ var AS2MovieClipAdapter = (function (_super) {
         return attached_mc;
         // todo: apply object from initObject to attached_mc
     };
-    //beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false) : void {}
-    //beginFill(rgb: Number, alpha: number = 1.0) : void {}
-    //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null) : void {}
-    //clear() : void {}
+    //beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false):void {}
+    //beginFill(rgb: Number, alpha: number = 1.0):void {}
+    //beginGradientFill(fillType: string, colors: Array, alphas: Array, ratios: Array, matrix: Object, spreadMethod: string = null, interpolationMethod: string  = null, focalPointRatio: number  = null):void {}
+    //clear():void {}
     AS2MovieClipAdapter.prototype.createEmptyMovieClip = function (name, depth) {
         var mc = new MovieClip();
         mc.adapter = new AS2MovieClipAdapter(mc, this._view);
@@ -335,8 +335,8 @@ var AS2MovieClipAdapter = (function (_super) {
         this.registerScriptObject(mc);
         return mc.adapter;
     };
-    //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number) : TextField {}
-    //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number) : void {}
+    //createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number):TextField {}
+    //curveTo(controlX: number, controlY: number, anchorX: number, anchorY: number):void {}
     AS2MovieClipAdapter.prototype.duplicateMovieClip = function (name, depth, initObject) {
         var duplicate = this.adaptee.clone().adapter;
         duplicate.adaptee.name = name;
@@ -347,8 +347,8 @@ var AS2MovieClipAdapter = (function (_super) {
         this.adaptee.parent.addChildAtDepth(duplicate.adaptee, depth);
         return duplicate;
     };
-    //endFill() : void {}
-    //getBounds(bounds: Object) : Object { return null; }
+    //endFill():void {}
+    //getBounds(bounds: Object):Object { return null; }
     // not applicable?
     AS2MovieClipAdapter.prototype.getBytesLoaded = function () {
         return 1;
@@ -363,10 +363,10 @@ var AS2MovieClipAdapter = (function (_super) {
     AS2MovieClipAdapter.prototype.getNextHighestDepth = function () {
         return this.adaptee.getNextHighestDepth();
     };
-    //getRect(bounds: Object) : Object { return null; }
-    //getSWFVersion() : number { return 0; }
-    //getTextSnapshot() : TextSnapshot {}
-    //getURL(url: string, window: string, method: string) : void {}
+    //getRect(bounds: Object):Object { return null; }
+    //getSWFVersion():number { return 0; }
+    //getTextSnapshot():TextSnapshot {}
+    //getURL(url: string, window: string, method: string):void {}
     AS2MovieClipAdapter.prototype.globalToLocal = function (pt) {
         var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
         pt.x = newPoint.x;
@@ -394,49 +394,55 @@ var AS2MovieClipAdapter = (function (_super) {
         if (shapeFlag === void 0) { shapeFlag = false; }
         return this.adaptee.hitTestPoint(x, y, shapeFlag);
     };
-    //lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number) : void {}
-    //lineStyle(thickness: number, rgb: number, alpha: number, pixelHinting: boolean, noScale: string, capsStyle: string, jointStyle: string, miterLimit: number) : void {}
-    //lineTo(x: number, y: number) : void {}
-    //loadMovie(url: string, method: string = null) : void {}
-    //loadVariables(url: string, method: string = null) : void {}
+    //lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number):void {}
+    //lineStyle(thickness: number, rgb: number, alpha: number, pixelHinting: boolean, noScale: string, capsStyle: string, jointStyle: string, miterLimit: number):void {}
+    //lineTo(x: number, y: number):void {}
+    //loadMovie(url: string, method: string = null):void {}
+    //loadVariables(url: string, method: string = null):void {}
     AS2MovieClipAdapter.prototype.localToGlobal = function (pt) {
         var newPoint = this.adaptee.localToGlobal(new Point(pt.x, pt.y));
         pt.x = newPoint.x;
         pt.y = newPoint.y;
     };
-    //moveTo(x: number, y: number) : void {}
+    //moveTo(x: number, y: number):void {}
     AS2MovieClipAdapter.prototype.nextFrame = function () {
         ++this.adaptee.currentFrameIndex;
     };
     AS2MovieClipAdapter.prototype.prevFrame = function () {
         --this.adaptee.currentFrameIndex;
     };
-    //removeMovieClip() : void {}
+    //removeMovieClip():void {}
     AS2MovieClipAdapter.prototype.setMask = function (mc) {
         this.adaptee.masks = [mc];
     };
-    //startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0) : void {}
-    //stopDrag() : void {}
+    //startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0):void {}
+    //stopDrag():void {}
     AS2MovieClipAdapter.prototype.swapDepths = function (target) {
         var parent = this.adaptee.parent;
         if (parent != null && target.parent == parent)
             parent.swapChildren(this.adaptee, target);
     };
-    //unloadMovie() : void {}
+    //unloadMovie():void {}
     AS2MovieClipAdapter.prototype.clone = function (newAdaptee) {
         return new AS2MovieClipAdapter(newAdaptee, this._view);
     };
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onEnterFrame", {
+        /**
+         *
+         */
         get: function () {
             return this._onEnterFrame;
         },
         set: function (value) {
-            this._onEnterFrame = this._replaceEventListener(Event.ENTER_FRAME, this._onEnterFrame, value);
+            this._onEnterFrame = this._replaceEventListener(AssetEvent.ENTER_FRAME, this._onEnterFrame, value);
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onRollOut", {
+        /**
+         *
+         */
         get: function () {
             return this._onRollOut;
         },
@@ -447,6 +453,9 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onRollOver", {
+        /**
+         *
+         */
         get: function () {
             return this._onRollOver;
         },
@@ -457,6 +466,9 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onRelease", {
+        /**
+         *
+         */
         get: function () {
             return this._onRelease;
         },
@@ -467,6 +479,9 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onPress", {
+        /**
+         *
+         */
         get: function () {
             return this._onPress;
         },
@@ -477,6 +492,9 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onMouseDown", {
+        /**
+         *
+         */
         get: function () {
             return this._onMouseDown;
         },
@@ -487,6 +505,9 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     Object.defineProperty(AS2MovieClipAdapter.prototype, "onMouseUp", {
+        /**
+         *
+         */
         get: function () {
             return this._onMouseUp;
         },
@@ -502,9 +523,8 @@ var AS2MovieClipAdapter = (function (_super) {
     };
     AS2MovieClipAdapter.prototype.unregisterScriptObject = function (child) {
         delete this[child.name];
-        if (child.isAsset(MovieClip)) {
+        if (child.isAsset(MovieClip))
             child.removeButtonListeners();
-        }
     };
     AS2MovieClipAdapter.prototype._gotoFrame = function (frame) {
         var mc = this.adaptee;
@@ -519,9 +539,7 @@ var AS2MovieClipAdapter = (function (_super) {
             mc.removeEventListener(eventType, currentListener);
         if (newListener) {
             var self = this;
-            var delegate = function () {
-                newListener.call(self);
-            };
+            var delegate = function () { return newListener.call(self); };
             mc.addEventListener(eventType, delegate);
         }
         return delegate;
@@ -530,7 +548,7 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/entities/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/entities/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter(name) {
         this._object_name = name;
@@ -561,7 +579,7 @@ var AS2SharedObjectAdapter = (function () {
 module.exports = AS2SharedObjectAdapter;
 
 },{}],"awayjs-player/lib/adapters/AS2SoundAdapter":[function(require,module,exports){
-var Event = require("awayjs-core/lib/events/Event");
+var AssetEvent = require("awayjs-core/lib/events/AssetEvent");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
 // also contains global AS2 functions
@@ -579,7 +597,7 @@ var AS2SoundAdapter = (function () {
         this._target = target;
         this._soundProps = (target != null && target.__pSoundProps) ? this._target.__pSoundProps : AS2SoundAdapter._globalSoundProps;
         this._onGlobalChangeDelegate = function (event) { return _this.onGlobalChange(event); };
-        AS2SoundAdapter._globalSoundProps.addEventListener(Event.CHANGE, this._onGlobalChangeDelegate);
+        AS2SoundAdapter._globalSoundProps.addEventListener(AssetEvent.INVALIDATE, this._onGlobalChangeDelegate);
     }
     AS2SoundAdapter.prototype.attachSound = function (id) {
         this._name = id;
@@ -589,12 +607,12 @@ var AS2SoundAdapter = (function () {
             this._soundProps.audio = asset.clone();
         this.updateVolume();
     };
-    /*getBytesLoaded() : number
+    /*getBytesLoaded():number
     {
         return 1;
     }
 
-    getBytesTotal() : number
+    getBytesTotal():number
     {
         return 1;
     }*/
@@ -605,7 +623,7 @@ var AS2SoundAdapter = (function () {
         this._soundProps.pan = value;
         // panning not supported at this point
     };
-    /*getTransform() : Object
+    /*getTransform():Object
     {
         return this._transform;
     }
@@ -702,7 +720,7 @@ var AS2SoundAdapter = (function () {
 })();
 module.exports = AS2SoundAdapter;
 
-},{"awayjs-core/lib/events/Event":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps"}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
 var AS2StageAdapter = (function () {
     function AS2StageAdapter() {
     }
@@ -1051,92 +1069,7 @@ var AS2TextFieldAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2TextFieldAdapter;
 
-},{"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/audio_events/AS2AudioDispatcher":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
-var AS2AudioDispatcher = (function (_super) {
-    __extends(AS2AudioDispatcher, _super);
-    function AS2AudioDispatcher() {
-        _super.call(this);
-    }
-    return AS2AudioDispatcher;
-})(EventDispatcher);
-module.exports = AS2AudioDispatcher;
-
-},{"awayjs-core/lib/events/EventDispatcher":undefined}],"awayjs-player/lib/audio_events/AudioEvent":[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var Event = require("awayjs-core/lib/events/Event");
-/**
- * @class away.events.AudioEvent
- */
-var AudioEvent = (function (_super) {
-    __extends(AudioEvent, _super);
-    /**
-     *
-     */
-    function AudioEvent(type, sound_name, volume, loop) {
-        _super.call(this, type);
-        this._sound_name = sound_name;
-        this._volume = volume;
-        this._loop = loop;
-    }
-    Object.defineProperty(AudioEvent.prototype, "sound_name", {
-        /**
-         *
-         */
-        get: function () {
-            return this._sound_name;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AudioEvent.prototype, "volume", {
-        get: function () {
-            return this._volume;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AudioEvent.prototype, "loop", {
-        get: function () {
-            return this._loop;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     *
-     */
-    AudioEvent.prototype.clone = function () {
-        return new AudioEvent(this.type, this._sound_name, this._volume, this._loop);
-    };
-    /**
-     *
-     */
-    AudioEvent.AUDIO_START = "audioStart";
-    /**
-     *
-     */
-    AudioEvent.AUDIO_STOP = 'audioStop';
-    /**
-     *
-     */
-    AudioEvent.AUDIO_UPDATE = 'audioUpdate';
-    return AudioEvent;
-})(Event);
-module.exports = AudioEvent;
-
-},{"awayjs-core/lib/events/Event":undefined}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
+},{"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
