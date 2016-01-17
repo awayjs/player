@@ -18,7 +18,7 @@ class AS2ColorAdapter
 		this._symbol = symbol;
 		this._symbol._blockedByScript = true;
 
-		this._target = symbol.adaptee._iColorTransform || (symbol.adaptee._iColorTransform = new ColorTransform());
+		this._target = symbol.adaptee.transform.colorTransform || (symbol.adaptee.transform.colorTransform = new ColorTransform());
 		this._transform = { ra: 100, rb: 0, ga: 100, gb: 0, ba: 100, bb: 0, aa: 100, ab: 0 };
 	}
 

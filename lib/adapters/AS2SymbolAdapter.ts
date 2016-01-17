@@ -228,15 +228,15 @@ class AS2SymbolAdapter
 
     get _alpha() : number
     {
-        return this.adaptee._iColorTransform? (this.adaptee._iColorTransform.alphaMultiplier*100) : 100;
+        return this.adaptee.transform.colorTransform? (this.adaptee.transform.colorTransform.alphaMultiplier*100) : 100;
     }
 
     set _alpha(value: number)
     {
-        if(!this.adaptee._iColorTransform)
-            this.adaptee._iColorTransform = new ColorTransform();
+        if(!this.adaptee.transform.colorTransform)
+            this.adaptee.transform.colorTransform = new ColorTransform();
 
-        this.adaptee._iColorTransform.alphaMultiplier = value/100;
+        this.adaptee.transform.colorTransform.alphaMultiplier = value/100;
 
         this.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
 
