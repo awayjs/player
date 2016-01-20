@@ -133,6 +133,18 @@ declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    data: Object;
+	    private _object_name;
+	    constructor(name: string);
+	    static getLocal(name: string, localPath?: string, secure?: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import AssetEvent = require("awayjs-core/lib/events/AssetEvent");
 	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
@@ -211,18 +223,6 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	    private _replaceEventListener(eventType, currentListener, newListener);
 	}
 	export = AS2MovieClipAdapter;
-	
-}
-
-declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
-	class AS2SharedObjectAdapter {
-	    data: Object;
-	    private _object_name;
-	    constructor(name: string);
-	    static getLocal(name: string, localPath: string, secure: boolean): AS2SharedObjectAdapter;
-	    flush(): void;
-	}
-	export = AS2SharedObjectAdapter;
 	
 }
 
