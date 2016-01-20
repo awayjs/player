@@ -16,7 +16,7 @@ class AS2SharedObjectAdapter
     }
 
     // should become a static
-    public static getLocal(name:string, localPath:string, secure:boolean) : AS2SharedObjectAdapter
+    public static getLocal(name:string, localPath?:string, secure?:boolean) : AS2SharedObjectAdapter
     {
         return new AS2SharedObjectAdapter(name);
     }
