@@ -133,25 +133,13 @@ declare module "awayjs-player/lib/adapters/AS2MouseAdapter" {
 	
 }
 
-declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
-	class AS2SharedObjectAdapter {
-	    data: Object;
-	    private _object_name;
-	    constructor(name: string);
-	    static getLocal(name: string, localPath?: string, secure?: boolean): AS2SharedObjectAdapter;
-	    flush(): void;
-	}
-	export = AS2SharedObjectAdapter;
-	
-}
-
 declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	import AssetEvent = require("awayjs-core/lib/events/AssetEvent");
-	import DisplayObject = require("awayjs-display/lib/base/DisplayObject");
+	import DisplayObject = require("awayjs-display/lib/display/DisplayObject");
 	import IMovieClipAdapter = require("awayjs-display/lib/adapters/IMovieClipAdapter");
-	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
+	import MovieClip = require("awayjs-display/lib/display/MovieClip");
 	import MouseEvent = require("awayjs-display/lib/events/MouseEvent");
-	import View = require("awayjs-display/lib/containers/View");
+	import View = require("awayjs-display/lib/View");
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
 	class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter {
@@ -226,6 +214,18 @@ declare module "awayjs-player/lib/adapters/AS2MovieClipAdapter" {
 	
 }
 
+declare module "awayjs-player/lib/adapters/AS2SharedObjectAdapter" {
+	class AS2SharedObjectAdapter {
+	    data: Object;
+	    private _object_name;
+	    constructor(name: string);
+	    static getLocal(name: string, localPath?: string, secure?: boolean): AS2SharedObjectAdapter;
+	    flush(): void;
+	}
+	export = AS2SharedObjectAdapter;
+	
+}
+
 declare module "awayjs-player/lib/adapters/AS2SoundAdapter" {
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 	class AS2SoundAdapter {
@@ -266,10 +266,10 @@ declare module "awayjs-player/lib/adapters/AS2StageAdapter" {
 }
 
 declare module "awayjs-player/lib/adapters/AS2SymbolAdapter" {
-	import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+	import DisplayObjectContainer = require("awayjs-display/lib/display/DisplayObjectContainer");
 	import TouchPoint = require("awayjs-display/lib/base/TouchPoint");
 	import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-	import View = require("awayjs-display/lib/containers/View");
+	import View = require("awayjs-display/lib/View");
 	class AS2SymbolAdapter {
 	    _view: View;
 	    isBlockedByScript(): boolean;
@@ -330,8 +330,8 @@ declare module "awayjs-player/lib/adapters/AS2SystemAdapter" {
 declare module "awayjs-player/lib/adapters/AS2TextFieldAdapter" {
 	import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 	import IDisplayObjectAdapter = require("awayjs-display/lib/adapters/IDisplayObjectAdapter");
-	import TextField = require("awayjs-display/lib/entities/TextField");
-	import View = require("awayjs-display/lib/containers/View");
+	import TextField = require("awayjs-display/lib/display/TextField");
+	import View = require("awayjs-display/lib/View");
 	class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter {
 	    private _embedFonts;
 	    constructor(adaptee: TextField, view: View);
@@ -351,11 +351,11 @@ declare module "awayjs-player/lib/bounds/AxisAlignedBoundingBox2D" {
 }
 
 declare module "awayjs-player/lib/factories/AS2SceneGraphFactory" {
-	import TextField = require("awayjs-display/lib/entities/TextField");
+	import TextField = require("awayjs-display/lib/display/TextField");
 	import Timeline = require("awayjs-display/lib/base/Timeline");
-	import MovieClip = require("awayjs-display/lib/entities/MovieClip");
+	import MovieClip = require("awayjs-display/lib/display/MovieClip");
 	import ITimelineSceneGraphFactory = require("awayjs-display/lib/factories/ITimelineSceneGraphFactory");
-	import View = require("awayjs-display/lib/containers/View");
+	import View = require("awayjs-display/lib/View");
 	class AS2SceneGraphFactory implements ITimelineSceneGraphFactory {
 	    private _view;
 	    constructor(view: View);

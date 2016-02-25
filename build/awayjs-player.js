@@ -247,7 +247,7 @@ var __extends = this.__extends || function (d, b) {
 var AssetEvent = require("awayjs-core/lib/events/AssetEvent");
 var Point = require("awayjs-core/lib/geom/Point");
 var AssetLibrary = require("awayjs-core/lib/library/AssetLibrary");
-var MovieClip = require("awayjs-display/lib/entities/MovieClip");
+var MovieClip = require("awayjs-display/lib/display/MovieClip");
 var MouseEvent = require("awayjs-display/lib/events/MouseEvent");
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 var AS2MCSoundProps = require("awayjs-player/lib/adapters/AS2MCSoundProps");
@@ -548,7 +548,7 @@ var AS2MovieClipAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2MovieClipAdapter;
 
-},{"awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/entities/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
+},{"awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/display/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined,"awayjs-player/lib/adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 var AS2SharedObjectAdapter = (function () {
     function AS2SharedObjectAdapter(name) {
         this._object_name = name;
@@ -1025,7 +1025,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-var TextField = require("awayjs-display/lib/entities/TextField");
+var TextField = require("awayjs-display/lib/display/TextField");
 var AS2TextFieldAdapter = (function (_super) {
     __extends(AS2TextFieldAdapter, _super);
     function AS2TextFieldAdapter(adaptee, view) {
@@ -1069,7 +1069,7 @@ var AS2TextFieldAdapter = (function (_super) {
 })(AS2SymbolAdapter);
 module.exports = AS2TextFieldAdapter;
 
-},{"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
+},{"awayjs-display/lib/display/TextField":undefined,"awayjs-player/lib/adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter"}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1141,8 +1141,8 @@ module.exports = AxisAlignedBoundingBox;
 },{"awayjs-display/lib/bounds/AxisAlignedBoundingBox":undefined}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
 var AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
 var AS2TextFieldAdapter = require("awayjs-player/lib/adapters/AS2TextFieldAdapter");
-var TextField = require("awayjs-display/lib/entities/TextField");
-var MovieClip = require("awayjs-display/lib/entities/MovieClip");
+var TextField = require("awayjs-display/lib/display/TextField");
+var MovieClip = require("awayjs-display/lib/display/MovieClip");
 var AS2SceneGraphFactory = (function () {
     function AS2SceneGraphFactory(view) {
         this._view = view;
@@ -1161,7 +1161,7 @@ var AS2SceneGraphFactory = (function () {
 })();
 module.exports = AS2SceneGraphFactory;
 
-},{"awayjs-display/lib/entities/MovieClip":undefined,"awayjs-display/lib/entities/TextField":undefined,"awayjs-player/lib/adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","awayjs-player/lib/adapters/AS2TextFieldAdapter":"awayjs-player/lib/adapters/AS2TextFieldAdapter"}]},{},[])
+},{"awayjs-display/lib/display/MovieClip":undefined,"awayjs-display/lib/display/TextField":undefined,"awayjs-player/lib/adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","awayjs-player/lib/adapters/AS2TextFieldAdapter":"awayjs-player/lib/adapters/AS2TextFieldAdapter"}]},{},[])
 
 
 //# sourceMappingURL=awayjs-player.js.map
