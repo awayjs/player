@@ -4,7 +4,7 @@ import Matrix3DUtils				= require("awayjs-core/lib/geom/Matrix3DUtils");
 import Vector3D						= require("awayjs-core/lib/geom/Vector3D");
 
 import AxisAlignedBoundingBox		= require("awayjs-display/lib/bounds/AxisAlignedBoundingBox");
-import IEntity						= require("awayjs-display/lib/entities/IEntity");
+import IEntity						= require("awayjs-display/lib/display/IEntity");
 
 /**
  * AxisAlignedBoundingBox represents a bounding box volume that has its planes aligned to the local coordinate axes of the bounded object.

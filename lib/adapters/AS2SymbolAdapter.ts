@@ -1,7 +1,7 @@
 import ColorTransform			= require("awayjs-core/lib/geom/ColorTransform");
 import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
 import Matrix = require("awayjs-core/lib/geom/Matrix");
-import DisplayObjectContainer = require("awayjs-display/lib/containers/DisplayObjectContainer");
+import DisplayObjectContainer = require("awayjs-display/lib/display/DisplayObjectContainer");
 import HierarchicalProperties		= require("awayjs-display/lib/base/HierarchicalProperties");
 import TouchPoint					= require("awayjs-display/lib/base/TouchPoint");
 
@@ -12,7 +12,7 @@ import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
 import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
 import FrameScriptManager = require("awayjs-display/lib/managers/FrameScriptManager");
 
-import View			= require("awayjs-display/lib/containers/View");
+import View			= require("awayjs-display/lib/View");
 
 
 // also contains global AS2 gunctions

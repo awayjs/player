@@ -2,7 +2,7 @@ import HierarchicalProperties				= require("awayjs-display/lib/base/Hierarchical
 import EventDispatcher						= require("awayjs-core/lib/events/EventDispatcher");
 import ColorTransform						= require("awayjs-core/lib/geom/ColorTransform");
 import Matrix								= require("awayjs-core/lib/geom/Matrix");
-import DisplayObjectContainer				= require("awayjs-display/lib/containers/DisplayObjectContainer");
+import DisplayObjectContainer				= require("awayjs-display/lib/display/DisplayObjectContainer");
 import AS2SymbolAdapter						= require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 
 // also contains global AS2 functions

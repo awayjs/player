@@ -5,12 +5,12 @@ import EventBase						= require("awayjs-core/lib/events/EventBase");
 import Point							= require("awayjs-core/lib/geom/Point");
 import AssetLibrary						= require("awayjs-core/lib/library/AssetLibrary");
 
-import DisplayObject					= require("awayjs-display/lib/base/DisplayObject");
-import DisplayObjectContainer			= require("awayjs-display/lib/containers/DisplayObjectContainer");
+import DisplayObject					= require("awayjs-display/lib/display/DisplayObject");
+import DisplayObjectContainer			= require("awayjs-display/lib/display/DisplayObjectContainer");
 import IMovieClipAdapter				= require("awayjs-display/lib/adapters/IMovieClipAdapter");
-import MovieClip						= require("awayjs-display/lib/entities/MovieClip");
+import MovieClip						= require("awayjs-display/lib/display/MovieClip");
 import MouseEvent						= require("awayjs-display/lib/events/MouseEvent");
-import View								= require("awayjs-display/lib/containers/View");
+import View								= require("awayjs-display/lib/View");
 
 import AS2SymbolAdapter					= require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 import AS2SoundAdapter					= require("awayjs-player/lib/adapters/AS2SoundAdapter");

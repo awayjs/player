@@ -1,8 +1,8 @@
 import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
 
 import IDisplayObjectAdapter		= require("awayjs-display/lib/adapters/IDisplayObjectAdapter");
-import TextField = require("awayjs-display/lib/entities/TextField");
-import View			= require("awayjs-display/lib/containers/View");
+import TextField = require("awayjs-display/lib/display/TextField");
+import View			= require("awayjs-display/lib/View");
 
 class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter
 {
