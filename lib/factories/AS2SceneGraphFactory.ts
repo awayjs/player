@@ -1,10 +1,10 @@
-import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-import AS2TextFieldAdapter = require("awayjs-player/lib/adapters/AS2TextFieldAdapter");
-import TextField = require("awayjs-display/lib/display/TextField");
-import Timeline = require("awayjs-display/lib/base/Timeline");
-import MovieClip = require("awayjs-display/lib/display/MovieClip");
-import ITimelineSceneGraphFactory = require("awayjs-display/lib/factories/ITimelineSceneGraphFactory");
-import View			= require("awayjs-display/lib/View");
+import AS2MovieClipAdapter from "awayjs-player/lib/adapters/AS2MovieClipAdapter";
+import AS2TextFieldAdapter from "awayjs-player/lib/adapters/AS2TextFieldAdapter";
+import TextField from "awayjs-display/lib/display/TextField";
+import Timeline from "awayjs-display/lib/base/Timeline";
+import MovieClip from "awayjs-display/lib/display/MovieClip";
+import ITimelineSceneGraphFactory from "awayjs-display/lib/factories/ITimelineSceneGraphFactory";
+import View			from "awayjs-display/lib/View";
 
 
 class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
@@ -29,4 +29,4 @@ class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
         return tf;
     }
 }
-export = AS2SceneGraphFactory;
+export default AS2SceneGraphFactory;

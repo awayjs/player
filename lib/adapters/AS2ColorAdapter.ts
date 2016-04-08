@@ -1,9 +1,9 @@
-import HierarchicalProperties				= require("awayjs-display/lib/base/HierarchicalProperties");
-import EventDispatcher						= require("awayjs-core/lib/events/EventDispatcher");
-import ColorTransform						= require("awayjs-core/lib/geom/ColorTransform");
-import Matrix								= require("awayjs-core/lib/geom/Matrix");
-import DisplayObjectContainer				= require("awayjs-display/lib/display/DisplayObjectContainer");
-import AS2SymbolAdapter						= require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+import HierarchicalProperties				from "awayjs-display/lib/base/HierarchicalProperties";
+import EventDispatcher						from "awayjs-core/lib/events/EventDispatcher";
+import ColorTransform						from "awayjs-core/lib/geom/ColorTransform";
+import Matrix								from "awayjs-core/lib/geom/Matrix";
+import DisplayObjectContainer				from "awayjs-display/lib/display/DisplayObjectContainer";
+import AS2SymbolAdapter						from "awayjs-player/lib/adapters/AS2SymbolAdapter";
 
 // also contains global AS2 functions
 class AS2ColorAdapter
@@ -60,4 +60,4 @@ class AS2ColorAdapter
 	}
 }
 
-export = AS2ColorAdapter;
+export default AS2ColorAdapter;

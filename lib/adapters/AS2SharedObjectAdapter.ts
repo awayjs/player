@@ -34,4 +34,4 @@ class AS2SharedObjectAdapter
         // save all local data to wherever it needs to go
     }
 }
-export = AS2SharedObjectAdapter;
+export default AS2SharedObjectAdapter;

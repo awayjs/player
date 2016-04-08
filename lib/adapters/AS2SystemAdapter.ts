@@ -5,4 +5,4 @@ class AS2SystemAdapter
     static capabilities : Object = { version: 6 };
 }
 
-export = AS2SystemAdapter;
+export default AS2SystemAdapter;

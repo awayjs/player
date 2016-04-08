@@ -72,10 +72,10 @@ function browserifyShare(callback) {
         paths: ['../'],
         cache: {},
         packageCache: {},
-        fullPaths: true
+        fullPaths: false
     });
 
-    b.plugin('tsify', {target:'ES5', sourceRoot:'../', noExternalResolve: true, declarationFiles: './node_modules/awayjs-**/build/*.d.ts', declarationOutput: './build/awayjs-player.d.ts'});
+    b.plugin('tsify', {target:'ES5', sourceRoot:'../', noExternalResolve: true});
 
     glob('./node_modules/awayjs-**/lib/**/*.ts', {}, function (error, files) {
         files.forEach(function (file) {

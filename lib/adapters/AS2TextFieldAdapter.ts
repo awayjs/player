@@ -1,8 +1,8 @@
-import AS2SymbolAdapter = require("awayjs-player/lib/adapters/AS2SymbolAdapter");
+import AS2SymbolAdapter from "awayjs-player/lib/adapters/AS2SymbolAdapter";
 
-import IDisplayObjectAdapter		= require("awayjs-display/lib/adapters/IDisplayObjectAdapter");
-import TextField = require("awayjs-display/lib/display/TextField");
-import View			= require("awayjs-display/lib/View");
+import IDisplayObjectAdapter		from "awayjs-display/lib/adapters/IDisplayObjectAdapter";
+import TextField from "awayjs-display/lib/display/TextField";
+import View			from "awayjs-display/lib/View";
 
 class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter
 {
@@ -48,4 +48,4 @@ class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdap
         (<TextField>this.adaptee).text = value;
     }
 }
-export = AS2TextFieldAdapter;
+export default AS2TextFieldAdapter;

@@ -1,6 +1,6 @@
-import WaveAudio				= require("awayjs-core/lib/audio/WaveAudio");
-import AssetEvent				= require("awayjs-core/lib/events/AssetEvent");
-import AssetBase				= require("awayjs-core/lib/library/AssetBase");
+import WaveAudio				from "awayjs-core/lib/audio/WaveAudio";
+import AssetEvent				from "awayjs-core/lib/events/AssetEvent";
+import AssetBase				from "awayjs-core/lib/library/AssetBase";
 
 class AS2MCSoundProps extends AssetBase
 {
@@ -63,4 +63,4 @@ class AS2MCSoundProps extends AssetBase
 
 }
 
-export = AS2MCSoundProps;
+export default AS2MCSoundProps;

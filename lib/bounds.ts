@@ -1,0 +1,1 @@
+export {default as AxisAlignedBoundingBox2D}		from "awayjs-player/lib/bounds/AxisAlignedBoundingBox2D";

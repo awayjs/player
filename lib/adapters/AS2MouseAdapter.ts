@@ -10,4 +10,4 @@ class AS2MouseAdapter
         // TODO: Init actual mouse events here, relative to root MovieClip (I suppose?)
     }
 }
-export = AS2MouseAdapter;
+export default AS2MouseAdapter;

@@ -1,18 +1,18 @@
-import ColorTransform			= require("awayjs-core/lib/geom/ColorTransform");
-import EventDispatcher = require("awayjs-core/lib/events/EventDispatcher");
-import Matrix = require("awayjs-core/lib/geom/Matrix");
-import DisplayObjectContainer = require("awayjs-display/lib/display/DisplayObjectContainer");
-import HierarchicalProperties		= require("awayjs-display/lib/base/HierarchicalProperties");
-import TouchPoint					= require("awayjs-display/lib/base/TouchPoint");
+import ColorTransform			from "awayjs-core/lib/geom/ColorTransform";
+import EventDispatcher from "awayjs-core/lib/events/EventDispatcher";
+import Matrix from "awayjs-core/lib/geom/Matrix";
+import DisplayObjectContainer from "awayjs-display/lib/display/DisplayObjectContainer";
+import HierarchicalProperties		from "awayjs-display/lib/base/HierarchicalProperties";
+import TouchPoint					from "awayjs-display/lib/base/TouchPoint";
 
-import AS2SharedObjectAdapter = require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");
-import AS2MovieClipAdapter = require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-import AS2KeyAdapter = require("awayjs-player/lib/adapters/AS2KeyAdapter");
-import AS2MouseAdapter = require("awayjs-player/lib/adapters/AS2MouseAdapter");
-import AS2StageAdapter = require("awayjs-player/lib/adapters/AS2StageAdapter");
-import FrameScriptManager = require("awayjs-display/lib/managers/FrameScriptManager");
+import AS2SharedObjectAdapter from "awayjs-player/lib/adapters/AS2SharedObjectAdapter";
+import AS2MovieClipAdapter from "awayjs-player/lib/adapters/AS2MovieClipAdapter";
+import AS2KeyAdapter from "awayjs-player/lib/adapters/AS2KeyAdapter";
+import AS2MouseAdapter from "awayjs-player/lib/adapters/AS2MouseAdapter";
+import AS2StageAdapter from "awayjs-player/lib/adapters/AS2StageAdapter";
+import FrameScriptManager from "awayjs-display/lib/managers/FrameScriptManager";
 
-import View			= require("awayjs-display/lib/View");
+import View			from "awayjs-display/lib/View";
 
 
 // also contains global AS2 gunctions
@@ -283,7 +283,7 @@ class AS2SymbolAdapter
         }
 
         //wrap function to maintain scope
-        args[0] = () => func.apply(scope, arguments);
+        args[0] = function () { func.apply(scope, arguments); }
 
         return FrameScriptManager.setInterval(args[0]);// window.setInterval.apply(window, args);
     }
@@ -318,4 +318,4 @@ class AS2SymbolAdapter
     }
 }
 
-export = AS2SymbolAdapter;
+export default AS2SymbolAdapter;

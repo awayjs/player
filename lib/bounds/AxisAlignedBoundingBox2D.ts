@@ -1,10 +1,10 @@
-import Box							= require("awayjs-core/lib/geom/Box");
-import Matrix3D						= require("awayjs-core/lib/geom/Matrix3D");
-import Matrix3DUtils				= require("awayjs-core/lib/geom/Matrix3DUtils");
-import Vector3D						= require("awayjs-core/lib/geom/Vector3D");
+import Box							from "awayjs-core/lib/geom/Box";
+import Matrix3D						from "awayjs-core/lib/geom/Matrix3D";
+import Matrix3DUtils				from "awayjs-core/lib/geom/Matrix3DUtils";
+import Vector3D						from "awayjs-core/lib/geom/Vector3D";
 
-import AxisAlignedBoundingBox		= require("awayjs-display/lib/bounds/AxisAlignedBoundingBox");
-import IEntity						= require("awayjs-display/lib/display/IEntity");
+import AxisAlignedBoundingBox		from "awayjs-display/lib/bounds/AxisAlignedBoundingBox";
+import IEntity						from "awayjs-display/lib/display/IEntity";
 
 /**
  * AxisAlignedBoundingBox represents a bounding box volume that has its planes aligned to the local coordinate axes of the bounded object.
@@ -76,4 +76,4 @@ class AxisAlignedBoundingBox2D extends AxisAlignedBoundingBox
 	}
 }
 
-export = AxisAlignedBoundingBox;
+export default AxisAlignedBoundingBox;

@@ -1,9 +1,9 @@
-import WaveAudio						= require("awayjs-core/lib/audio/WaveAudio");
-import WaveAudioParser					= require("awayjs-core/lib/parsers/WaveAudioParser");
-import AssetEvent						= require("awayjs-core/lib/events/AssetEvent");
-import AS2MovieClipAdapter				= require("awayjs-player/lib/adapters/AS2MovieClipAdapter");
-import AS2MCSoundProps					= require("awayjs-player/lib/adapters/AS2MCSoundProps");
-import AssetLibrary						= require("awayjs-core/lib/library/AssetLibrary");
+import WaveAudio						from "awayjs-core/lib/audio/WaveAudio";
+import WaveAudioParser					from "awayjs-core/lib/parsers/WaveAudioParser";
+import AssetEvent						from "awayjs-core/lib/events/AssetEvent";
+import AS2MovieClipAdapter				from "awayjs-player/lib/adapters/AS2MovieClipAdapter";
+import AS2MCSoundProps					from "awayjs-player/lib/adapters/AS2MCSoundProps";
+import AssetLibrary						from "awayjs-core/lib/library/AssetLibrary";
 
 declare var mainApplication;
 
@@ -177,4 +177,4 @@ class AS2SoundAdapter
 			this._soundProps.audio.volume = this._volume;
 	}
 }
-export = AS2SoundAdapter;
+export default AS2SoundAdapter;

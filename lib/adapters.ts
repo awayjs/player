@@ -1,0 +1,11 @@
+export {default as AS2ColorAdapter}					from "awayjs-player/lib/adapters/AS2ColorAdapter";
+export {default as AS2KeyAdapter}					from "awayjs-player/lib/adapters/AS2KeyAdapter";
+export {default as AS2MCSoundProps}					from "awayjs-player/lib/adapters/AS2MCSoundProps";
+export {default as AS2MouseAdapter}					from "awayjs-player/lib/adapters/AS2MouseAdapter";
+export {default as AS2MovieClipAdapter}				from "awayjs-player/lib/adapters/AS2MovieClipAdapter";
+export {default as AS2SharedObjectAdapter}			from "awayjs-player/lib/adapters/AS2SharedObjectAdapter";
+export {default as AS2SoundAdapter}					from "awayjs-player/lib/adapters/AS2SoundAdapter";
+export {default as AS2StageAdapter}					from "awayjs-player/lib/adapters/AS2StageAdapter";
+export {default as AS2SymbolAdapter}				from "awayjs-player/lib/adapters/AS2SymbolAdapter";
+export {default as AS2SystemAdapter}				from "awayjs-player/lib/adapters/AS2SystemAdapter";
+export {default as AS2TextFieldAdapter}				from "awayjs-player/lib/adapters/AS2TextFieldAdapter";

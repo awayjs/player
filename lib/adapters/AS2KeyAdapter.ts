@@ -153,4 +153,4 @@ class AS2KeyAdapter
                 AS2KeyAdapter._listeners[i].onKeyUp();
     }
 }
-export = AS2KeyAdapter;
+export default AS2KeyAdapter;

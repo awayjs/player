@@ -1,29 +1,29 @@
-import BitmapImage2D					= require("awayjs-core/lib/image/BitmapImage2D");
-import Matrix							= require("awayjs-core/lib/geom/Matrix");
-import AssetEvent						= require("awayjs-core/lib/events/AssetEvent");
-import EventBase						= require("awayjs-core/lib/events/EventBase");
-import Point							= require("awayjs-core/lib/geom/Point");
-import AssetLibrary						= require("awayjs-core/lib/library/AssetLibrary");
+import BitmapImage2D					from "awayjs-core/lib/image/BitmapImage2D";
+import Matrix							from "awayjs-core/lib/geom/Matrix";
+import AssetEvent						from "awayjs-core/lib/events/AssetEvent";
+import EventBase						from "awayjs-core/lib/events/EventBase";
+import Point							from "awayjs-core/lib/geom/Point";
+import AssetLibrary						from "awayjs-core/lib/library/AssetLibrary";
 
-import DisplayObject					= require("awayjs-display/lib/display/DisplayObject");
-import DisplayObjectContainer			= require("awayjs-display/lib/display/DisplayObjectContainer");
-import IMovieClipAdapter				= require("awayjs-display/lib/adapters/IMovieClipAdapter");
-import MovieClip						= require("awayjs-display/lib/display/MovieClip");
-import MouseEvent						= require("awayjs-display/lib/events/MouseEvent");
-import View								= require("awayjs-display/lib/View");
+import DisplayObject					from "awayjs-display/lib/display/DisplayObject";
+import DisplayObjectContainer			from "awayjs-display/lib/display/DisplayObjectContainer";
+import IMovieClipAdapter				from "awayjs-display/lib/adapters/IMovieClipAdapter";
+import MovieClip						from "awayjs-display/lib/display/MovieClip";
+import MouseEvent						from "awayjs-display/lib/events/MouseEvent";
+import View								from "awayjs-display/lib/View";
 
-import AS2SymbolAdapter					= require("awayjs-player/lib/adapters/AS2SymbolAdapter");
-import AS2SoundAdapter					= require("awayjs-player/lib/adapters/AS2SoundAdapter");
-import AS2MCSoundProps					= require("awayjs-player/lib/adapters/AS2MCSoundProps");
+import AS2SymbolAdapter					from "awayjs-player/lib/adapters/AS2SymbolAdapter";
+import AS2SoundAdapter					from "awayjs-player/lib/adapters/AS2SoundAdapter";
+import AS2MCSoundProps					from "awayjs-player/lib/adapters/AS2MCSoundProps";
 
 var includeString:string
-	= 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter");\n' +
-	'var System				= require("awayjs-player/lib/adapters/AS2SystemAdapter");\n' +
-	'var Sound				= require("awayjs-player/lib/adapters/AS2SoundAdapter");\n' +
-	'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter");\n' +
-	'var Mouse				= require("awayjs-player/lib/adapters/AS2MouseAdapter");\n' +
-	'var Stage				= require("awayjs-player/lib/adapters/AS2StageAdapter");\n' +
-	'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter");\n' +
+	= 'var Color			from "awayjs-player/lib/adapters/AS2ColorAdapter";\n' +
+	'var System				from "awayjs-player/lib/adapters/AS2SystemAdapter";\n' +
+	'var Sound				from "awayjs-player/lib/adapters/AS2SoundAdapter";\n' +
+	'var Key				from "awayjs-player/lib/adapters/AS2KeyAdapter";\n' +
+	'var Mouse				from "awayjs-player/lib/adapters/AS2MouseAdapter";\n' +
+	'var Stage				from "awayjs-player/lib/adapters/AS2StageAdapter";\n' +
+	'var SharedObject		from "awayjs-player/lib/adapters/AS2SharedObjectAdapter";\n' +
 	'var int = function(value) {return Math.floor(value) | 0;}\n' +
 	'var string = function(value) {return value.toString();}\n' +
 	'var getURL = function(value) {return value;}\n';
@@ -419,4 +419,4 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 		return delegate;
 	}
 }
-export = AS2MovieClipAdapter;
+export default AS2MovieClipAdapter;
