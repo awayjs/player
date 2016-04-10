@@ -1,6 +1,6 @@
-import * as adapters				from "awayjs-player/lib/adapters";
-import * as bounds					from "awayjs-player/lib/bounds";
-import * as factories				from "awayjs-player/lib/factories";
+import * as adapters				from "./lib/adapters";
+import * as bounds					from "./lib/bounds";
+import * as factories				from "./lib/factories";
 
 export {
 	adapters,

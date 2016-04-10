@@ -1,1 +1,1 @@
-export {default as AS2SceneGraphFactory}			from "awayjs-player/lib/factories/AS2SceneGraphFactory";
+export {default as AS2SceneGraphFactory}			from "./factories/AS2SceneGraphFactory";

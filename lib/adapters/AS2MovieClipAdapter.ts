@@ -12,18 +12,18 @@ import MovieClip						from "awayjs-display/lib/display/MovieClip";
 import MouseEvent						from "awayjs-display/lib/events/MouseEvent";
 import View								from "awayjs-display/lib/View";
 
-import AS2SymbolAdapter					from "awayjs-player/lib/adapters/AS2SymbolAdapter";
-import AS2SoundAdapter					from "awayjs-player/lib/adapters/AS2SoundAdapter";
-import AS2MCSoundProps					from "awayjs-player/lib/adapters/AS2MCSoundProps";
+import AS2SymbolAdapter					from "../adapters/AS2SymbolAdapter";
+import AS2SoundAdapter					from "../adapters/AS2SoundAdapter";
+import AS2MCSoundProps					from "../adapters/AS2MCSoundProps";
 
 var includeString:string
-	= 'var Color			from "awayjs-player/lib/adapters/AS2ColorAdapter";\n' +
-	'var System				from "awayjs-player/lib/adapters/AS2SystemAdapter";\n' +
-	'var Sound				from "awayjs-player/lib/adapters/AS2SoundAdapter";\n' +
-	'var Key				from "awayjs-player/lib/adapters/AS2KeyAdapter";\n' +
-	'var Mouse				from "awayjs-player/lib/adapters/AS2MouseAdapter";\n' +
-	'var Stage				from "awayjs-player/lib/adapters/AS2StageAdapter";\n' +
-	'var SharedObject		from "awayjs-player/lib/adapters/AS2SharedObjectAdapter";\n' +
+	= 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter").default;\n' +
+	'var System				= require("awayjs-player/lib/adapters/AS2SystemAdapter").default;\n' +
+	'var Sound				= require("awayjs-player/lib/adapters/AS2SoundAdapter").default;\n' +
+	'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter").default;\n' +
+	'var Mouse				= require("awayjs-player/lib/adapters/AS2MouseAdapter").default;\n' +
+	'var Stage				= require("awayjs-player/lib/adapters/AS2StageAdapter").default;\n' +
+	'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter").default;\n' +
 	'var int = function(value) {return Math.floor(value) | 0;}\n' +
 	'var string = function(value) {return value.toString();}\n' +
 	'var getURL = function(value) {return value;}\n';
@@ -101,7 +101,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 			sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag)
 
 			var script =  __framescript__;
-			delete window['__framescript__'];
+			window['__framescript__'] = null;
 		}
 		catch(err)
 		{

@@ -1,4 +1,4 @@
-import AS2SymbolAdapter from "awayjs-player/lib/adapters/AS2SymbolAdapter";
+import AS2SymbolAdapter from "../adapters/AS2SymbolAdapter";
 
 import IDisplayObjectAdapter		from "awayjs-display/lib/adapters/IDisplayObjectAdapter";
 import TextField from "awayjs-display/lib/display/TextField";
