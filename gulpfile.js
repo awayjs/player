@@ -12,6 +12,7 @@ var watchify = require('watchify');
 var livereload = require('gulp-livereload');
 
 var typescript = require('gulp-typescript');
+var ts = require('typescript');
 
 var shell = require('gulp-shell');
 var git = require('gulp-git');
@@ -57,7 +58,7 @@ gulp.task('tests', function () {
         sourceRoot: './'
     });
 
-    var tsResult = gulp.src(['./tests/**/*.ts', './node_modules/awayjs-**/build/*.d.ts', './build/awayjs-player.d.ts'])
+    var tsResult = gulp.src(['./tests/**/*.ts'])
         .pipe(sourcemaps.init())
         .pipe(typescript(tsProject));
 
@@ -75,7 +76,7 @@ function browserifyShare(callback) {
         fullPaths: false
     });
 
-    b.plugin('tsify', {target:'ES5', sourceRoot:'../', noExternalResolve: true});
+    b.plugin('tsify', {target:'ES5', sourceRoot:'../', noExternalResolve: true, typescript:ts});
 
     glob('./node_modules/awayjs-**/lib/**/*.ts', {}, function (error, files) {
         files.forEach(function (file) {
