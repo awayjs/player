@@ -1,1 +1,1 @@
-export {default as AxisAlignedBoundingBox2D}		from "./bounds/AxisAlignedBoundingBox2D";
+export {AxisAlignedBoundingBox2D}		from "./bounds/AxisAlignedBoundingBox2D";

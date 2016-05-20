@@ -1,36 +1,37 @@
-import BitmapImage2D					from "awayjs-core/lib/image/BitmapImage2D";
-import Matrix							from "awayjs-core/lib/geom/Matrix";
-import AssetEvent						from "awayjs-core/lib/events/AssetEvent";
-import EventBase						from "awayjs-core/lib/events/EventBase";
-import Point							from "awayjs-core/lib/geom/Point";
-import AssetLibrary						from "awayjs-core/lib/library/AssetLibrary";
+import {BitmapImage2D}					from "awayjs-core/lib/image/BitmapImage2D";
+import {Matrix}							from "awayjs-core/lib/geom/Matrix";
+import {AssetEvent}						from "awayjs-core/lib/events/AssetEvent";
+import {EventBase}						from "awayjs-core/lib/events/EventBase";
+import {Point}							from "awayjs-core/lib/geom/Point";
+import {AssetLibrary}						from "awayjs-core/lib/library/AssetLibrary";
 
-import DisplayObject					from "awayjs-display/lib/display/DisplayObject";
-import DisplayObjectContainer			from "awayjs-display/lib/display/DisplayObjectContainer";
-import IMovieClipAdapter				from "awayjs-display/lib/adapters/IMovieClipAdapter";
-import MovieClip						from "awayjs-display/lib/display/MovieClip";
-import MouseEvent						from "awayjs-display/lib/events/MouseEvent";
-import View								from "awayjs-display/lib/View";
+import {DisplayObject}					from "awayjs-display/lib/display/DisplayObject";
+import {DisplayObjectContainer}			from "awayjs-display/lib/display/DisplayObjectContainer";
+import {IMovieClipAdapter}				from "awayjs-display/lib/adapters/IMovieClipAdapter";
+import {MovieClip}						from "awayjs-display/lib/display/MovieClip";
+import {MouseEvent}						from "awayjs-display/lib/events/MouseEvent";
+import {View}								from "awayjs-display/lib/View";
 
-import AS2SymbolAdapter					from "../adapters/AS2SymbolAdapter";
-import AS2SoundAdapter					from "../adapters/AS2SoundAdapter";
-import AS2MCSoundProps					from "../adapters/AS2MCSoundProps";
+import {AS2SymbolAdapter}					from "../adapters/AS2SymbolAdapter";
+import {AS2SoundAdapter}					from "../adapters/AS2SoundAdapter";
+import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
 
 var includeString:string
-	= 'var Color			= require("awayjs-player/lib/adapters/AS2ColorAdapter").default;\n' +
-	'var System				= require("awayjs-player/lib/adapters/AS2SystemAdapter").default;\n' +
-	'var Sound				= require("awayjs-player/lib/adapters/AS2SoundAdapter").default;\n' +
-	'var Key				= require("awayjs-player/lib/adapters/AS2KeyAdapter").default;\n' +
-	'var Mouse				= require("awayjs-player/lib/adapters/AS2MouseAdapter").default;\n' +
-	'var Stage				= require("awayjs-player/lib/adapters/AS2StageAdapter").default;\n' +
-	'var SharedObject		= require("awayjs-player/lib/adapters/AS2SharedObjectAdapter").default;\n' +
+	= 'var adapters			= require("awayjs-player/lib/adapters");\n' +
+	'var Color			= adapters.AS2ColorAdapter;\n' +
+	'var System				= adapters.AS2SystemAdapter;\n' +
+	'var Sound				= adapters.AS2SoundAdapter;\n' +
+	'var Key				= adapters.AS2KeyAdapter;\n' +
+	'var Mouse				= adapters.AS2MouseAdapter;\n' +
+	'var Stage				= adapters.AS2StageAdapter;\n' +
+	'var SharedObject		= adapters.AS2SharedObjectAdapter;\n' +
 	'var int = function(value) {return Math.floor(value) | 0;}\n' +
 	'var string = function(value) {return value.toString();}\n' +
 	'var getURL = function(value) {return value;}\n';
 
 declare var __framescript__;
 
-class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
+export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 {
 	// _droptarget [read-only]
 	// focusEnabled: Boolean
@@ -61,7 +62,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
 	}
 
-	public dispose()
+	public dispose():void
 	{
 		super.dispose();
 
@@ -116,7 +117,8 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 
 	//attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false):void { }
 
-	public attachMovie(id: string, name: string, depth: number, initObject: Object = null):MovieClip {
+	public attachMovie(id: string, name: string, depth: number, initObject: Object = null):MovieClip
+	{
 		var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
 		var cloned_mc:MovieClip = <MovieClip> attached_mc.clone();
 		var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
@@ -380,13 +382,13 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 		this._onMouseUp = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onMouseUp, value);
 	}
 
-	public registerScriptObject(child:DisplayObject)
+	public registerScriptObject(child:DisplayObject):void
 	{
 		if (child.name)
 			this[child.name] = child.adapter ? child.adapter:child;
 	}
 
-	public unregisterScriptObject(child:DisplayObject)
+	public unregisterScriptObject(child:DisplayObject):void
 	{
 		delete this[child.name];
 
@@ -394,7 +396,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 			(<MovieClip>child).removeButtonListeners();
 	}
 
-	private _gotoFrame(frame:any)
+	private _gotoFrame(frame:any):void
 	{
 		var mc = <MovieClip>this.adaptee;
 		if (typeof frame === "string")
@@ -403,7 +405,7 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 			mc.currentFrameIndex = (<number>frame) - 1;
 	}
 
-	private _replaceEventListener(eventType:string, currentListener:(event:EventBase) => void, newListener:(event:EventBase) => void)
+	private _replaceEventListener(eventType:string, currentListener:(event:EventBase) => void, newListener:(event:EventBase) => void):() => void
 	{
 		var mc = this.adaptee;
 
@@ -419,4 +421,3 @@ class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipAdapter
 		return delegate;
 	}
 }
-export default AS2MovieClipAdapter;

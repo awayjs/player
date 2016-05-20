@@ -1,12 +1,12 @@
-import HierarchicalProperties				from "awayjs-display/lib/base/HierarchicalProperties";
-import EventDispatcher						from "awayjs-core/lib/events/EventDispatcher";
-import ColorTransform						from "awayjs-core/lib/geom/ColorTransform";
-import Matrix								from "awayjs-core/lib/geom/Matrix";
-import DisplayObjectContainer				from "awayjs-display/lib/display/DisplayObjectContainer";
-import AS2SymbolAdapter						from "../adapters/AS2SymbolAdapter";
+import {HierarchicalProperties}				from "awayjs-display/lib/base/HierarchicalProperties";
+import {EventDispatcher}						from "awayjs-core/lib/events/EventDispatcher";
+import {ColorTransform}						from "awayjs-core/lib/geom/ColorTransform";
+import {Matrix}								from "awayjs-core/lib/geom/Matrix";
+import {DisplayObjectContainer}				from "awayjs-display/lib/display/DisplayObjectContainer";
+import {AS2SymbolAdapter}						from "../adapters/AS2SymbolAdapter";
 
 // also contains global AS2 functions
-class AS2ColorAdapter
+export class AS2ColorAdapter
 {
 	private _symbol:AS2SymbolAdapter
 	private _target:ColorTransform;
@@ -27,7 +27,7 @@ class AS2ColorAdapter
 		return this._rgb;
 	}
 
-	public setRGB(value:number)
+	public setRGB(value:number):void
 	{
 		this._rgb = value;
 		var r = (value >> 16) & 0xff;
@@ -59,5 +59,3 @@ class AS2ColorAdapter
 		this._symbol.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
 	}
 }
-
-export default AS2ColorAdapter;

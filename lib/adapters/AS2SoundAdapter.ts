@@ -1,14 +1,14 @@
-import WaveAudio						from "awayjs-core/lib/audio/WaveAudio";
-import WaveAudioParser					from "awayjs-core/lib/parsers/WaveAudioParser";
-import AssetEvent						from "awayjs-core/lib/events/AssetEvent";
-import AS2MovieClipAdapter				from "../adapters/AS2MovieClipAdapter";
-import AS2MCSoundProps					from "../adapters/AS2MCSoundProps";
-import AssetLibrary						from "awayjs-core/lib/library/AssetLibrary";
+import {WaveAudio}						from "awayjs-core/lib/audio/WaveAudio";
+import {WaveAudioParser}					from "awayjs-core/lib/parsers/WaveAudioParser";
+import {AssetEvent}						from "awayjs-core/lib/events/AssetEvent";
+import {AS2MovieClipAdapter}				from "../adapters/AS2MovieClipAdapter";
+import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
+import {AssetLibrary}						from "awayjs-core/lib/library/AssetLibrary";
 
 declare var mainApplication;
 
 // also contains global AS2 functions
-class AS2SoundAdapter
+export class AS2SoundAdapter
 {
 	//private _transform:Object;
 	private _target:AS2MovieClipAdapter;
@@ -38,7 +38,7 @@ class AS2SoundAdapter
 		AS2SoundAdapter._globalSoundProps.addEventListener(AssetEvent.INVALIDATE, this._onGlobalChangeDelegate);
 	}
 
-	public attachSound(id:string)
+	public attachSound(id:string):void
 	{
 		this._name=id;
 		// TODO: This will be AudioAsset or something
@@ -65,7 +65,7 @@ class AS2SoundAdapter
 		return this._soundProps.pan;
 	}
 
-	public setPan(value:number)
+	public setPan(value:number):void
 	{
 		this._soundProps.pan = value;
 		// panning not supported at this point
@@ -76,7 +76,7 @@ class AS2SoundAdapter
 		return this._transform;
 	}
 
-	setTransform(value:Object)
+	setTransform(value:Object):void
 	{
 		this._transform = value;
 	}*/
@@ -86,14 +86,14 @@ class AS2SoundAdapter
 		return this._soundProps.volume * 100;
 	}
 
-	public setVolume(value:number)
+	public setVolume(value:number):void
 	{
 		this._soundProps.volume = value / 100;
 
 		this.updateVolume();
 	}
 
-	/*loadSound(url:string, isStreaming:boolean)
+	/*loadSound(url:string, isStreaming:boolean):void
 	{
 		this.disposeAudio();
 		// how to handle isStreaming == false? Manually?
@@ -102,7 +102,7 @@ class AS2SoundAdapter
 		this.initAudio();
 	}*/
 
-	public start(offsetInSeconds:number = 0, loops:number = 0)
+	public start(offsetInSeconds:number = 0, loops:number = 0):void
 	{
 		this._playing = true;
 
@@ -115,7 +115,7 @@ class AS2SoundAdapter
 			this._soundProps.audio.play(offsetInSeconds, this._loop);
 	}
 
-	public stop(linkageID:string = null)
+	public stop(linkageID:string = null):void
 	{
 		if(!this._playing)
 			return;
@@ -148,12 +148,12 @@ class AS2SoundAdapter
 		return {};
 	}
 
-	private onGlobalChange(event:AssetEvent)
+	private onGlobalChange(event:AssetEvent):void
 	{
 		this.updateVolume();
 	}
 
-	private updateVolume()
+	private updateVolume():void
 	{
 		var vol:number =  this._soundProps.volume * AS2SoundAdapter._globalSoundProps.volume;
 		

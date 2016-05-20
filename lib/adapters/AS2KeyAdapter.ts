@@ -1,4 +1,4 @@
-class AS2KeyAdapter
+export class AS2KeyAdapter
 {
     private static _keys:Array<boolean> = new Array<boolean>();
     private static _key:number;
@@ -153,4 +153,3 @@ class AS2KeyAdapter
                 AS2KeyAdapter._listeners[i].onKeyUp();
     }
 }
-export default AS2KeyAdapter;

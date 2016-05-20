@@ -1,1 +1,1 @@
-export {default as AS2SceneGraphFactory}			from "./factories/AS2SceneGraphFactory";
+export {AS2SceneGraphFactory}			from "./factories/AS2SceneGraphFactory";

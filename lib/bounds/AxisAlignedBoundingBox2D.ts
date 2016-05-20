@@ -1,16 +1,13 @@
-import Box							from "awayjs-core/lib/geom/Box";
-import Matrix3D						from "awayjs-core/lib/geom/Matrix3D";
-import Matrix3DUtils				from "awayjs-core/lib/geom/Matrix3DUtils";
-import Vector3D						from "awayjs-core/lib/geom/Vector3D";
+import {Vector3D}						from "awayjs-core/lib/geom/Vector3D";
 
-import AxisAlignedBoundingBox		from "awayjs-display/lib/bounds/AxisAlignedBoundingBox";
-import IEntity						from "awayjs-display/lib/display/IEntity";
+import {AxisAlignedBoundingBox}		from "awayjs-display/lib/bounds/AxisAlignedBoundingBox";
+import {IEntity}						from "awayjs-display/lib/display/IEntity";
 
 /**
  * AxisAlignedBoundingBox represents a bounding box volume that has its planes aligned to the local coordinate axes of the bounded object.
  * This is useful for most meshes.
  */
-class AxisAlignedBoundingBox2D extends AxisAlignedBoundingBox
+export class AxisAlignedBoundingBox2D extends AxisAlignedBoundingBox
 {
 	/**
 	 * Creates a new <code>AxisAlignedBoundingBox</code> object.
@@ -75,5 +72,3 @@ class AxisAlignedBoundingBox2D extends AxisAlignedBoundingBox
 		return intersects? rayEntryDistance : -1;
 	}
 }
-
-export default AxisAlignedBoundingBox;

@@ -1,4 +1,4 @@
-class AS2MouseAdapter
+export class AS2MouseAdapter
 {
     private static _globalListeners : Array<Object> = [];
 
@@ -10,4 +10,3 @@ class AS2MouseAdapter
         // TODO: Init actual mouse events here, relative to root MovieClip (I suppose?)
     }
 }
-export default AS2MouseAdapter;
