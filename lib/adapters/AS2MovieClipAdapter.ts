@@ -13,21 +13,28 @@ import {MouseEvent}						from "awayjs-display/lib/events/MouseEvent";
 import {View}								from "awayjs-display/lib/View";
 
 import {AS2SymbolAdapter}					from "../adapters/AS2SymbolAdapter";
-import {AS2SoundAdapter}					from "../adapters/AS2SoundAdapter";
 import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
 
+import {AS2ColorAdapter}					from "../adapters/AS2ColorAdapter";
+import {AS2SystemAdapter}					from "../adapters/AS2SystemAdapter";
+import {AS2SoundAdapter}					from "../adapters/AS2SoundAdapter";
+import {AS2KeyAdapter}						from "../adapters/AS2KeyAdapter";
+import {AS2MouseAdapter}					from "../adapters/AS2MouseAdapter";
+import {AS2StageAdapter}					from "../adapters/AS2StageAdapter";
+import {AS2SharedObjectAdapter}				from "../adapters/AS2SharedObjectAdapter";
+
+
 var includeString:string
-	= 'var adapters			= require("awayjs-player/lib/adapters");\n' +
-	'var Color			= adapters.AS2ColorAdapter;\n' +
-	'var System				= adapters.AS2SystemAdapter;\n' +
-	'var Sound				= adapters.AS2SoundAdapter;\n' +
-	'var Key				= adapters.AS2KeyAdapter;\n' +
-	'var Mouse				= adapters.AS2MouseAdapter;\n' +
-	'var Stage				= adapters.AS2StageAdapter;\n' +
-	'var SharedObject		= adapters.AS2SharedObjectAdapter;\n' +
+	= 'var Color			= this._includes.Color;\n' +
+	'var System				= this._includes.System;\n' +
+	'var Sound				= this._includes.Sound;\n' +
+	'var Key				= this._includes.Key;\n' +
+	'var Mouse				= this._includes.Mouse;\n' +
+	'var Stage				= this._includes.Stage;\n' +
+	'var SharedObject		= this._includes.SharedObject;\n' +
 	'var int = function(value) {return Math.floor(value) | 0;}\n' +
 	'var string = function(value) {return value.toString();}\n' +
-	'var getURL = function(value) {return value;}\n';
+	'var getURL = function(value) {return value;}\n\n';
 
 declare var __framescript__;
 
@@ -45,6 +52,16 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	public __pSoundProps:AS2MCSoundProps;
 
+	public _includes:Object={
+		Color:AS2ColorAdapter,
+		System:AS2SystemAdapter,
+		Sound:AS2SoundAdapter,
+		Key:AS2KeyAdapter,
+		Mouse:AS2MouseAdapter,
+		Stage:AS2StageAdapter,
+		SharedObject:AS2SharedObjectAdapter
+	};
+
 	// translate to scripts:
 	private _onEnterFrame:(event:AssetEvent) => void;
 	private _onRelease:(event:MouseEvent) => void;
@@ -59,6 +76,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 		// create an empty MovieClip if none is passed
 		super(adaptee || new MovieClip(), view);
 		this.__pSoundProps = new AS2MCSoundProps();
+
 
 	}
 
@@ -95,7 +113,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 	{
 		try {
 			var tag:HTMLScriptElement = document.createElement('script');
-			tag.text = includeString + 'var __framescript__ = function() {\n' + str + '\n}';
+			tag.text = 'var __framescript__ = function() {\n' + includeString + str + '\n}';
 
 			//add and remove script tag to dom to trigger compilation
 			var sibling = document.scripts[0];
