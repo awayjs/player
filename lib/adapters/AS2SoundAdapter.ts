@@ -1,10 +1,9 @@
 import {WaveAudio}							from "awayjs-core/lib/audio/WaveAudio";
-import {WaveAudioParser}					from "awayjs-core/lib/parsers/WaveAudioParser";
 import {AssetEvent}							from "awayjs-core/lib/events/AssetEvent";
 import {AS2MovieClipAdapter}				from "../adapters/AS2MovieClipAdapter";
 import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
 import {AssetLibrary}						from "awayjs-core/lib/library/AssetLibrary";
-import {AudioPlaybackManager}				from "awayjs-display/lib/managers/AudioPlaybackManager";
+import {AudioManager}						from "awayjs-core/lib/managers/AudioManager";
 
 declare var mainApplication;
 
@@ -109,8 +108,8 @@ export class AS2SoundAdapter
 
 		this._loop = Boolean(loops > 0);
 
-		if(AudioPlaybackManager.getExternalSoundInterface()){
-			AudioPlaybackManager.getExternalSoundInterface().startSound(this._name, this._id, this._volume, this._loop);
+		if(AudioManager.getExternalSoundInterface()){
+			AudioManager.getExternalSoundInterface().startSound(this._name, this._id, this._volume, this._loop);
 			return;
 		}
 		if(this._soundProps.audio){
@@ -127,8 +126,8 @@ export class AS2SoundAdapter
 
 		this._playing = false;
 
-		if(AudioPlaybackManager.getExternalSoundInterface()){
-			AudioPlaybackManager.getExternalSoundInterface().stopSound(this._id);
+		if(AudioManager.getExternalSoundInterface()){
+			AudioManager.getExternalSoundInterface().stopSound(this._id);
 			return;
 		}
 		else if(this._soundProps.audio){
