@@ -602,6 +602,7 @@ exports.AS2SharedObjectAdapter = AS2SharedObjectAdapter;
 var AssetEvent_1 = require("awayjs-core/lib/events/AssetEvent");
 var AS2MCSoundProps_1 = require("../adapters/AS2MCSoundProps");
 var AssetLibrary_1 = require("awayjs-core/lib/library/AssetLibrary");
+var AudioManager_1 = require("awayjs-core/lib/managers/AudioManager");
 // also contains global AS2 functions
 var AS2SoundAdapter = (function () {
     // TODO: Any real Sound stuff should be externalized for AwayJS use. For now use internally since it's only 2D.
@@ -672,22 +673,30 @@ var AS2SoundAdapter = (function () {
         if (loops === void 0) { loops = 0; }
         this._playing = true;
         this._loop = Boolean(loops > 0);
-        // todo volume hardcoded to 1
-        if (typeof mainApplication !== "undefined")
-            mainApplication.startSound(this._name, this._id, this._volume, this._loop);
-        else if (this._soundProps.audio)
+        if (AudioManager_1.AudioManager.getExternalSoundInterface()) {
+            AudioManager_1.AudioManager.getExternalSoundInterface().startSound(this._name, this._id, this._volume, this._loop);
+            return;
+        }
+        if (this._soundProps.audio) {
             this._soundProps.audio.play(offsetInSeconds, this._loop);
+            return;
+        }
+        console.log("Calling AS2SoundAdapter.start() was not successfull. Audio not set for this sound.");
     };
     AS2SoundAdapter.prototype.stop = function (linkageID) {
         if (linkageID === void 0) { linkageID = null; }
         if (!this._playing)
             return;
         this._playing = false;
-        // todo volume hardcoded to 1
-        if (typeof mainApplication !== "undefined")
-            mainApplication.stopSound(this._id);
-        else if (this._soundProps.audio)
+        if (AudioManager_1.AudioManager.getExternalSoundInterface()) {
+            AudioManager_1.AudioManager.getExternalSoundInterface().stopSound(this._id);
+            return;
+        }
+        else if (this._soundProps.audio) {
             this._soundProps.audio.stop();
+            return;
+        }
+        console.log("Calling AS2SoundAdapter.stop() was not successfull. Audio not set for this sound.");
     };
     Object.defineProperty(AS2SoundAdapter.prototype, "position", {
         get: function () {
@@ -741,7 +750,7 @@ var AS2SoundAdapter = (function () {
 exports.AS2SoundAdapter = AS2SoundAdapter;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = AS2SoundAdapter;
-},{"../adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/library/AssetLibrary":undefined}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
+},{"../adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-core/lib/managers/AudioManager":undefined}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
 "use strict";
 var AS2StageAdapter = (function () {
     function AS2StageAdapter() {
