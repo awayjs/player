@@ -1,9 +1,10 @@
-import {WaveAudio}						from "awayjs-core/lib/audio/WaveAudio";
+import {WaveAudio}							from "awayjs-core/lib/audio/WaveAudio";
 import {WaveAudioParser}					from "awayjs-core/lib/parsers/WaveAudioParser";
-import {AssetEvent}						from "awayjs-core/lib/events/AssetEvent";
+import {AssetEvent}							from "awayjs-core/lib/events/AssetEvent";
 import {AS2MovieClipAdapter}				from "../adapters/AS2MovieClipAdapter";
 import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
 import {AssetLibrary}						from "awayjs-core/lib/library/AssetLibrary";
+import {AudioPlaybackManager}				from "awayjs-display/lib/managers/AudioPlaybackManager";
 
 declare var mainApplication;
 
@@ -108,11 +109,15 @@ export class AS2SoundAdapter
 
 		this._loop = Boolean(loops > 0);
 
-		// todo volume hardcoded to 1
-		if(typeof mainApplication !== "undefined")
-			mainApplication.startSound(this._name, this._id, this._volume, this._loop);
-		else if(this._soundProps.audio)
+		if(AudioPlaybackManager.getExternalSoundInterface()){
+			AudioPlaybackManager.getExternalSoundInterface().startSound(this._name, this._id, this._volume, this._loop);
+			return;
+		}
+		if(this._soundProps.audio){
 			this._soundProps.audio.play(offsetInSeconds, this._loop);
+			return;
+		}
+		console.log("Calling AS2SoundAdapter.start() was not successfull. Audio not set for this sound.")
 	}
 
 	public stop(linkageID:string = null):void
@@ -122,11 +127,15 @@ export class AS2SoundAdapter
 
 		this._playing = false;
 
-		// todo volume hardcoded to 1
-		if(typeof mainApplication !== "undefined")
-			mainApplication.stopSound(this._id);
-		else if(this._soundProps.audio)
+		if(AudioPlaybackManager.getExternalSoundInterface()){
+			AudioPlaybackManager.getExternalSoundInterface().stopSound(this._id);
+			return;
+		}
+		else if(this._soundProps.audio){
 			this._soundProps.audio.stop();
+			return;
+		}
+		console.log("Calling AS2SoundAdapter.stop() was not successfull. Audio not set for this sound.")
 	}
 
 	public get position():number
