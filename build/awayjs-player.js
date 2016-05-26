@@ -40,6 +40,7 @@ var AS2ColorAdapter = (function () {
     return AS2ColorAdapter;
 }());
 exports.AS2ColorAdapter = AS2ColorAdapter;
+
 },{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/base/HierarchicalProperties":undefined}],"awayjs-player/lib/adapters/AS2KeyAdapter":[function(require,module,exports){
 "use strict";
 var AS2KeyAdapter = (function () {
@@ -160,6 +161,7 @@ var AS2KeyAdapter = (function () {
     return AS2KeyAdapter;
 }());
 exports.AS2KeyAdapter = AS2KeyAdapter;
+
 },{}],"awayjs-player/lib/adapters/AS2MCSoundProps":[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -222,6 +224,7 @@ var AS2MCSoundProps = (function (_super) {
     return AS2MCSoundProps;
 }(AssetBase_1.AssetBase));
 exports.AS2MCSoundProps = AS2MCSoundProps;
+
 },{"awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/library/AssetBase":undefined}],"awayjs-player/lib/adapters/AS2MouseAdapter":[function(require,module,exports){
 "use strict";
 var AS2MouseAdapter = (function () {
@@ -236,6 +239,7 @@ var AS2MouseAdapter = (function () {
     return AS2MouseAdapter;
 }());
 exports.AS2MouseAdapter = AS2MouseAdapter;
+
 },{}],"awayjs-player/lib/adapters/AS2MovieClipAdapter":[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -567,6 +571,7 @@ var AS2MovieClipAdapter = (function (_super) {
     return AS2MovieClipAdapter;
 }(AS2SymbolAdapter_1.AS2SymbolAdapter));
 exports.AS2MovieClipAdapter = AS2MovieClipAdapter;
+
 },{"../adapters/AS2ColorAdapter":"awayjs-player/lib/adapters/AS2ColorAdapter","../adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","../adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","../adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","../adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","../adapters/AS2SoundAdapter":"awayjs-player/lib/adapters/AS2SoundAdapter","../adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter","../adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","../adapters/AS2SystemAdapter":"awayjs-player/lib/adapters/AS2SystemAdapter","awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/geom/Point":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-display/lib/display/MovieClip":undefined,"awayjs-display/lib/events/MouseEvent":undefined}],"awayjs-player/lib/adapters/AS2SharedObjectAdapter":[function(require,module,exports){
 "use strict";
 var AS2SharedObjectAdapter = (function () {
@@ -597,6 +602,7 @@ var AS2SharedObjectAdapter = (function () {
     return AS2SharedObjectAdapter;
 }());
 exports.AS2SharedObjectAdapter = AS2SharedObjectAdapter;
+
 },{}],"awayjs-player/lib/adapters/AS2SoundAdapter":[function(require,module,exports){
 "use strict";
 var AssetEvent_1 = require("awayjs-core/lib/events/AssetEvent");
@@ -736,9 +742,9 @@ var AS2SoundAdapter = (function () {
         if (this._volume == vol)
             return;
         this._volume = vol;
-        if (typeof mainApplication !== "undefined") {
+        if (AudioManager_1.AudioManager.getExternalSoundInterface()) {
             if (this._playing)
-                mainApplication.updateSound(this._id, this._volume, this._loop);
+                AudioManager_1.AudioManager.getExternalSoundInterface().updateSound(this._id, this._volume, this._loop);
         }
         else if (this._soundProps.audio)
             this._soundProps.audio.volume = this._volume;
@@ -750,6 +756,7 @@ var AS2SoundAdapter = (function () {
 exports.AS2SoundAdapter = AS2SoundAdapter;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = AS2SoundAdapter;
+
 },{"../adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","awayjs-core/lib/events/AssetEvent":undefined,"awayjs-core/lib/library/AssetLibrary":undefined,"awayjs-core/lib/managers/AudioManager":undefined}],"awayjs-player/lib/adapters/AS2StageAdapter":[function(require,module,exports){
 "use strict";
 var AS2StageAdapter = (function () {
@@ -760,6 +767,7 @@ var AS2StageAdapter = (function () {
     return AS2StageAdapter;
 }());
 exports.AS2StageAdapter = AS2StageAdapter;
+
 },{}],"awayjs-player/lib/adapters/AS2SymbolAdapter":[function(require,module,exports){
 "use strict";
 var ColorTransform_1 = require("awayjs-core/lib/geom/ColorTransform");
@@ -1029,6 +1037,7 @@ var AS2SymbolAdapter = (function () {
     return AS2SymbolAdapter;
 }());
 exports.AS2SymbolAdapter = AS2SymbolAdapter;
+
 },{"awayjs-core/lib/geom/ColorTransform":undefined,"awayjs-display/lib/base/HierarchicalProperties":undefined,"awayjs-display/lib/managers/FrameScriptManager":undefined}],"awayjs-player/lib/adapters/AS2SystemAdapter":[function(require,module,exports){
 "use strict";
 // also contains global AS2 functions
@@ -1040,6 +1049,7 @@ var AS2SystemAdapter = (function () {
     return AS2SystemAdapter;
 }());
 exports.AS2SystemAdapter = AS2SystemAdapter;
+
 },{}],"awayjs-player/lib/adapters/AS2TextFieldAdapter":[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -1093,6 +1103,7 @@ var AS2TextFieldAdapter = (function (_super) {
 exports.AS2TextFieldAdapter = AS2TextFieldAdapter;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = AS2TextFieldAdapter;
+
 },{"../adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","awayjs-display/lib/display/TextField":undefined}],"awayjs-player/lib/adapters":[function(require,module,exports){
 "use strict";
 var AS2ColorAdapter_1 = require("./adapters/AS2ColorAdapter");
@@ -1117,6 +1128,7 @@ var AS2SystemAdapter_1 = require("./adapters/AS2SystemAdapter");
 exports.AS2SystemAdapter = AS2SystemAdapter_1.AS2SystemAdapter;
 var AS2TextFieldAdapter_1 = require("./adapters/AS2TextFieldAdapter");
 exports.AS2TextFieldAdapter = AS2TextFieldAdapter_1.AS2TextFieldAdapter;
+
 },{"./adapters/AS2ColorAdapter":"awayjs-player/lib/adapters/AS2ColorAdapter","./adapters/AS2KeyAdapter":"awayjs-player/lib/adapters/AS2KeyAdapter","./adapters/AS2MCSoundProps":"awayjs-player/lib/adapters/AS2MCSoundProps","./adapters/AS2MouseAdapter":"awayjs-player/lib/adapters/AS2MouseAdapter","./adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","./adapters/AS2SharedObjectAdapter":"awayjs-player/lib/adapters/AS2SharedObjectAdapter","./adapters/AS2SoundAdapter":"awayjs-player/lib/adapters/AS2SoundAdapter","./adapters/AS2StageAdapter":"awayjs-player/lib/adapters/AS2StageAdapter","./adapters/AS2SymbolAdapter":"awayjs-player/lib/adapters/AS2SymbolAdapter","./adapters/AS2SystemAdapter":"awayjs-player/lib/adapters/AS2SystemAdapter","./adapters/AS2TextFieldAdapter":"awayjs-player/lib/adapters/AS2TextFieldAdapter"}],"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D":[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -1185,10 +1197,12 @@ var AxisAlignedBoundingBox2D = (function (_super) {
     return AxisAlignedBoundingBox2D;
 }(AxisAlignedBoundingBox_1.AxisAlignedBoundingBox));
 exports.AxisAlignedBoundingBox2D = AxisAlignedBoundingBox2D;
+
 },{"awayjs-display/lib/bounds/AxisAlignedBoundingBox":undefined}],"awayjs-player/lib/bounds":[function(require,module,exports){
 "use strict";
 var AxisAlignedBoundingBox2D_1 = require("./bounds/AxisAlignedBoundingBox2D");
 exports.AxisAlignedBoundingBox2D = AxisAlignedBoundingBox2D_1.AxisAlignedBoundingBox2D;
+
 },{"./bounds/AxisAlignedBoundingBox2D":"awayjs-player/lib/bounds/AxisAlignedBoundingBox2D"}],"awayjs-player/lib/factories/AS2SceneGraphFactory":[function(require,module,exports){
 "use strict";
 var AS2MovieClipAdapter_1 = require("../adapters/AS2MovieClipAdapter");
@@ -1212,9 +1226,11 @@ var AS2SceneGraphFactory = (function () {
     return AS2SceneGraphFactory;
 }());
 exports.AS2SceneGraphFactory = AS2SceneGraphFactory;
+
 },{"../adapters/AS2MovieClipAdapter":"awayjs-player/lib/adapters/AS2MovieClipAdapter","../adapters/AS2TextFieldAdapter":"awayjs-player/lib/adapters/AS2TextFieldAdapter","awayjs-display/lib/display/MovieClip":undefined,"awayjs-display/lib/display/TextField":undefined}],"awayjs-player/lib/factories":[function(require,module,exports){
 "use strict";
 var AS2SceneGraphFactory_1 = require("./factories/AS2SceneGraphFactory");
 exports.AS2SceneGraphFactory = AS2SceneGraphFactory_1.AS2SceneGraphFactory;
+
 },{"./factories/AS2SceneGraphFactory":"awayjs-player/lib/factories/AS2SceneGraphFactory"}]},{},[])
 //# sourceMappingURL=awayjs-player.js.map
