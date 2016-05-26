@@ -172,15 +172,15 @@ export class AS2SoundAdapter
 			vol=0;
 		
 		vol = Math.round(vol*100)/100;
-		
+
 		if(this._volume == vol)
 			return;
 
 		this._volume = vol;
 
-		if(typeof mainApplication !== "undefined") {
+		if(AudioManager.getExternalSoundInterface()){
 			if (this._playing)
-				mainApplication.updateSound(this._id, this._volume, this._loop);
+				AudioManager.getExternalSoundInterface().updateSound(this._id, this._volume, this._loop);
 		} else if (this._soundProps.audio)
 			this._soundProps.audio.volume = this._volume;
 	}
