@@ -111,23 +111,16 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	public evalScript(str:string):Function
 	{
-		try {
-			var tag:HTMLScriptElement = document.createElement('script');
-			tag.text = 'var __framescript__ = function() {\n' + includeString + str + '\n}';
+		var tag:HTMLScriptElement = document.createElement('script');
+		tag.text = 'var __framescript__ = function() {\n' + includeString + str + '\n}';
 
-			//add and remove script tag to dom to trigger compilation
-			var sibling = document.scripts[0];
-			sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag)
+		//add and remove script tag to dom to trigger compilation
+		var sibling = document.scripts[0];
+		sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag);
 
-			var script =  __framescript__;
-			window['__framescript__'] = null;
-		}
-		catch(err)
-		{
-			console.log("Syntax error in script:\n", str);
-			console.log(err.message);
-			throw err;
-		}
+		var script =  __framescript__;
+		window['__framescript__'] = null;
+
 		return script;
 	}
 
