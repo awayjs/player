@@ -322,20 +322,13 @@ var AS2MovieClipAdapter = (function (_super) {
         configurable: true
     });
     AS2MovieClipAdapter.prototype.evalScript = function (str) {
-        try {
-            var tag = document.createElement('script');
-            tag.text = 'var __framescript__ = function() {\n' + includeString + str + '\n}';
-            //add and remove script tag to dom to trigger compilation
-            var sibling = document.scripts[0];
-            sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag);
-            var script = __framescript__;
-            window['__framescript__'] = null;
-        }
-        catch (err) {
-            console.log("Syntax error in script:\n", str);
-            console.log(err.message);
-            throw err;
-        }
+        var tag = document.createElement('script');
+        tag.text = 'var __framescript__ = function() {\n' + includeString + str + '\n}';
+        //add and remove script tag to dom to trigger compilation
+        var sibling = document.scripts[0];
+        sibling.parentNode.insertBefore(tag, sibling).parentNode.removeChild(tag);
+        var script = __framescript__;
+        window['__framescript__'] = null;
         return script;
     };
     //attachAudio(id: AS2SoundAdapter):void {	}
