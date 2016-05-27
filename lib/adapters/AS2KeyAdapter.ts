@@ -7,8 +7,10 @@ export class AS2KeyAdapter
     public static _listeners:Array<any> = new Array<any>();
 
     private static _addListeners = (function () {
-        document.onkeydown = (event:KeyboardEvent) => AS2KeyAdapter._onKeyDown(event);
-        document.onkeyup = (event:KeyboardEvent) => AS2KeyAdapter._onKeyUp(event);
+        if (document) {
+            document.onkeydown = (event:KeyboardEvent) => AS2KeyAdapter._onKeyDown(event);
+            document.onkeyup = (event:KeyboardEvent) => AS2KeyAdapter._onKeyUp(event);
+        }
     })();
 
     public static addListener(listener:any)
