@@ -83,8 +83,10 @@ var AS2KeyAdapter = (function () {
     AS2KeyAdapter._keys = new Array();
     AS2KeyAdapter._listeners = new Array();
     AS2KeyAdapter._addListeners = (function () {
-        document.onkeydown = function (event) { return AS2KeyAdapter._onKeyDown(event); };
-        document.onkeyup = function (event) { return AS2KeyAdapter._onKeyUp(event); };
+        if (document) {
+            document.onkeydown = function (event) { return AS2KeyAdapter._onKeyDown(event); };
+            document.onkeyup = function (event) { return AS2KeyAdapter._onKeyUp(event); };
+        }
     })();
     /**
      * Constant associated with the key code value for the Backspace key (8).
