@@ -1,9 +1,9 @@
-import {WaveAudio}							from "awayjs-core/lib/audio/WaveAudio";
-import {AssetEvent}							from "awayjs-core/lib/events/AssetEvent";
+import {WaveAudio}							from "@awayjs/core/lib/audio/WaveAudio";
+import {AssetEvent}							from "@awayjs/core/lib/events/AssetEvent";
 import {AS2MovieClipAdapter}				from "../adapters/AS2MovieClipAdapter";
 import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
-import {AssetLibrary}						from "awayjs-core/lib/library/AssetLibrary";
-import {AudioManager}						from "awayjs-core/lib/managers/AudioManager";
+import {AssetLibrary}						from "@awayjs/core/lib/library/AssetLibrary";
+import {AudioManager}						from "@awayjs/core/lib/managers/AudioManager";
 
 declare var mainApplication;
 
