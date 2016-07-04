@@ -1,5 +1,5 @@
 {
-  "name": "awayjs-player",
+  "name": "@awayjs/player",
   "version": "0.5.16",
   "description": "Player for AwayJS",
   "url": "http://www.away3d.com",
