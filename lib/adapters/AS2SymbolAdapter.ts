@@ -1,24 +1,18 @@
 import {ColorTransform}			from "@awayjs/core/lib/geom/ColorTransform";
-import {EventDispatcher}			from "@awayjs/core/lib/events/EventDispatcher";
-import {Matrix}						from "@awayjs/core/lib/geom/Matrix";
 import {DisplayObjectContainer}		from "@awayjs/display/lib/display/DisplayObjectContainer";
 import {HierarchicalProperties}		from "@awayjs/display/lib/base/HierarchicalProperties";
 import {TouchPoint}					from "@awayjs/display/lib/base/TouchPoint";
 
-import {AS2SharedObjectAdapter}		from "../adapters/AS2SharedObjectAdapter";
 import {AS2MovieClipAdapter}			from "../adapters/AS2MovieClipAdapter";
-import {AS2KeyAdapter}				from "../adapters/AS2KeyAdapter";
-import {AS2MouseAdapter}				from "../adapters/AS2MouseAdapter";
-import {AS2StageAdapter}				from "../adapters/AS2StageAdapter";
 import {FrameScriptManager}			from "@awayjs/display/lib/managers/FrameScriptManager";
 
-import {View}			from "@awayjs/display/lib/View";
+import {IView}			from "@awayjs/display/lib/IView";
 
 
 // also contains global AS2 gunctions
 export class AS2SymbolAdapter
 {
-	public _view:View;
+	public _view:IView;
 
 	public isBlockedByScript():boolean { return this._blockedByScript;}
 	public isVisibilityByScript():boolean { return this._visibilityByScript;}
@@ -64,7 +58,7 @@ export class AS2SymbolAdapter
 
 	public static REFERENCE_TIME:number = -1;
 
-	constructor(adaptee:DisplayObjectContainer, view:View)
+	constructor(adaptee:DisplayObjectContainer, view:IView)
 	{
 		this._adaptee = adaptee;
 		this._view = view;

@@ -4,14 +4,14 @@ import {TextField}					from "@awayjs/display/lib/display/TextField";
 import {Timeline}						from "@awayjs/display/lib/base/Timeline";
 import {MovieClip}					from "@awayjs/display/lib/display/MovieClip";
 import {ITimelineSceneGraphFactory}	from "@awayjs/display/lib/factories/ITimelineSceneGraphFactory";
-import {View}						from "@awayjs/display/lib/View";
+import {IView}						from "@awayjs/display/lib/IView";
 
 
 export class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
 {
-	private _view:View;
+	private _view:IView;
 
-	constructor(view:View)
+	constructor(view:IView)
 	{
 		this._view = view;
 	}

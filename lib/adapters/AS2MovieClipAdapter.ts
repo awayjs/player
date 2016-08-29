@@ -1,5 +1,3 @@
-import {BitmapImage2D}					from "@awayjs/core/lib/image/BitmapImage2D";
-import {Matrix}							from "@awayjs/core/lib/geom/Matrix";
 import {AssetEvent}						from "@awayjs/core/lib/events/AssetEvent";
 import {EventBase}						from "@awayjs/core/lib/events/EventBase";
 import {Point}							from "@awayjs/core/lib/geom/Point";
@@ -10,7 +8,7 @@ import {DisplayObjectContainer}			from "@awayjs/display/lib/display/DisplayObjec
 import {IMovieClipAdapter}				from "@awayjs/display/lib/adapters/IMovieClipAdapter";
 import {MovieClip}						from "@awayjs/display/lib/display/MovieClip";
 import {MouseEvent}						from "@awayjs/display/lib/events/MouseEvent";
-import {View}								from "@awayjs/display/lib/View";
+import {IView}								from "@awayjs/display/lib/IView";
 
 import {AS2SymbolAdapter}					from "../adapters/AS2SymbolAdapter";
 import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
@@ -71,7 +69,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 	private _onMouseDown:(event:MouseEvent) => void;
 	private _onMouseUp:(event:MouseEvent) => void;
 
-	constructor(adaptee:MovieClip, view:View)
+	constructor(adaptee:MovieClip, view:IView)
 	{
 		// create an empty MovieClip if none is passed
 		super(adaptee || new MovieClip(), view);

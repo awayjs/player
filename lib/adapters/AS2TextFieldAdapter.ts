@@ -2,13 +2,13 @@ import {AS2SymbolAdapter}			from "../adapters/AS2SymbolAdapter";
 
 import {IDisplayObjectAdapter}		from "@awayjs/display/lib/adapters/IDisplayObjectAdapter";
 import {TextField}					from "@awayjs/display/lib/display/TextField";
-import {View}						from "@awayjs/display/lib/View";
+import {IView}						from "@awayjs/display/lib/IView";
 
 export class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter
 {
 	private _embedFonts:boolean;
 
-	constructor(adaptee:TextField, view:View)
+	constructor(adaptee:TextField, view:IView)
 	{
 		// create an empty text field if none is passed
 		super(adaptee || new TextField(), view);
