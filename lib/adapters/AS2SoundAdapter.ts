@@ -116,7 +116,7 @@ export class AS2SoundAdapter
 			this._soundProps.audio.play(offsetInSeconds, this._loop);
 			return;
 		}
-		console.log("Calling AS2SoundAdapter.start() was not successfull. Audio not set for this sound.")
+		//console.log("Calling AS2SoundAdapter.start() was not successfull. Audio not set for this sound.")
 	}
 
 	public stop(linkageID:string = null):void
@@ -134,7 +134,7 @@ export class AS2SoundAdapter
 			this._soundProps.audio.stop();
 			return;
 		}
-		console.log("Calling AS2SoundAdapter.stop() was not successfull. Audio not set for this sound.")
+		//console.log("Calling AS2SoundAdapter.stop() was not successfull. Audio not set for this sound.")
 	}
 
 	public get position():number
