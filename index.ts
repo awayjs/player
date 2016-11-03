@@ -1,9 +1,13 @@
-import * as adapters				from "./lib/adapters";
-import * as bounds					from "./lib/bounds";
-import * as factories				from "./lib/factories";
+export {AS2ColorAdapter}					from "./lib/adapters/AS2ColorAdapter";
+export {AS2KeyAdapter}					from "./lib/adapters/AS2KeyAdapter";
+export {AS2MCSoundProps}					from "./lib/adapters/AS2MCSoundProps";
+export {AS2MouseAdapter}					from "./lib/adapters/AS2MouseAdapter";
+export {AS2MovieClipAdapter}				from "./lib/adapters/AS2MovieClipAdapter";
+export {AS2SharedObjectAdapter}			from "./lib/adapters/AS2SharedObjectAdapter";
+export {AS2SoundAdapter}					from "./lib/adapters/AS2SoundAdapter";
+export {AS2StageAdapter}					from "./lib/adapters/AS2StageAdapter";
+export {AS2SymbolAdapter}				from "./lib/adapters/AS2SymbolAdapter";
+export {AS2SystemAdapter}				from "./lib/adapters/AS2SystemAdapter";
+export {AS2TextFieldAdapter}				from "./lib/adapters/AS2TextFieldAdapter";
 
-export {
-	adapters,
-	bounds,
-	factories
-}
+export {AS2SceneGraphFactory}			from "./lib/factories/AS2SceneGraphFactory";
