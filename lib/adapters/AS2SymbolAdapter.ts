@@ -1,12 +1,12 @@
 import {ColorTransform}			from "@awayjs/core/lib/geom/ColorTransform";
-import {DisplayObjectContainer}		from "@awayjs/display/lib/display/DisplayObjectContainer";
-import {HierarchicalProperties}		from "@awayjs/display/lib/base/HierarchicalProperties";
-import {TouchPoint}					from "@awayjs/display/lib/base/TouchPoint";
+import {DisplayObjectContainer}		from "@awayjs/scene/lib/display/DisplayObjectContainer";
+import {HierarchicalProperties}		from "@awayjs/scene/lib/base/HierarchicalProperties";
+import {TouchPoint}					from "@awayjs/scene/lib/base/TouchPoint";
 
 import {AS2MovieClipAdapter}			from "../adapters/AS2MovieClipAdapter";
-import {FrameScriptManager}			from "@awayjs/display/lib/managers/FrameScriptManager";
+import {FrameScriptManager}			from "@awayjs/scene/lib/managers/FrameScriptManager";
 
-import {IView}			from "@awayjs/display/lib/IView";
+import {IView}			from "@awayjs/scene/lib/IView";
 
 
 // also contains global AS2 gunctions

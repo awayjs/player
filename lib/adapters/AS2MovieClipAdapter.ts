@@ -3,12 +3,12 @@ import {EventBase}						from "@awayjs/core/lib/events/EventBase";
 import {Point}							from "@awayjs/core/lib/geom/Point";
 import {AssetLibrary}						from "@awayjs/core/lib/library/AssetLibrary";
 
-import {DisplayObject}					from "@awayjs/display/lib/display/DisplayObject";
-import {DisplayObjectContainer}			from "@awayjs/display/lib/display/DisplayObjectContainer";
-import {IMovieClipAdapter}				from "@awayjs/display/lib/adapters/IMovieClipAdapter";
-import {MovieClip}						from "@awayjs/display/lib/display/MovieClip";
-import {MouseEvent}						from "@awayjs/display/lib/events/MouseEvent";
-import {IView}								from "@awayjs/display/lib/IView";
+import {DisplayObject}					from "@awayjs/scene/lib/display/DisplayObject";
+import {DisplayObjectContainer}			from "@awayjs/scene/lib/display/DisplayObjectContainer";
+import {IMovieClipAdapter}				from "@awayjs/scene/lib/adapters/IMovieClipAdapter";
+import {MovieClip}						from "@awayjs/scene/lib/display/MovieClip";
+import {MouseEvent}						from "@awayjs/scene/lib/events/MouseEvent";
+import {IView}								from "@awayjs/scene/lib/IView";
 
 import {AS2SymbolAdapter}					from "../adapters/AS2SymbolAdapter";
 import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
