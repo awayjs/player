@@ -1,11 +1,7 @@
-import {AS2MovieClipAdapter}			from "../adapters/AS2MovieClipAdapter";
-import {AS2TextFieldAdapter}			from "../adapters/AS2TextFieldAdapter";
-import {TextField}					from "@awayjs/scene/lib/display/TextField";
-import {Timeline}						from "@awayjs/scene/lib/base/Timeline";
-import {MovieClip}					from "@awayjs/scene/lib/display/MovieClip";
-import {ITimelineSceneGraphFactory}	from "@awayjs/scene/lib/factories/ITimelineSceneGraphFactory";
-import {IView}						from "@awayjs/scene/lib/IView";
+import {TextField, Timeline, MovieClip, ITimelineSceneGraphFactory, IView} from "@awayjs/scene";
 
+import {AS2MovieClipAdapter} from "../adapters/AS2MovieClipAdapter";
+import {AS2TextFieldAdapter} from "../adapters/AS2TextFieldAdapter";
 
 export class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
 {

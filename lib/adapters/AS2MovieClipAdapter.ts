@@ -1,25 +1,16 @@
-import {AssetEvent}						from "@awayjs/core/lib/events/AssetEvent";
-import {EventBase}						from "@awayjs/core/lib/events/EventBase";
-import {Point}							from "@awayjs/core/lib/geom/Point";
-import {AssetLibrary}						from "@awayjs/core/lib/library/AssetLibrary";
+import {AssetEvent, EventBase, Point, AssetLibrary} from "@awayjs/core";
 
-import {DisplayObject}					from "@awayjs/scene/lib/display/DisplayObject";
-import {DisplayObjectContainer}			from "@awayjs/scene/lib/display/DisplayObjectContainer";
-import {IMovieClipAdapter}				from "@awayjs/scene/lib/adapters/IMovieClipAdapter";
-import {MovieClip}						from "@awayjs/scene/lib/display/MovieClip";
-import {MouseEvent}						from "@awayjs/scene/lib/events/MouseEvent";
-import {IView}								from "@awayjs/scene/lib/IView";
+import {DisplayObject, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, IView} from "@awayjs/scene";
 
-import {AS2SymbolAdapter}					from "../adapters/AS2SymbolAdapter";
-import {AS2MCSoundProps}					from "../adapters/AS2MCSoundProps";
-
-import {AS2ColorAdapter}					from "../adapters/AS2ColorAdapter";
-import {AS2SystemAdapter}					from "../adapters/AS2SystemAdapter";
-import {AS2SoundAdapter}					from "../adapters/AS2SoundAdapter";
-import {AS2KeyAdapter}						from "../adapters/AS2KeyAdapter";
-import {AS2MouseAdapter}					from "../adapters/AS2MouseAdapter";
-import {AS2StageAdapter}					from "../adapters/AS2StageAdapter";
-import {AS2SharedObjectAdapter}				from "../adapters/AS2SharedObjectAdapter";
+import {AS2SymbolAdapter}					from "./AS2SymbolAdapter";
+import {AS2MCSoundProps}					from "./AS2MCSoundProps";
+import {AS2ColorAdapter}					from "./AS2ColorAdapter";
+import {AS2SystemAdapter}					from "./AS2SystemAdapter";
+import {AS2SoundAdapter}					from "./AS2SoundAdapter";
+import {AS2KeyAdapter}						from "./AS2KeyAdapter";
+import {AS2MouseAdapter}					from "./AS2MouseAdapter";
+import {AS2StageAdapter}					from "./AS2StageAdapter";
+import {AS2SharedObjectAdapter}				from "./AS2SharedObjectAdapter";
 
 
 var includeString:string

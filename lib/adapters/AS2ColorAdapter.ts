@@ -1,9 +1,8 @@
-import {HierarchicalProperties}				from "@awayjs/scene/lib/base/HierarchicalProperties";
-import {EventDispatcher}						from "@awayjs/core/lib/events/EventDispatcher";
-import {ColorTransform}						from "@awayjs/core/lib/geom/ColorTransform";
-import {Matrix}								from "@awayjs/core/lib/geom/Matrix";
-import {DisplayObjectContainer}				from "@awayjs/scene/lib/display/DisplayObjectContainer";
-import {AS2SymbolAdapter}						from "../adapters/AS2SymbolAdapter";
+import {ColorTransform} from "@awayjs/core";
+
+import {HierarchicalProperties} from "@awayjs/scene";
+
+import {AS2SymbolAdapter} from "./AS2SymbolAdapter";
 
 // also contains global AS2 functions
 export class AS2ColorAdapter

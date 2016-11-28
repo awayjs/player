@@ -1,8 +1,6 @@
-import {AS2SymbolAdapter}			from "../adapters/AS2SymbolAdapter";
+import {IDisplayObjectAdapter, TextField, IView} from "@awayjs/scene";
 
-import {IDisplayObjectAdapter}		from "@awayjs/scene/lib/adapters/IDisplayObjectAdapter";
-import {TextField}					from "@awayjs/scene/lib/display/TextField";
-import {IView}						from "@awayjs/scene/lib/IView";
+import {AS2SymbolAdapter} from "./AS2SymbolAdapter";
 
 export class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObjectAdapter
 {
