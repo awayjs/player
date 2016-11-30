@@ -61,7 +61,7 @@ export class AS2SymbolAdapter
 
 		this._blockedByScript=false;
 		if (AS2SymbolAdapter.REFERENCE_TIME === -1)
-			AS2SymbolAdapter.REFERENCE_TIME = new Date().getTime();
+			AS2SymbolAdapter.REFERENCE_TIME = Date.now();
 	}
 
 	public dispose()
@@ -213,7 +213,7 @@ export class AS2SymbolAdapter
 	// may need proper high-def timer mechanism
 	public getTimer():Number
 	{
-		return new Date().getTime() - AS2SymbolAdapter.REFERENCE_TIME;
+		return Date.now() - AS2SymbolAdapter.REFERENCE_TIME;
 	}
 
 	public get _alpha():number
