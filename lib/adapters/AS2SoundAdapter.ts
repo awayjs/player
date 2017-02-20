@@ -1,5 +1,5 @@
 import {WaveAudio, AssetEvent, AssetLibrary, AudioManager} from "@awayjs/core";
-
+import {ContextGLES} from "@awayjs/stage";
 import {AS2MovieClipAdapter} from "./AS2MovieClipAdapter";
 import {AS2MCSoundProps} from "./AS2MCSoundProps";
 
@@ -107,7 +107,8 @@ export class AS2SoundAdapter
 		this._loop = Boolean(loops > 0);
 
 		if(AudioManager.getExternalSoundInterface()){
-			AudioManager.getExternalSoundInterface().startSound(this._name, this._id, this._volume, this._loop);
+			ContextGLES.startSound(this._name, this._id, this._volume, this._loop);
+			//AudioManager.getExternalSoundInterface().startSound(this._name, this._id, this._volume, this._loop);
 			return;
 		}
 		if(this._soundProps.audio){
@@ -125,7 +126,8 @@ export class AS2SoundAdapter
 		this._playing = false;
 
 		if(AudioManager.getExternalSoundInterface()){
-			AudioManager.getExternalSoundInterface().stopSound(this._id);
+			ContextGLES.stopSound(this._id);
+			//AudioManager.getExternalSoundInterface().stopSound(this._id);
 			return;
 		}
 		else if(this._soundProps.audio){
@@ -177,8 +179,10 @@ export class AS2SoundAdapter
 		this._volume = vol;
 
 		if(AudioManager.getExternalSoundInterface()){
-			if (this._playing)
-				AudioManager.getExternalSoundInterface().updateSound(this._id, this._volume, this._loop);
+			if (this._playing){
+				ContextGLES.updateSound(this._id, this._volume, this._loop);
+				//AudioManager.getExternalSoundInterface().updateSound(this._id, this._volume, this._loop);
+			}
 		} else if (this._soundProps.audio)
 			this._soundProps.audio.volume = this._volume;
 	}
