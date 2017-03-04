@@ -1,8 +1,8 @@
-# Awayjs Player
+# AwayJS Player
 
-Dependecy for Awayjs applications requiring scripting abstraction for different converted syntax trees such as AS2, AS3 etc.
+Dependecy for AwayJS applications requiring scripting abstraction for different converted syntax trees such as AS2, AS3 etc.
 
-## Awayjs Dependencies
+## AwayJS Dependencies
 
 * core
 * graphics
