@@ -3,6 +3,10 @@
 
 Dependecy for AwayJS applications requiring scripting abstraction for different converted syntax trees such as AS2, AS3 etc.
 
+## Documentation
+
+[Official AwayJS Documentation](https://awayjs.github.io/docs/player)
+
 ## AwayJS Dependencies
 
 * core
