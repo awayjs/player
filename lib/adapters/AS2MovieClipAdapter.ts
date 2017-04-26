@@ -23,7 +23,7 @@ var includeString:string
 	'var SharedObject		= this._includes.SharedObject;\n' +
 	'var int = function(value) {return Math.floor(value) | 0;}\n' +
 	'var string = function(value) {return value.toString();}\n' +
-	'var getURL = function(value) {return value;}\n\n';
+	'var getURL = function(value) {window.open(value,"_blank");}\n\n';
 
 declare var __framescript__;
 
@@ -59,6 +59,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 	private _onPress: (event:MouseEvent) => void;
 	private _onMouseDown:(event:MouseEvent) => void;
 	private _onMouseUp:(event:MouseEvent) => void;
+	private _onMouseWheel:(event:MouseEvent) => void;
 
 	constructor(adaptee:MovieClip, view:IView)
 	{
@@ -382,6 +383,15 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 		this._onMouseUp = this._replaceEventListener(MouseEvent.MOUSE_UP, this._onMouseUp, value);
 	}
 
+	public get onMouseWheel():(event:MouseEvent) => void
+	{
+		return this._onMouseWheel;
+	}
+
+	public set onMouseWheel(value:(event:MouseEvent) => void)
+	{
+		this._onMouseWheel = this._replaceEventListener(MouseEvent.MOUSE_WHEEL, this._onMouseWheel, value);
+	}
 	public registerScriptObject(child:DisplayObject):void
 	{
 		if (child.name)
