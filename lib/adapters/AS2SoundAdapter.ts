@@ -38,12 +38,15 @@ export class AS2SoundAdapter
 
 	public attachSound(id:string):void
 	{
-		this._name=id;
+		this._name=id.replace(".wav", "").replace(".mp3", "").replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
 		// TODO: This will be AudioAsset or something
-		var asset = <WaveAudio> AssetLibrary.getAsset(id);
+		var asset = <WaveAudio> AssetLibrary.getAsset(this._name);
 
 		if (asset)
 			this._soundProps.audio = asset.clone();
+		else{
+			console.log("audio-asset not found "+this._name)
+		}
 
 		this.updateVolume();
 	}
