@@ -390,7 +390,18 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	public set onMouseWheel(value:(event:MouseEvent) => void)
 	{
-		this._onMouseWheel = this._replaceEventListener(MouseEvent.MOUSE_WHEEL, this._onMouseWheel, value);
+
+		var mc = this.adaptee;
+
+		if (this._onMouseWheel)
+			mc.removeEventListener(MouseEvent.MOUSE_WHEEL, this._onMouseWheel);
+		if (value) {
+			var self = this;
+			var delegate = (event) => value.call(self, event);
+			mc.addEventListener(MouseEvent.MOUSE_WHEEL, delegate);
+			this._onMouseWheel = delegate;
+		}
+
 	}
 	public registerScriptObject(child:DisplayObject):void
 	{
