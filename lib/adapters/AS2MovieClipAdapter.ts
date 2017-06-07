@@ -1,6 +1,6 @@
-import {AssetEvent, EventBase, Point, AssetLibrary} from "@awayjs/core";
+import {AssetEvent, EventBase, Point, AssetLibrary, URLRequest, LoaderEvent} from "@awayjs/core";
 
-import {DisplayObject, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, IView} from "@awayjs/scene";
+import {DisplayObject, LoaderContainer, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, IView} from "@awayjs/scene";
 
 import {AS2SymbolAdapter}					from "./AS2SymbolAdapter";
 import {AS2MCSoundProps}					from "./AS2MCSoundProps";
@@ -67,9 +67,44 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 		super(adaptee || new MovieClip(), view);
 		this.__pSoundProps = new AS2MCSoundProps();
 
+		this._onLoaderCompleteDelegate = (event:LoaderEvent) => this.onLoaderComplete(event);
+		this._onAssetCompleteDelegate = (event:AssetEvent) => this.onAssetComplete(event);
+
+	}
+private _loader:LoaderContainer;
+	public loadMovie(url:string, method:string=null):void
+	{
+		this._loader = new LoaderContainer();
+		this._loader.addEventListener(LoaderEvent.LOAD_COMPLETE, this._onLoaderCompleteDelegate);
+		this._loader.addEventListener(AssetEvent.ASSET_COMPLETE, this._onAssetCompleteDelegate);
+		this._loader.load(new URLRequest(url));
+	}
+
+	private _onLoaderCompleteDelegate:(event:LoaderEvent) => void;
+	private onLoaderComplete(event: LoaderEvent){
+		console.log("loaded url!");
+		this._loader.removeEventListener(LoaderEvent.LOAD_COMPLETE, this._onLoaderCompleteDelegate);
+		this._loader.removeEventListener(AssetEvent.ASSET_COMPLETE, this._onAssetCompleteDelegate);
+		this._loader=null;
+		//todo: dispose loader ?
 
 	}
 
+	private _onAssetCompleteDelegate:(event:AssetEvent) => void;
+	private onAssetComplete(event: AssetEvent){
+
+		event.asset
+		if(event.asset.isAsset(MovieClip)) {
+			var awayMC:MovieClip=(<MovieClip>event.asset);
+			// if this is the "Scene 1", we transfer the timeline into the mc that is loading the movie
+			if (event.asset.name=="Scene 1" || event.asset.name=="main"){
+				//this.adaptee.addChild(awayMC);
+				(<MovieClip>this.adaptee).timeline=awayMC.timeline;
+				(<MovieClip>this.adaptee).reset();
+				this.gotoAndPlay(1);
+			}
+		}
+	}
 	public dispose():void
 	{
 		super.dispose();
@@ -180,12 +215,12 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	getInstanceAtDepth(depth: number):MovieClip
 	{
-	return <MovieClip> this.adaptee.getChildAtDepth(depth);
+		return <MovieClip> this.adaptee.getChildAtDepth(depth);
 	}
 
 	getNextHighestDepth():number
 	{
-	return this.adaptee.getNextHighestDepth();
+		return this.adaptee.getNextHighestDepth();
 	}
 
 	//getRect(bounds: Object):Object { return null; }
@@ -198,42 +233,42 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	globalToLocal(pt: any):void
 	{
-	var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
-	pt.x = newPoint.x;
-	pt.y = newPoint.y;
+		var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+		pt.x = newPoint.x;
+		pt.y = newPoint.y;
 	}
 
 	gotoAndPlay(frame: any):void
 	{
-	if (frame == null)
-	  return;
+		if (frame == null)
+			return;
 
-	this.play();
-	this._gotoFrame(frame);
+		this.play();
+		this._gotoFrame(frame);
 	}
 
 	gotoAndStop(frame: any):void
 	{
-	if (frame == null)
-	  return;
+		if (frame == null)
+			return;
 
-	this.stop();
-	this._gotoFrame(frame);
+		this.stop();
+		this._gotoFrame(frame);
 	}
 
 	play():void
 	{
-	(<MovieClip>this.adaptee).play();
+		(<MovieClip>this.adaptee).play();
 	}
 
 	stop():void
 	{
-	(<MovieClip>this.adaptee).stop();
+		(<MovieClip>this.adaptee).stop();
 	}
 
 	hitTest(x: number, y: number, shapeFlag: boolean = false):boolean
 	{
-	return this.adaptee.hitTestPoint(x, y, shapeFlag);
+		return this.adaptee.hitTestPoint(x, y, shapeFlag);
 	}
 
 	//lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number):void {}
@@ -248,28 +283,32 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	localToGlobal(pt: any):void
 	{
-	var newPoint = this.adaptee.localToGlobal(new Point(pt.x, pt.y));
-	pt.x = newPoint.x;
-	pt.y = newPoint.y;
+		var newPoint = this.adaptee.localToGlobal(new Point(pt.x, pt.y));
+		pt.x = newPoint.x;
+		pt.y = newPoint.y;
 	}
 
 	//moveTo(x: number, y: number):void {}
 
 	nextFrame():void
 	{
-	++(<MovieClip>this.adaptee).currentFrameIndex;
+		++(<MovieClip>this.adaptee).currentFrameIndex;
 	}
 
 	prevFrame():void
 	{
-	--(<MovieClip>this.adaptee).currentFrameIndex;
+		--(<MovieClip>this.adaptee).currentFrameIndex;
 	}
 
-	//removeMovieClip():void {}
+	removeMovieClip():void {
+		if(this.adaptee.parent){
+			this.adaptee.parent.removeChild(this.adaptee);
+		}
+	}
 
 	setMask(mc: DisplayObject):void
 	{
-	(<MovieClip>this.adaptee).masks = [mc];
+		(<MovieClip>this.adaptee).masks = [mc];
 	}
 
 	//startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0):void {}
@@ -278,10 +317,10 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	swapDepths(target: DisplayObject):void
 	{
-	var parent:DisplayObjectContainer = this.adaptee.parent;
+		var parent:DisplayObjectContainer = this.adaptee.parent;
 
-	if (parent != null && target.parent == parent)
-	  parent.swapChildren(this.adaptee, target)
+		if (parent != null && target.parent == parent)
+			parent.swapChildren(this.adaptee, target)
 
 	}
 
