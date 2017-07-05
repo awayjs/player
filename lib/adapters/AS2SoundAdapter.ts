@@ -39,7 +39,7 @@ export class AS2SoundAdapter
 	public attachSound(id:string):void
 	{
 		this._name=id.replace(".wav", "").replace(".mp3", "").replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
-		// TODO: This will be AudioAsset or something
+
 		var asset = <WaveAudio> AssetLibrary.getAsset(this._name);
 
 		if (asset)
@@ -63,13 +63,16 @@ export class AS2SoundAdapter
 
 	public getPan():number
 	{
-		return this._soundProps.pan;
+		return this._soundProps.pan*100;
 	}
 
 	public setPan(value:number):void
 	{
-		this._soundProps.pan = value;
-		// panning not supported at this point
+		this._soundProps.pan =value/100;
+		if(AudioManager.getExternalSoundInterface()){
+			//todo
+		} else if (this._soundProps.audio)
+			this._soundProps.audio.pan = value/100;
 	}
 
 	/*getTransform():Object
