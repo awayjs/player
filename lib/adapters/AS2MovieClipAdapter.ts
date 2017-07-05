@@ -81,22 +81,22 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 	public get _framesloaded():number
 	{
 		// not loading frame by frame?
-		return (<MovieClip>this.adaptee).numFrames;
+		return (<MovieClip> this.adaptee).numFrames;
 	}
 
 	public get _currentframe():number
 	{
-		return (<MovieClip>this.adaptee).currentFrameIndex + 1;
+		return (<MovieClip> this.adaptee).currentFrameIndex + 1;
 	}
 
 	public get _totalframes():number
 	{
-		return (<MovieClip>this.adaptee).numFrames;
+		return (<MovieClip> this.adaptee).numFrames;
 	}
 
 	public get enabled():boolean
 	{
-		return (<MovieClip>this.adaptee).mouseEnabled;
+		return (<MovieClip> this.adaptee).mouseEnabled;
 	}
 
 	public evalScript(str:string):Function
@@ -123,7 +123,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 		var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
 		var cloned_mc:MovieClip = <MovieClip> attached_mc.clone();
 		var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
-		this.adaptee.addChildAtDepth(adapter.adaptee, depth);
+		(<MovieClip> this.adaptee).addChildAtDepth(adapter.adaptee, depth);
 		adapter.adaptee.name = name;
 		this.registerScriptObject(adapter.adaptee);
 		return attached_mc;
@@ -144,7 +144,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 		var mc:MovieClip = new MovieClip();
 		mc.adapter = new AS2MovieClipAdapter(mc, this._view);
 		mc.name = name;
-		this.adaptee.addChildAtDepth(mc, depth);
+		(<MovieClip> this.adaptee).addChildAtDepth(mc, depth);
 		this.registerScriptObject(mc);
 		return <AS2MovieClipAdapter> mc.adapter;
 	}
@@ -180,12 +180,12 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 
 	getInstanceAtDepth(depth: number):MovieClip
 	{
-	return <MovieClip> this.adaptee.getChildAtDepth(depth);
+	return <MovieClip> (<MovieClip> this.adaptee).getChildAtDepth(depth);
 	}
 
 	getNextHighestDepth():number
 	{
-	return this.adaptee.getNextHighestDepth();
+	return (<MovieClip> this.adaptee).getNextHighestDepth();
 	}
 
 	//getRect(bounds: Object):Object { return null; }

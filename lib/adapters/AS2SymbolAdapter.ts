@@ -1,6 +1,6 @@
 import {ColorTransform} from "@awayjs/core";
 
-import {DisplayObjectContainer, HierarchicalProperties, TouchPoint, FrameScriptManager, IView} from "@awayjs/scene";
+import {DisplayObject, HierarchicalProperties, TouchPoint, FrameScriptManager, IView} from "@awayjs/scene";
 
 import {AS2MovieClipAdapter} from "./AS2MovieClipAdapter";
 
@@ -45,7 +45,7 @@ export class AS2SymbolAdapter
 
 	private __root:AS2SymbolAdapter;
 
-	private _adaptee:DisplayObjectContainer;
+	private _adaptee:DisplayObject;
 
 	private __quality:string = "high";
 
@@ -54,7 +54,7 @@ export class AS2SymbolAdapter
 
 	public static REFERENCE_TIME:number = -1;
 
-	constructor(adaptee:DisplayObjectContainer, view:IView)
+	constructor(adaptee:DisplayObject, view:IView)
 	{
 		this._adaptee = adaptee;
 		this._view = view;
@@ -75,7 +75,7 @@ export class AS2SymbolAdapter
 		return 0;
 	}
 
-	public get adaptee():DisplayObjectContainer
+	public get adaptee():DisplayObject
 	{
 		return this._adaptee;
 	}
