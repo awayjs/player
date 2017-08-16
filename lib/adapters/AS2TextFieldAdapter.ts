@@ -8,23 +8,26 @@ export class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObj
 
 	constructor(adaptee:TextField, view:IView)
 	{
-		// create an empty text field if none is passed
-		super(adaptee || new TextField(), view);
+		super(adaptee, view);
 	}
 
-	public clone(newAdaptee:TextField):AS2TextFieldAdapter
+	public clone():AS2TextFieldAdapter
 	{
-		return new AS2TextFieldAdapter(newAdaptee, this._view);
+		var clone:AS2TextFieldAdapter = new AS2TextFieldAdapter(TextField.getNewTextField(), this._view);
+
+		this.adaptee.copyTo(clone.adaptee);
+
+		return clone;
 	}
 
 	public get textColor():number
 	{
-		return (<TextField>this.adaptee).textColor;
+		return (<TextField>this._adaptee).textColor;
 	}
 
 	public set textColor(value:number)
 	{
-		(<TextField>this.adaptee).textColor = value;
+		(<TextField>this._adaptee).textColor = value;
 	}
 	
 	public get embedFonts():boolean
@@ -39,12 +42,12 @@ export class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObj
 
 	public get text():string
 	{
-		return (<TextField>this.adaptee).text;
+		return (<TextField>this._adaptee).text;
 	}
 
 	public set text(value:string)
 	{
-		(<TextField>this.adaptee).text = value;
+		(<TextField>this._adaptee).text = value;
 	}
 }
 export default AS2TextFieldAdapter;

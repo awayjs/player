@@ -1,6 +1,6 @@
 import {AssetEvent, EventBase, Point, AssetLibrary, URLRequest, LoaderEvent} from "@awayjs/core";
 
-import {DisplayObject, LoaderContainer, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, IView} from "@awayjs/scene";
+import {DisplayObject, LoaderContainer, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, IView, Timeline} from "@awayjs/scene";
 
 import {AS2SymbolAdapter}					from "./AS2SymbolAdapter";
 import {AS2MCSoundProps}					from "./AS2MCSoundProps";
@@ -64,7 +64,7 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 	constructor(adaptee:MovieClip, view:IView)
 	{
 		// create an empty MovieClip if none is passed
-		super(adaptee || new MovieClip(), view);
+		super(adaptee, view);
 		this.__pSoundProps = new AS2MCSoundProps();
 
 		this._onLoaderCompleteDelegate = (event:LoaderEvent) => this.onLoaderComplete(event);
@@ -99,8 +99,8 @@ private _loader:LoaderContainer;
 			// if this is the "Scene 1", we transfer the timeline into the mc that is loading the movie
 			if (event.asset.name=="Scene 1" || event.asset.name=="main"){
 				//this.adaptee.addChild(awayMC);
-				(<MovieClip>this.adaptee).timeline=awayMC.timeline;
-				(<MovieClip>this.adaptee).reset();
+				(<MovieClip>this._adaptee).timeline=awayMC.timeline;
+				(<MovieClip>this._adaptee).reset();
 				this.gotoAndPlay(1);
 			}
 		}
@@ -116,22 +116,22 @@ private _loader:LoaderContainer;
 	public get _framesloaded():number
 	{
 		// not loading frame by frame?
-		return (<MovieClip> this.adaptee).numFrames;
+		return (<MovieClip> this._adaptee).numFrames;
 	}
 
 	public get _currentframe():number
 	{
-		return (<MovieClip> this.adaptee).currentFrameIndex + 1;
+		return (<MovieClip> this._adaptee).currentFrameIndex + 1;
 	}
 
 	public get _totalframes():number
 	{
-		return (<MovieClip> this.adaptee).numFrames;
+		return (<MovieClip> this._adaptee).numFrames;
 	}
 
 	public get enabled():boolean
 	{
-		return (<MovieClip> this.adaptee).mouseEnabled;
+		return (<MovieClip> this._adaptee).mouseEnabled;
 	}
 
 	public evalScript(str:string):Function
@@ -153,17 +153,14 @@ private _loader:LoaderContainer;
 
 	//attachBitmap(bmp: BitmapImage2D, depth: Number, pixelSnapping: String = null, smoothing: boolean = false):void { }
 
-	public attachMovie(id: string, name: string, depth: number, initObject: Object = null):MovieClip
+	public attachMovie(id: string, name: string, depth: number, initObject: Object = null):AS2MovieClipAdapter
 	{
-		var attached_mc:MovieClip = <MovieClip> AssetLibrary.getAsset(id);
-		var cloned_mc:MovieClip = <MovieClip> attached_mc.clone();
-		var adapter = new AS2MovieClipAdapter(cloned_mc, this._view);
-		(<MovieClip> this.adaptee).addChildAtDepth(adapter.adaptee, depth);
+		var adapter:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._view);
+		(<DisplayObject> AssetLibrary.getAsset(id).adaptee).copyTo(adapter.adaptee);
+		(<MovieClip> this._adaptee).addChildAtDepth(adapter.adaptee, depth);
 		adapter.adaptee.name = name;
 		this.registerScriptObject(adapter.adaptee);
-		return attached_mc;
-		// todo: apply object from initObject to attached_mc
-
+		return adapter;
 	}
 
 	//beginBitmapFill(bmp: BitmapImage2D, matrix: Matrix = null, repeat: boolean = false, smoothing: boolean = false):void {}
@@ -176,12 +173,11 @@ private _loader:LoaderContainer;
 
 	public createEmptyMovieClip(name: string, depth: number):AS2MovieClipAdapter
 	{
-		var mc:MovieClip = new MovieClip();
-		mc.adapter = new AS2MovieClipAdapter(mc, this._view);
-		mc.name = name;
-		(<MovieClip> this.adaptee).addChildAtDepth(mc, depth);
-		this.registerScriptObject(mc);
-		return <AS2MovieClipAdapter> mc.adapter;
+		var adapter:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._view);
+		adapter.adaptee.name = name;
+		(<MovieClip> this.adaptee).addChildAtDepth(adapter.adaptee, depth);
+		this.registerScriptObject(adapter.adaptee);
+		return adapter;
 	}
 
 	//createTextField(instanceName: String, depth: Number, x: Number, y: Number, width: Number, height: Number):TextField {}
@@ -190,7 +186,7 @@ private _loader:LoaderContainer;
 
 	public duplicateMovieClip(name: string, depth: number, initObject: Object):AS2MovieClipAdapter
 	{
-		var duplicate:AS2MovieClipAdapter = <AS2MovieClipAdapter> this.adaptee.clone().adapter;
+		var duplicate:AS2MovieClipAdapter = <AS2MovieClipAdapter> this.clone();
 		duplicate.adaptee.name = name;
 
 		if (initObject)
@@ -198,7 +194,7 @@ private _loader:LoaderContainer;
 				if (duplicate.hasOwnProperty(key))
 					duplicate[key] = initObject[key];
 
-		this.adaptee.parent.addChildAtDepth(duplicate.adaptee, depth);
+		this._adaptee.parent.addChildAtDepth(duplicate.adaptee, depth);
 
 		return duplicate;
 	}
@@ -215,12 +211,12 @@ private _loader:LoaderContainer;
 
 	getInstanceAtDepth(depth: number):MovieClip
 	{
-		return <MovieClip> (<MovieClip> this.adaptee).getChildAtDepth(depth);
+		return <MovieClip> (<MovieClip> this._adaptee).getChildAtDepth(depth);
 	}
 
 	getNextHighestDepth():number
 	{
-		return (<MovieClip> this.adaptee).getNextHighestDepth();
+		return (<MovieClip> this._adaptee).getNextHighestDepth();
 	}
 
 	//getRect(bounds: Object):Object { return null; }
@@ -233,7 +229,7 @@ private _loader:LoaderContainer;
 
 	globalToLocal(pt: any):void
 	{
-		var newPoint = this.adaptee.globalToLocal(new Point(pt.x, pt.y));
+		var newPoint = this._adaptee.globalToLocal(new Point(pt.x, pt.y));
 		pt.x = newPoint.x;
 		pt.y = newPoint.y;
 	}
@@ -258,17 +254,17 @@ private _loader:LoaderContainer;
 
 	play():void
 	{
-		(<MovieClip>this.adaptee).play();
+		(<MovieClip>this._adaptee).play();
 	}
 
 	stop():void
 	{
-		(<MovieClip>this.adaptee).stop();
+		(<MovieClip>this._adaptee).stop();
 	}
 
 	hitTest(x: number, y: number, shapeFlag: boolean = false):boolean
 	{
-		return this.adaptee.hitTestPoint(x, y, shapeFlag);
+		return this._adaptee.hitTestPoint(x, y, shapeFlag);
 	}
 
 	//lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number):void {}
@@ -283,7 +279,7 @@ private _loader:LoaderContainer;
 
 	localToGlobal(pt: any):void
 	{
-		var newPoint = this.adaptee.localToGlobal(new Point(pt.x, pt.y));
+		var newPoint = this._adaptee.localToGlobal(new Point(pt.x, pt.y));
 		pt.x = newPoint.x;
 		pt.y = newPoint.y;
 	}
@@ -292,23 +288,23 @@ private _loader:LoaderContainer;
 
 	nextFrame():void
 	{
-		++(<MovieClip>this.adaptee).currentFrameIndex;
+		++(<MovieClip>this._adaptee).currentFrameIndex;
 	}
 
 	prevFrame():void
 	{
-		--(<MovieClip>this.adaptee).currentFrameIndex;
+		--(<MovieClip>this._adaptee).currentFrameIndex;
 	}
 
 	removeMovieClip():void {
-		if(this.adaptee.parent){
-			this.adaptee.parent.removeChild(this.adaptee);
+		if(this._adaptee.parent){
+			this._adaptee.parent.removeChild(this._adaptee);
 		}
 	}
 
 	setMask(mc: DisplayObject):void
 	{
-		(<MovieClip>this.adaptee).masks = [mc];
+		(<MovieClip>this._adaptee).masks = [mc];
 	}
 
 	//startDrag(lockCenter: boolean = false, left: number = 0, top: number = 0, right: number = 0, bottom: number = 0):void {}
@@ -317,18 +313,22 @@ private _loader:LoaderContainer;
 
 	swapDepths(target: DisplayObject):void
 	{
-		var parent:DisplayObjectContainer = this.adaptee.parent;
+		var parent:DisplayObjectContainer = this._adaptee.parent;
 
 		if (parent != null && target.parent == parent)
-			parent.swapChildren(this.adaptee, target)
+			parent.swapChildren(this._adaptee, target)
 
 	}
 
 	//unloadMovie():void {}
 
-	clone(newAdaptee:MovieClip):AS2MovieClipAdapter
+	public clone():AS2MovieClipAdapter
 	{
-		return new AS2MovieClipAdapter(newAdaptee, this._view);
+		var clone:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._view);
+
+		this.adaptee.copyTo(clone.adaptee);
+
+		return clone;
 	}
 
 	/**
@@ -445,7 +445,7 @@ private _loader:LoaderContainer;
 	public registerScriptObject(child:DisplayObject):void
 	{
 		if (child.name)
-			this[child.name] = child.adapter ? child.adapter:child;
+			this[child.name] = child._adapter ? child.adapter:child;
 	}
 
 	public unregisterScriptObject(child:DisplayObject):void

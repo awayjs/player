@@ -13,15 +13,11 @@ export class AS2SceneGraphFactory implements ITimelineSceneGraphFactory
 	}
 	createMovieClip(timeline:Timeline):MovieClip
 	{
-		var mc = new MovieClip(timeline);
-		mc.adapter = new AS2MovieClipAdapter(mc, this._view);
-		return mc;
+		return <MovieClip> new AS2MovieClipAdapter(new MovieClip(timeline), this._view).adaptee;
 	}
 
 	createTextField():TextField
 	{
-		var tf = new TextField();
-		tf.adapter = new AS2TextFieldAdapter(tf, this._view);
-		return tf;
+		return <TextField> new AS2TextFieldAdapter(new TextField(), this._view).adaptee;
 	}
 }

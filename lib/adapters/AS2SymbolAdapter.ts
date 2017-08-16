@@ -1,4 +1,4 @@
-import {ColorTransform} from "@awayjs/core";
+import {ColorTransform, EventDispatcher} from "@awayjs/core";
 
 import {DisplayObject, HierarchicalProperties, TouchPoint, FrameScriptManager, IView} from "@awayjs/scene";
 
@@ -45,7 +45,7 @@ export class AS2SymbolAdapter
 
 	private __root:AS2SymbolAdapter;
 
-	private _adaptee:DisplayObject;
+	protected _adaptee:DisplayObject;
 
 	private __quality:string = "high";
 
@@ -57,6 +57,7 @@ export class AS2SymbolAdapter
 	constructor(adaptee:DisplayObject, view:IView)
 	{
 		this._adaptee = adaptee;
+		this._adaptee.adapter = this;
 		this._view = view;
 
 		this._blockedByScript=false;
@@ -66,6 +67,8 @@ export class AS2SymbolAdapter
 
 	public dispose()
 	{
+		this._adaptee.dispose();
+
 		this._adaptee = null;
 		this._view = null;
 	}
@@ -304,6 +307,6 @@ export class AS2SymbolAdapter
 	{
 		var parent = this.adaptee.parent;
 
-		return parent? <AS2MovieClipAdapter> parent.adapter:null;
+		return parent? <AS2MovieClipAdapter> parent._adapter:null;
 	}
 }
