@@ -40,6 +40,7 @@
     "@awayjs/scene": "^0.8.0",
     "@awayjs/stage": "^0.8.0",
     "@awayjs/renderer": "^0.8.0",
+    "@awayjs/parsers": "^0.5.31",
     "tslib": "github:microsoft/tslib"
   },
   "devDependencies": {
