@@ -9,6 +9,8 @@ export class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObj
 	constructor(adaptee:TextField, view:IView)
 	{
 		super(adaptee, view);
+		adaptee.multiline=true;
+		adaptee.wordWrap=true;
 	}
 
 	public clone():AS2TextFieldAdapter

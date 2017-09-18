@@ -36,6 +36,11 @@ export class AS2SoundAdapter
 		AS2SoundAdapter._globalSoundProps.addEventListener(AssetEvent.INVALIDATE, this._onGlobalChangeDelegate);
 	}
 
+
+	public set onSoundComplete(value:Function)
+	{
+		this._soundProps.audio.onSoundComplete=value;
+	}
 	public attachSound(id:string):void
 	{
 		this._name=id.replace(".wav", "").replace(".mp3", "").replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();

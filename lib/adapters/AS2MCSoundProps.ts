@@ -19,7 +19,6 @@ export class AS2MCSoundProps extends AssetBase
         this._audio = null;
         this._changeEvent = null;
     }
-
     public get volume()
     {
         return this._volume;
