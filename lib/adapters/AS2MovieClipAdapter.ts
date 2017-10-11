@@ -23,7 +23,7 @@ var includeString:string
 	'var Mouse				= this._includes.Mouse;\n' +
 	'var Stage				= this._includes.Stage;\n' +
 	'var SharedObject		= this._includes.SharedObject;\n' +
-	'var int = function(value) {return Math.floor(value) | 0;}\n' +
+	'var int = function (value) { return (value>=0?1:-1)* Math.floor(Math.abs(value))};\n' +
 	'var string = function(value) {return value.toString();}\n' +
 	'var getURL = function(value) {window.open(value,"_blank");}\n\n';
 

@@ -184,8 +184,8 @@ export class AS2SoundAdapter
 		
 		vol = Math.round(vol*100)/100;
 
-		if(this._volume == vol)
-			return;
+		//if(this._volume == vol)
+		//	return;
 
 		this._volume = vol;
 
