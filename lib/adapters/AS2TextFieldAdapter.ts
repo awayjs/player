@@ -1,4 +1,6 @@
-import {IDisplayObjectAdapter, TextField, IView} from "@awayjs/scene";
+import {IView} from "@awayjs/graphics";
+
+import {IDisplayObjectAdapter, TextField} from "@awayjs/scene";
 
 import {AS2SymbolAdapter} from "./AS2SymbolAdapter";
 

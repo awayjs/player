@@ -1,6 +1,8 @@
 import {ColorTransform, EventDispatcher} from "@awayjs/core";
 
-import {DisplayObject, HierarchicalProperties, TouchPoint, FrameScriptManager, IView} from "@awayjs/scene";
+import {IView, TouchPoint} from "@awayjs/graphics";
+
+import {DisplayObject, HierarchicalProperties, FrameScriptManager} from "@awayjs/scene";
 
 import {AS2MovieClipAdapter} from "./AS2MovieClipAdapter";
 

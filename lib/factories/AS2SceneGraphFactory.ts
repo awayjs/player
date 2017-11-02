@@ -1,4 +1,6 @@
-import {TextField, Timeline, MovieClip, Sprite, DisplayObjectContainer, ISceneGraphFactory, IView} from "@awayjs/scene";
+import {IView} from "@awayjs/graphics";
+
+import {TextField, Timeline, MovieClip, Sprite, DisplayObjectContainer, ISceneGraphFactory} from "@awayjs/scene";
 
 import {DefaultSceneGraphFactory} from "@awayjs/parsers";
 
