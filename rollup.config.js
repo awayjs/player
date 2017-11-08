@@ -7,15 +7,19 @@ module.exports = {
 	moduleName: 'AwayjsPlayer',
 	external: [
 		'@awayjs/core',
-		'@awayjs/scene',
 		'@awayjs/stage',
-		'@awayjs/renderer'
+		'@awayjs/graphics',
+		'@awayjs/scene',
+		'@awayjs/renderer',
+		'@awayjs/parsers'
 	],
 	globals: {
 		'@awayjs/core': 'AwayjsCore',
-		'@awayjs/scene': 'AwayjsScene',
 		'@awayjs/stage': 'AwayjsStage',
-		'@awayjs/renderer': 'AwayjsRenderer'
+		'@awayjs/graphics': 'AwayjsGraphics',
+		'@awayjs/scene': 'AwayjsScene',
+		'@awayjs/renderer': 'AwayjsRenderer',
+		'@awayjs/parsers': 'AwayjsRenderer'
 	},
 	targets: [
 		{ dest: './bundle/awayjs-player.umd.js'}
