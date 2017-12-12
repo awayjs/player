@@ -1,4 +1,4 @@
-import {IView} from "@awayjs/graphics";
+import {IView} from "@awayjs/renderer";
 
 import {IDisplayObjectAdapter, TextField} from "@awayjs/scene";
 

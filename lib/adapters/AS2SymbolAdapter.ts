@@ -1,6 +1,6 @@
 import {ColorTransform, EventDispatcher} from "@awayjs/core";
 
-import {IView, TouchPoint} from "@awayjs/graphics";
+import {IView, TouchPoint} from "@awayjs/renderer";
 
 import {DisplayObject, HierarchicalProperties, FrameScriptManager} from "@awayjs/scene";
 

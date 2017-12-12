@@ -1,6 +1,6 @@
 import {AssetEvent, EventBase, Point, AssetLibrary, URLRequest, LoaderEvent} from "@awayjs/core";
 
-import {IView} from "@awayjs/graphics";
+import {IView} from "@awayjs/renderer";
 
 import {DisplayObject, LoaderContainer, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, Timeline} from "@awayjs/scene";
 
