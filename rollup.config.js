@@ -8,7 +8,6 @@ module.exports = {
 	external: [
 		'@awayjs/core',
 		'@awayjs/stage',
-		'@awayjs/graphics',
 		'@awayjs/scene',
 		'@awayjs/renderer',
 		'@awayjs/parsers'
@@ -16,7 +15,6 @@ module.exports = {
 	globals: {
 		'@awayjs/core': 'AwayjsCore',
 		'@awayjs/stage': 'AwayjsStage',
-		'@awayjs/graphics': 'AwayjsGraphics',
 		'@awayjs/scene': 'AwayjsScene',
 		'@awayjs/renderer': 'AwayjsRenderer',
 		'@awayjs/parsers': 'AwayjsRenderer'
