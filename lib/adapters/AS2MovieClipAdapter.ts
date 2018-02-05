@@ -107,8 +107,7 @@ private _loader:LoaderContainer;
 			}
 		}
 	}
-	public callFrameScript(value:any):void{}
-	
+
 	public dispose():void
 	{
 		super.dispose();
