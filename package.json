@@ -1,6 +1,6 @@
 {
   "name": "@awayjs/player",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Player for AwayJS",
   "main": "bundle/awayjs-player.umd.js",
   "types": "dist/index.d.ts",
