@@ -3,6 +3,7 @@
   "version": "0.6.7",
   "description": "Player for AwayJS",
   "main": "bundle/awayjs-player.umd.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "url": "http://www.away3d.com",
   "author": "Rob Bateman",
