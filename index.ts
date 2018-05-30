@@ -1,3 +1,5 @@
+console.log("AwayJS - Player - 0.6.11");
+
 export {AS2ColorAdapter} from "./lib/adapters/AS2ColorAdapter";
 export {AS2KeyAdapter} from "./lib/adapters/AS2KeyAdapter";
 export {AS2MCSoundProps} from "./lib/adapters/AS2MCSoundProps";
