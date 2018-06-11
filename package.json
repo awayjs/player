@@ -1,6 +1,6 @@
 {
   "name": "@awayjs/player",
-  "version": "0.6.11",
+  "version": "0.6.12",
   "description": "Player for AwayJS",
   "main": "bundle/awayjs-player.umd.js",
   "module": "dist/index.js",
@@ -24,7 +24,6 @@
     "version": "npm run build",
     "postversion": "npm run copyVersionToIndex && git push && git push --tags",
     "copyVersionToIndex": "node ./copyVersionToIndex && git add . && git commit -m 'addVersionToIndex'"
-  
   },
   "keywords": [
     "AwayJS",
