@@ -55,6 +55,6 @@ export class AS2ColorAdapter
 		ct.blueOffset = value.bb || 0;
 		ct.alphaOffset = value.ab || 0;
 
-		this._symbol.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
+		this._symbol.adaptee._invalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
 	}
 }

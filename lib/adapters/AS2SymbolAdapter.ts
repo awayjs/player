@@ -234,7 +234,7 @@ export class AS2SymbolAdapter
 
 		this.adaptee.transform.colorTransform.alphaMultiplier = value/100;
 
-		this.adaptee.pInvalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
+		this.adaptee._invalidateHierarchicalProperties(HierarchicalProperties.COLOR_TRANSFORM);
 
 		this._blockedByScript = true;
 	}
