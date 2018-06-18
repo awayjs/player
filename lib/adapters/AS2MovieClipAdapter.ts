@@ -137,7 +137,13 @@ private _loader:LoaderContainer;
 		return (<MovieClip> this._adaptee).mouseEnabled;
 	}
 
-	public evalScript(str:string):Function
+	
+	public executeScript(source:any)
+	{
+		source.call(this);
+	}
+
+	public addScript(str:any):any
 	{
 		var tag:HTMLScriptElement = document.createElement('script');
 		tag.text = 'var __framescript__ = function() {\n' + includeString + str + '\n}';
