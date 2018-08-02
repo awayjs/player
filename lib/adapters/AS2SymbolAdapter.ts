@@ -12,6 +12,7 @@ export class AS2SymbolAdapter
 {
 	public _view:IView;
 
+	public doInitEvents():void {}
 	public isBlockedByScript():boolean { return this._blockedByScript;}
 	public isVisibilityByScript():boolean { return this._visibilityByScript;}
 	public isColorTransformByScript():boolean { return false;}
@@ -281,7 +282,7 @@ export class AS2SymbolAdapter
 		//wrap function to maintain scope
 		args[0] = function () { func.apply(scope, arguments); }
 
-		return FrameScriptManager.setInterval(args[0]);// window.setInterval.apply(window, args);
+		return FrameScriptManager.setInterval(args[0], args[1]);// window.setInterval.apply(window, args);
 	}
 
 	// temporary:
