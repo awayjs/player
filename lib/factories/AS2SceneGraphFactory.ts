@@ -1,28 +1,26 @@
-import {IView} from "@awayjs/renderer";
-
-import {TextField, Timeline, MovieClip, Sprite, DisplayObjectContainer, ISceneGraphFactory, DefaultSceneGraphFactory} from "@awayjs/scene";
+import {TextField, Timeline, MovieClip, DefaultSceneGraphFactory, Scene} from "@awayjs/scene";
 
 import {AS2MovieClipAdapter} from "../adapters/AS2MovieClipAdapter";
 import {AS2TextFieldAdapter} from "../adapters/AS2TextFieldAdapter";
 
 export class AS2SceneGraphFactory extends DefaultSceneGraphFactory
 {
-	private _view:IView;
+	private _scene:Scene;
 
-	constructor(view:IView)
+	constructor(scene:Scene)
 	{
 		super();
 
-		this._view = view;
+		this._scene = scene;
 	}
 
 	createMovieClip(timeline:Timeline = null):MovieClip
 	{
-		return <MovieClip> new AS2MovieClipAdapter(new MovieClip(timeline), this._view).adaptee;
+		return <MovieClip> new AS2MovieClipAdapter(new MovieClip(timeline), this._scene).adaptee;
 	}
 
 	createTextField():TextField
 	{
-		return <TextField> new AS2TextFieldAdapter(new TextField(), this._view).adaptee;
+		return <TextField> new AS2TextFieldAdapter(new TextField(), this._scene).adaptee;
 	}
 }

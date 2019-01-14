@@ -1,6 +1,4 @@
-import {IView} from "@awayjs/renderer";
-
-import {IDisplayObjectAdapter, TextField} from "@awayjs/scene";
+import {IDisplayObjectAdapter, TextField, Scene} from "@awayjs/scene";
 
 import {AS2SymbolAdapter} from "./AS2SymbolAdapter";
 
@@ -8,16 +6,16 @@ export class AS2TextFieldAdapter extends AS2SymbolAdapter implements IDisplayObj
 {
 	private _embedFonts:boolean;
 
-	constructor(adaptee:TextField, view:IView)
+	constructor(adaptee:TextField, scene:Scene)
 	{
-		super(adaptee, view);
+		super(adaptee, scene);
 		adaptee.multiline=true;
 		adaptee.wordWrap=true;
 	}
 
 	public clone():AS2TextFieldAdapter
 	{
-		var clone:AS2TextFieldAdapter = new AS2TextFieldAdapter(TextField.getNewTextField(), this._view);
+		var clone:AS2TextFieldAdapter = new AS2TextFieldAdapter(TextField.getNewTextField(), this._scene);
 
 		this.adaptee.copyTo(clone.adaptee);
 

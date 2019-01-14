@@ -1,16 +1,16 @@
-import {ColorTransform, EventDispatcher} from "@awayjs/core";
+import {ColorTransform, EventDispatcher, Box} from "@awayjs/core";
 
-import {IView, TouchPoint} from "@awayjs/renderer";
-
-import {DisplayObject, HierarchicalProperties, FrameScriptManager} from "@awayjs/scene";
+import {Scene, DisplayObject, HierarchicalProperties, FrameScriptManager, TouchPoint} from "@awayjs/scene";
 
 import {AS2MovieClipAdapter} from "./AS2MovieClipAdapter";
+import { PickGroup } from '@awayjs/view';
 
 
 // also contains global AS2 gunctions
 export class AS2SymbolAdapter
 {
-	public _view:IView;
+	public _scene:Scene;
+	public _pickGroup:PickGroup;
 
 	public doInitEvents():void {}
 	public isBlockedByScript():boolean { return this._blockedByScript;}
@@ -58,11 +58,12 @@ export class AS2SymbolAdapter
 
 	public static REFERENCE_TIME:number = -1;
 
-	constructor(adaptee:DisplayObject, view:IView)
+	constructor(adaptee:DisplayObject, scene:Scene)
 	{
 		this._adaptee = adaptee;
 		this._adaptee.adapter = this;
-		this._view = view;
+		this._scene = scene;
+		this._pickGroup = PickGroup.getInstance(this._scene.renderer.view);
 
 		this._blockedByScript=false;
 		if (AS2SymbolAdapter.REFERENCE_TIME === -1)
@@ -74,7 +75,7 @@ export class AS2SymbolAdapter
 		this._adaptee.dispose();
 
 		this._adaptee = null;
-		this._view = null;
+		this._pickGroup = null;
 	}
 
 	public getVersion():number
@@ -89,13 +90,16 @@ export class AS2SymbolAdapter
 
 	public get _height():number
 	{
-		return this._adaptee.height;
+		var box:Box = this._pickGroup.getBoundsPicker(this.adaptee.partition).getBoxBounds(this.adaptee);
+
+		return (box == null)? 0 : box.height;
 	}
 
 	public set _height(value:number)
 	{
-		this._adaptee.height = value;
-		this._blockedByScript=true;
+		this._pickGroup.getBoundsPicker(this.adaptee.partition).height = value;
+
+		this._blockedByScript = true;
 	}
 
 	public get _name():string
@@ -127,7 +131,7 @@ export class AS2SymbolAdapter
 
 	public get _xmouse():number
 	{
-		return this._view.getLocalMouseX(this._adaptee);
+		return this._scene.getLocalMouseX(this._adaptee);
 	}
 
 	public get _y():number
@@ -143,7 +147,7 @@ export class AS2SymbolAdapter
 
 	public get _ymouse():number
 	{
-		return this._view.getLocalMouseY(this._adaptee);
+		return this._scene.getLocalMouseY(this._adaptee);
 	}
 
 	public get _xscale():number
@@ -181,18 +185,21 @@ export class AS2SymbolAdapter
 
 	public get _width():number
 	{
-		return this._adaptee.width;
+		var box:Box = this._pickGroup.getBoundsPicker(this.adaptee.partition).getBoxBounds(this.adaptee);
+
+		return (box == null)? 0 : box.width;
 	}
 
 	public set _width(value:number)
 	{
-		this._adaptee.width = value;
-		this._blockedByScript=true;
+		this._pickGroup.getBoundsPicker(this.adaptee.partition).width = value;
+
+		this._blockedByScript = true;
 	}
 
 	public get _touchpoints():Array<TouchPoint>
 	{
-		return this._view.getLocalTouchPoints(this._adaptee);
+		return this._scene.getLocalTouchPoints(this._adaptee);
 	}
 
 	public getDepth():number

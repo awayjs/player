@@ -1,8 +1,6 @@
 import {AssetEvent, EventBase, Point, AssetLibrary, URLRequest, LoaderEvent} from "@awayjs/core";
 
-import {IView} from "@awayjs/renderer";
-
-import {DisplayObject, LoaderContainer, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, Timeline} from "@awayjs/scene";
+import {DisplayObject, LoaderContainer, DisplayObjectContainer, IMovieClipAdapter, MovieClip, MouseEvent, Timeline, Scene} from "@awayjs/scene";
 
 import {AS2SymbolAdapter}					from "./AS2SymbolAdapter";
 import {AS2MCSoundProps}					from "./AS2MCSoundProps";
@@ -63,10 +61,10 @@ export class AS2MovieClipAdapter extends AS2SymbolAdapter implements IMovieClipA
 	private _onMouseUp:(event:MouseEvent) => void;
 	private _onMouseWheel:(event:MouseEvent) => void;
 
-	constructor(adaptee:MovieClip, view:IView)
+	constructor(adaptee:MovieClip, scene:Scene)
 	{
 		// create an empty MovieClip if none is passed
-		super(adaptee, view);
+		super(adaptee, scene);
 		this.__pSoundProps = new AS2MCSoundProps();
 
 		this._onLoaderCompleteDelegate = (event:LoaderEvent) => this.onLoaderComplete(event);
@@ -164,7 +162,7 @@ private _loader:LoaderContainer;
 
 	public attachMovie(id: string, name: string, depth: number, initObject: Object = null):AS2MovieClipAdapter
 	{
-		var adapter:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._view);
+		var adapter:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._scene);
 		(<DisplayObject> AssetLibrary.getAsset(id).adaptee).copyTo(adapter.adaptee);
 		(<MovieClip> this._adaptee).addChildAtDepth(adapter.adaptee, depth);
 		adapter.adaptee.name = name;
@@ -182,7 +180,7 @@ private _loader:LoaderContainer;
 
 	public createEmptyMovieClip(name: string, depth: number):AS2MovieClipAdapter
 	{
-		var adapter:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._view);
+		var adapter:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._scene);
 		adapter.adaptee.name = name;
 		(<MovieClip> this.adaptee).addChildAtDepth(adapter.adaptee, depth);
 		this.registerScriptObject(adapter.adaptee);
@@ -238,7 +236,7 @@ private _loader:LoaderContainer;
 
 	globalToLocal(pt: any):void
 	{
-		var newPoint = this._adaptee.globalToLocal(new Point(pt.x, pt.y));
+		var newPoint = this._adaptee.transform.globalToLocal(new Point(pt.x, pt.y));
 		pt.x = newPoint.x;
 		pt.y = newPoint.y;
 	}
@@ -273,7 +271,7 @@ private _loader:LoaderContainer;
 
 	hitTest(x: number, y: number, shapeFlag: boolean = false):boolean
 	{
-		return this._adaptee.hitTestPoint(x, y, shapeFlag);
+		return this._pickGroup.getBoundsPicker(this.adaptee.partition).hitTestPoint(x, y, shapeFlag);
 	}
 
 	//lineGradientStyle(fillType: string, colors: array, alphas: array, ratios: array, matrix: Object, spreadMethod: string = null, interpolationMethod: string, focalPointRatio: number):void {}
@@ -288,7 +286,7 @@ private _loader:LoaderContainer;
 
 	localToGlobal(pt: any):void
 	{
-		var newPoint = this._adaptee.localToGlobal(new Point(pt.x, pt.y));
+		var newPoint = this._adaptee.transform.localToGlobal(new Point(pt.x, pt.y));
 		pt.x = newPoint.x;
 		pt.y = newPoint.y;
 	}
@@ -333,7 +331,7 @@ private _loader:LoaderContainer;
 
 	public clone():AS2MovieClipAdapter
 	{
-		var clone:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._view);
+		var clone:AS2MovieClipAdapter = new AS2MovieClipAdapter(MovieClip.getNewMovieClip(), this._scene);
 
 		this.adaptee.copyTo(clone.adaptee);
 
