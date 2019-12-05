@@ -39,18 +39,18 @@
   "homepage": "https://github.com/awayjs/player#readme",
   "dependencies": {
     "@awayjs/core": "^0.8.0",
+    "@awayjs/parsers": "^0.7.0",
+    "@awayjs/renderer": "^0.10.0",
     "@awayjs/scene": "^0.12.0",
     "@awayjs/stage": "^0.10.0",
     "@awayjs/view": "^0.5.0",
-    "@awayjs/renderer": "^0.10.0",
-    "@awayjs/parsers": "^0.7.0",
     "tslib": "^1.9.0"
   },
   "devDependencies": {
     "rimraf": "^2.5.2",
     "rollup": "^0.36.4",
     "rollup-plugin-includepaths": "^0.2.1",
-    "typescript": "^2.6.1",
+    "typescript": "^3.7.3",
     "uglify-js": "^3.0.15"
   }
 }
