@@ -12,7 +12,7 @@ export class AS2SymbolAdapter
 	public _scene:Scene;
 	public _pickGroup:PickGroup;
 
-	public doInitEvents():void {}
+	public initAdapter():void {}
 	public isBlockedByScript():boolean { return this._blockedByScript;}
 	public isVisibilityByScript():boolean { return this._visibilityByScript;}
 	public isColorTransformByScript():boolean { return false;}
